@@ -3,11 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.3.32929.385
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FitnessCentar", "FitnessCentar\FitnessCentar.csproj", "{1CEE15CA-7C9A-4379-A0CB-BC87B7E5DFE8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FitnessCentar", "FitnessCentar\FitnessCentar.csproj", "{1CEE15CA-7C9A-4379-A0CB-BC87B7E5DFE8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FitnessCenatr.Model", "FitnessCenatr.Model\FitnessCenatr.Model.csproj", "{1DEFB8D9-FF1B-40A6-8B04-18674DEFC097}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FitnessCentar.Model", "FitnessCenatr.Model\FitnessCentar.Model.csproj", "{1DEFB8D9-FF1B-40A6-8B04-18674DEFC097}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FitnessCentar.Services", "FitnessCentar.Services\FitnessCentar.Services.csproj", "{7A541A76-39F9-44DB-9678-440A1CB6D409}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FitnessCentar.Services", "FitnessCentar.Services\FitnessCentar.Services.csproj", "{7A541A76-39F9-44DB-9678-440A1CB6D409}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
