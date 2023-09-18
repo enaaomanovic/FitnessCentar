@@ -1,4 +1,5 @@
 ﻿using FitnessCentar.Model.Requests;
+using FitnessCentar.Model.SearchObject;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System;
 using System.Collections.Generic;
@@ -10,13 +11,9 @@ using System.Threading.Tasks;
 
 namespace FitnessCentar.Services
 {
-    public interface IKorisniciService
+    public interface IKorisniciService:IService<Model.Korisnici,KorisniciSearchObject>
     {
-        List<Model.Korisnici> Get();
-        Model.Korisnici Insert(KorisniciInsertRequest request);
-        Model.Korisnici Update(int id,KorisniciUpdateRequest request);
-
-
+        
 
     }
 }

@@ -6,7 +6,13 @@ using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+
+
+builder.Services.AddTransient<ITreningService, TreningService>();
 builder.Services.AddTransient<IKorisniciService, KorisniciService>();
+
+
+//builder.Services.AddTransient<IService<FitnessCentar.Model.Korisnici,object>,BasedService<FitnessCentar.Model.Korisnici,FitnessCentar.Services.Database.Korisnici,object>>();
 
 
 
