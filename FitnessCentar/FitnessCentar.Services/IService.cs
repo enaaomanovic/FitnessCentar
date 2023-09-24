@@ -6,10 +6,12 @@ using System.Threading.Tasks;
 
 namespace FitnessCentar.Services
 {
-    public interface IService<T,TSearch> where TSearch : class
+    public interface IService<T, TSearch, TInsert, TUpdate> where TSearch : class where TInsert : class where TUpdate : class
     {
-        Task<List<T>> Get(TSearch sreach =null);
+        Task<List<T>> Get(TSearch sreach = null);
         Task<T> GetById(int id);
+        Task<T> Insert(TInsert insert);
+        Task<T> Update(int id, TUpdate update);
 
 
     }

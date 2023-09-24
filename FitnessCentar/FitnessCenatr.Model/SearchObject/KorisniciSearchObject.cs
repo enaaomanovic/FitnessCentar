@@ -6,8 +6,9 @@ using System.Threading.Tasks;
 
 namespace FitnessCentar.Model.SearchObject
 {
-    public class KorisniciSearchObject:BaseSearchObject
+    public class KorisniciSearchObject : BaseSearchObject
     {
         public string? Ime { get; set; }
+        public bool IsTrener { get; set; } = false;
     }
 }

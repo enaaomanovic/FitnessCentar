@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using FitnessCentar.Model;
+using FitnessCentar.Model.Requests;
 using FitnessCentar.Model.SearchObject;
 using FitnessCentar.Services.Database;
 using Microsoft.EntityFrameworkCore;
@@ -11,17 +12,17 @@ using System.Threading.Tasks;
 
 namespace FitnessCentar.Services
 {
-    public  class TreningService:BasedService<Model.Trening,Database.Treningi,TreningSearchObject>,ITreningService
+    public class TreningService : BasedService<Model.Trening, Database.Treningi, TreningSearchObject, TreningInsertRequest, TreningUpdateRequest>, ITreningService
     {
 
-       
 
-        public TreningService(Ib200005rs2Context context, IMapper mapper):base(context,mapper)
+
+        public TreningService(Ib200005rs2Context context, IMapper mapper) : base(context, mapper)
         {
-           
+
         }
 
-    
+
         public override IQueryable<Treningi> AddFilter(IQueryable<Treningi> query, TreningSearchObject? search = null)
         {
             if (!string.IsNullOrWhiteSpace(search?.Naziv))

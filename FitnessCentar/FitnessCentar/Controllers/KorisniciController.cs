@@ -8,11 +8,11 @@ namespace FitnessCentar.Controllers
 {
     [ApiController]
 
-    public class KorisniciController : BasedController<Model.Korisnici,KorisniciSearchObject>
+    public class KorisniciController : BaseController<Model.Korisnici, KorisniciSearchObject, KorisniciInsertRequest, KorisniciUpdateRequest>
     {
-        public KorisniciController(ILogger<BasedController<Korisnici,KorisniciSearchObject>> logger, IKorisniciService service) : base(logger, service)
+        public KorisniciController(ILogger<BaseController<Korisnici, KorisniciSearchObject, KorisniciInsertRequest, KorisniciUpdateRequest>> logger, IKorisniciService service) : base(logger, service)
         {
-           
+
         }
 
     }

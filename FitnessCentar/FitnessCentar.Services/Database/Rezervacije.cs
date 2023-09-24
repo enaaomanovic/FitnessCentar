@@ -13,6 +13,8 @@ public partial class Rezervacije
 
     public string? Status { get; set; }
 
+    public DateTime? DatumRezervacija { get; set; }
+
     public virtual Korisnici? Korisnik { get; set; }
 
     public virtual Raspored? Raspored { get; set; }

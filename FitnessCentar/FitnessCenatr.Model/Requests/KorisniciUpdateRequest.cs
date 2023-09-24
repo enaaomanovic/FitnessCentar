@@ -8,18 +8,14 @@ namespace FitnessCentar.Model.Requests
 {
     public class KorisniciUpdateRequest
     {
-    
-
+        public int id { get; set; }
         public string? Ime { get; set; }
 
         public string? Prezime { get; set; }
 
-
         public string? Telefon { get; set; }
 
-        public decimal? Tezina { get; set; }
-
-        public decimal? Visina { get; set; }
+        
 
     }
 }

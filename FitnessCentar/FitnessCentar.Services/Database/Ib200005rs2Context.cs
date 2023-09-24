@@ -15,8 +15,6 @@ public partial class Ib200005rs2Context : DbContext
     {
     }
 
-    public virtual DbSet<Administracija> Administracijas { get; set; }
-
     public virtual DbSet<Aktivnosti> Aktivnostis { get; set; }
 
     public virtual DbSet<Komentari> Komentaris { get; set; }
@@ -45,28 +43,6 @@ public partial class Ib200005rs2Context : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<Administracija>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("PK__Administ__3214EC27B8D83F39");
-
-            entity.ToTable("Administracija");
-
-            entity.Property(e => e.Id).HasColumnName("ID");
-            entity.Property(e => e.KorisnikId).HasColumnName("KorisnikID");
-            entity.Property(e => e.TrenerId).HasColumnName("TrenerID");
-            entity.Property(e => e.Uloga)
-                .HasMaxLength(20)
-                .IsUnicode(false);
-
-            entity.HasOne(d => d.Korisnik).WithMany(p => p.Administracijas)
-                .HasForeignKey(d => d.KorisnikId)
-                .HasConstraintName("FK__Administr__Koris__75A278F5");
-
-            entity.HasOne(d => d.Trener).WithMany(p => p.Administracijas)
-                .HasForeignKey(d => d.TrenerId)
-                .HasConstraintName("FK__Administr__Trene__76969D2E");
-        });
-
         modelBuilder.Entity<Aktivnosti>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK__Aktivnos__3214EC27655B8984");
@@ -118,9 +94,12 @@ public partial class Ib200005rs2Context : DbContext
             entity.Property(e => e.KorisnickoIme)
                 .HasMaxLength(255)
                 .IsUnicode(false);
-            entity.Property(e => e.Lozinka)
+            entity.Property(e => e.LozinkaHash)
                 .HasMaxLength(255)
                 .IsUnicode(false);
+            entity.Property(e => e.LozinkaSalt)
+              .HasMaxLength(255)
+              .IsUnicode(false);
             entity.Property(e => e.Pol)
                 .HasMaxLength(10)
                 .IsUnicode(false);
@@ -240,6 +219,7 @@ public partial class Ib200005rs2Context : DbContext
             entity.ToTable("Rezervacije");
 
             entity.Property(e => e.Id).HasColumnName("ID");
+            entity.Property(e => e.DatumRezervacija).HasColumnType("datetime");
             entity.Property(e => e.KorisnikId).HasColumnName("KorisnikID");
             entity.Property(e => e.RasporedId).HasColumnName("RasporedID");
             entity.Property(e => e.Status)
@@ -262,15 +242,21 @@ public partial class Ib200005rs2Context : DbContext
             entity.ToTable("Treneri");
 
             entity.Property(e => e.Id).HasColumnName("ID");
-            entity.Property(e => e.Ime)
-                .HasMaxLength(255)
-                .IsUnicode(false);
-            entity.Property(e => e.Prezime)
-                .HasMaxLength(255)
-                .IsUnicode(false);
+           
+            
+            entity.HasOne(d => d.Korisnik)
+                    .WithOne(p => p.Trener)
+                    .HasForeignKey<Treneri>(d => d.Id)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__Treneri__Korisni__01142BA1"); ;
+            
             entity.Property(e => e.Specijalnost)
                 .HasMaxLength(255)
                 .IsUnicode(false);
+
+          
+               
+               
         });
 
         modelBuilder.Entity<Treningi>(entity =>

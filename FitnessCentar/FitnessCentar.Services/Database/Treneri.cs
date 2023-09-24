@@ -1,19 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FitnessCentar.Services.Database;
 
 public partial class Treneri
 {
+    [ForeignKey(nameof(Korisnik))]
     public int Id { get; set; }
 
-    public string? Ime { get; set; }
 
-    public string? Prezime { get; set; }
 
     public string? Specijalnost { get; set; }
 
-    public virtual ICollection<Administracija> Administracijas { get; set; } = new List<Administracija>();
+    public virtual Korisnici Korisnik { get; set; } = null!;
 
     public virtual ICollection<Novosti> Novostis { get; set; } = new List<Novosti>();
 

@@ -16,7 +16,7 @@ namespace FitnessCentar.Model
 
         public string? KorisnickoIme { get; set; }
 
-       // public string? Lozinka { get; set; }
+        // public string? Lozinka { get; set; }
 
         public string? Email { get; set; }
 
@@ -32,13 +32,14 @@ namespace FitnessCentar.Model
 
         public decimal? Visina { get; set; }
 
-     //   public virtual ICollection<Administracija> Administracijas { get; set; } = new List<Administracija>();
+        public virtual Treneri Trener { get; set; } = null!;
+        //   public virtual ICollection<Administracija> Administracijas { get; set; } = new List<Administracija>();
 
-      //  public virtual ICollection<Komentari> Komentaris { get; set; } = new List<Komentari>();
+        //  public virtual ICollection<Komentari> Komentaris { get; set; } = new List<Komentari>();
 
-       // public virtual ICollection<Napredak> Napredaks { get; set; } = new List<Napredak>();
+        // public virtual ICollection<Napredak> Napredaks { get; set; } = new List<Napredak>();
 
-       // public virtual ICollection<Placanja> Placanjas { get; set; } = new List<Placanja>();
+        // public virtual ICollection<Placanja> Placanjas { get; set; } = new List<Placanja>();
 
         //public virtual ICollection<Rezervacije> Rezervacijes { get; set; } = new List<Rezervacije>();
     }
