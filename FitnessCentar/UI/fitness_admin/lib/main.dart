@@ -1,8 +1,15 @@
+import 'package:fitness_admin/providers/user_provider.dart';
+import 'package:fitness_admin/screens/user_screens.dart';
+import 'package:fitness_admin/utils/util.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 void main() {
-  runApp(const MyMaterialApp());
+  runApp(MultiProvider(
+    providers: [ChangeNotifierProvider(create: (_) => UserProvider())],
+    child: const MyMaterialApp(),
+  ));
 }
 
 class MyApp extends StatelessWidget {
@@ -37,65 +44,101 @@ class MyApp extends StatelessWidget {
   }
 }
 
-
 class MyMaterialApp extends StatelessWidget {
   const MyMaterialApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-title: "RS II MatirialApp",
-theme: ThemeData(primarySwatch: Colors.purple),
-home: LoginPage(),
+      title: "RS II MatirialApp",
+      theme: ThemeData(primarySwatch: Colors.purple),
+      home: LoginPage(),
     );
   }
 }
 
-
 class LoginPage extends StatelessWidget {
-  const LoginPage({super.key});
+  LoginPage({super.key});
+
+  TextEditingController _usernameControler = new TextEditingController();
+  TextEditingController _passwordControler = new TextEditingController();
+  late UserProvider _userProvider;
 
   @override
   Widget build(BuildContext context) {
+    _userProvider = context.read<UserProvider>();
     return Scaffold(
-      appBar: AppBar(title: Text("LogIn"),),
-      body: 
-      Center(
-        child: 
-        Container(
-          constraints: BoxConstraints(maxHeight: 600,maxWidth: 600),
+      appBar: AppBar(
+        title: Text("LogIn"),
+      ),
+      body: Center(
+        child: Container(
+          constraints: BoxConstraints(maxHeight: 600, maxWidth: 600),
           child: Card(
-            
-            child:
-            Padding( 
-              padding:const EdgeInsets.all(16.0),
-              child:
-              Column(children: [
-              Image.network("https://w7.pngwing.com/pngs/1021/266/png-transparent-logo-graphic-designer-fitness-purple-blue-physical-fitness.png",height: 200,width: 200,),
-                 SizedBox(height: 50,),
-              TextField(
-                decoration: InputDecoration(
-                  labelText: "Username",
-                  prefixIcon: Icon(Icons.email)
+            child: Padding(
+              padding: const EdgeInsets.all(15.0),
+              child: Column(children: [
+                Image.asset(
+                  "assets/images/FitnessLogo.jpg",
+                  height: 300,
+                  width: 300,
                 ),
-              ),
-              SizedBox(height: 30,),
-              TextField(
-                decoration: InputDecoration(
-                  labelText: "Password",
-                  prefixIcon: Icon(Icons.password)
+                SizedBox(
+                  height: 50,
                 ),
-              ),
-              SizedBox(height: 15,),
+                TextField(
+                  decoration: InputDecoration(
+                      labelText: "Username", prefixIcon: Icon(Icons.email)),
+                  controller: _usernameControler,
+                ),
+                SizedBox(
+                  height: 30,
+                ),
+                TextField(
+                  decoration: InputDecoration(
+                      labelText: "Password", prefixIcon: Icon(Icons.password)),
+                  controller: _passwordControler,
+                ),
+                SizedBox(
+                  height: 15,
+                ),
+                ElevatedButton(
+                    onPressed: () async {
+                      var username = _usernameControler.text;
+                      var password = _passwordControler.text;
 
-              ElevatedButton(onPressed: (){
+                      print("login proceed $username $password");
 
-              }, child: Text("LogIn"))
+                      Authorization.username = username;
+                      Authorization.password = password;
 
-                          ]),
+                      try {
+                        await _userProvider.get();
+
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => const UserListScrean(),
+                          ),
+                        );
+                      } on Exception catch (e) {
+                        showDialog(
+                            context: context,
+                            builder: (BuildContext context) => AlertDialog(
+                                  title: Text("Error"),
+                                  content: Text(e.toString()),
+                                  actions: [
+                                    TextButton(
+                                        onPressed: () => Navigator.pop(context),
+                                        child: Text("OK"))
+                                  ],
+                                ));
+                      }
+                    },
+                    child: Text("Login"))
+              ]),
+            ),
           ),
         ),
-      ),
       ),
     );
   }
