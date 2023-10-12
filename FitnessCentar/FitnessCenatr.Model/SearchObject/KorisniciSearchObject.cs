@@ -10,5 +10,7 @@ namespace FitnessCentar.Model.SearchObject
     {
         public string? Ime { get; set; }
         public bool IsTrener { get; set; } = false;
+
+        public string? FTS { get; set; }
     }
 }

@@ -106,19 +106,47 @@ namespace FitnessCentar.Services
             return _mapper.Map<List<Model.Korisnici>>(list);
             
         }
+        //public override IQueryable<Korisnici> AddFilter(IQueryable<Korisnici> query, KorisniciSearchObject? search = null)
+        //{
+        //    if (search?.IsTrener ?? false)
+        //    {
+        //        query = query.Where(x => x.Trener != null);
+
+        //    }
+        //    else
+        //    {
+        //        query = query.Where(x => x.Trener == null);
+        //    }
+        //    return base.AddFilter(query, search);
+        //}
         public override IQueryable<Korisnici> AddFilter(IQueryable<Korisnici> query, KorisniciSearchObject? search = null)
         {
-            if (search?.IsTrener ?? false)
-            {
-                query = query.Where(x => x.Trener != null);
+            var filteredQuery = base.AddFilter(query, search);
 
-            }
-            else
+            if (search != null)
             {
-                query = query.Where(x => x.Trener == null);
+                if (search.IsTrener)
+                {
+                    filteredQuery = filteredQuery.Where(x => x.Trener != null);
+                }
+                else
+                {
+                    filteredQuery = filteredQuery.Where(x => x.Trener == null);
+                }
+
+                if (!string.IsNullOrWhiteSpace(search.FTS))
+                {
+                    var ftsFilter = search.FTS.ToLower(); // Pretvaranje u lowercase za case-insensitive pretragu
+                    filteredQuery = filteredQuery.Where(x =>
+                        x.Ime.ToLower().Contains(ftsFilter) || // Pretraga po imenu
+                        x.Prezime.ToLower().Contains(ftsFilter) // Pretraga po prezimenu
+                    );
+                }
             }
-            return base.AddFilter(query, search);
+
+            return filteredQuery;
         }
+
         private static IQueryable<Korisnici> IncludeUserDetails(IQueryable<Korisnici> query)
         {
             return query.Include(x => x.Trener);

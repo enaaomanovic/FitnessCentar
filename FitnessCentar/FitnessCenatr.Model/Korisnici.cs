@@ -33,6 +33,8 @@ namespace FitnessCentar.Model
         public decimal? Visina { get; set; }
 
         public virtual Treneri Trener { get; set; } = null!;
+        public byte[]? Slika { get; set; }
+
         //   public virtual ICollection<Administracija> Administracijas { get; set; } = new List<Administracija>();
 
         //  public virtual ICollection<Komentari> Komentaris { get; set; } = new List<Komentari>();

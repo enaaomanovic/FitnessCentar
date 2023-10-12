@@ -27,5 +27,7 @@ namespace FitnessCentar.Model.Requests
         public decimal Tezina { get; set; }
 
         public decimal Visina { get; set; }
+        public byte[]? Slika { get; set; }
+
     }
 }

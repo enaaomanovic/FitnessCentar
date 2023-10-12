@@ -1,5 +1,5 @@
 import 'package:fitness_admin/providers/user_provider.dart';
-import 'package:fitness_admin/screens/user_screens.dart';
+import 'package:fitness_admin/screens/home_unauthenticated.dart';
 import 'package:fitness_admin/utils/util.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -52,94 +52,8 @@ class MyMaterialApp extends StatelessWidget {
     return MaterialApp(
       title: "RS II MatirialApp",
       theme: ThemeData(primarySwatch: Colors.purple),
-      home: LoginPage(),
+      home: HomeUnauthenticated(),
     );
   }
 }
 
-class LoginPage extends StatelessWidget {
-  LoginPage({super.key});
-
-  TextEditingController _usernameControler = new TextEditingController();
-  TextEditingController _passwordControler = new TextEditingController();
-  late UserProvider _userProvider;
-
-  @override
-  Widget build(BuildContext context) {
-    _userProvider = context.read<UserProvider>();
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("LogIn"),
-      ),
-      body: Center(
-        child: Container(
-          constraints: BoxConstraints(maxHeight: 600, maxWidth: 600),
-          child: Card(
-            child: Padding(
-              padding: const EdgeInsets.all(15.0),
-              child: Column(children: [
-                Image.asset(
-                  "assets/images/FitnessLogo.jpg",
-                  height: 300,
-                  width: 300,
-                ),
-                SizedBox(
-                  height: 50,
-                ),
-                TextField(
-                  decoration: InputDecoration(
-                      labelText: "Username", prefixIcon: Icon(Icons.email)),
-                  controller: _usernameControler,
-                ),
-                SizedBox(
-                  height: 30,
-                ),
-                TextField(
-                  decoration: InputDecoration(
-                      labelText: "Password", prefixIcon: Icon(Icons.password)),
-                  controller: _passwordControler,
-                ),
-                SizedBox(
-                  height: 15,
-                ),
-                ElevatedButton(
-                    onPressed: () async {
-                      var username = _usernameControler.text;
-                      var password = _passwordControler.text;
-
-                      print("login proceed $username $password");
-
-                      Authorization.username = username;
-                      Authorization.password = password;
-
-                      try {
-                        await _userProvider.get();
-
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (context) => const UserListScrean(),
-                          ),
-                        );
-                      } on Exception catch (e) {
-                        showDialog(
-                            context: context,
-                            builder: (BuildContext context) => AlertDialog(
-                                  title: Text("Error"),
-                                  content: Text(e.toString()),
-                                  actions: [
-                                    TextButton(
-                                        onPressed: () => Navigator.pop(context),
-                                        child: Text("OK"))
-                                  ],
-                                ));
-                      }
-                    },
-                    child: Text("Login"))
-              ]),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}

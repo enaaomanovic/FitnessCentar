@@ -35,7 +35,9 @@ namespace FitnessCentar
                 var credentials = Encoding.UTF8.GetString(credentialBytes).Split(':');
                 var username = credentials[0];
                 var password = credentials[1];
-                user = korisniciService.Authenticiraj(username, password);
+                user =  korisniciService.Authenticiraj(username, password);
+
+               
             }
             catch
             {
