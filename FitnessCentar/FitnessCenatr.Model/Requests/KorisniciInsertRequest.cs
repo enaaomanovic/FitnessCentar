@@ -28,6 +28,6 @@ namespace FitnessCentar.Model.Requests
 
         public decimal Visina { get; set; }
         public byte[]? Slika { get; set; }
-
+        public  Treneri? Trener { get; set; } = null!;
     }
 }

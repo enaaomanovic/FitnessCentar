@@ -52,9 +52,13 @@ class _AddUserState extends State<AddUser> {
   @override
   Widget build(BuildContext context) {
     return MasterScreanWidget(
+
       title_widget: Text("Dodaj korisnika"),
       child: Container(
-        child: Column(children: [_addForm(), _buildSubmitButton()]),
+        
+        child: Column(
+         
+          children: [_addForm(), _buildSubmitButton()]),
       ),
     );
   }
@@ -63,7 +67,6 @@ class _AddUserState extends State<AddUser> {
 Widget _addForm() {
   return Container(
     child: Center(
-      
       child: Card(
         elevation: 6,
         shape: RoundedRectangleBorder(
@@ -186,9 +189,6 @@ Widget _addForm() {
   );
 }
 
-
-
-
 Widget buildInputField(String label, String hint, IconData icon, TextEditingController controller) {
   return TextFormField(
     decoration: InputDecoration(
@@ -209,23 +209,67 @@ Widget buildInputField(String label, String hint, IconData icon, TextEditingCont
 }
 
 
+// Widget _buildSubmitButton() {
+
+//   return Container(
+//     height: 78, // Povećajte visinu containera
+//     child: Center(
+//       child: ElevatedButton(
+//         onPressed: () async {
+//           if (_formKey.currentState!.validate()) {
+//             // Forma je uspešno validirana
+//             final formData = {
+//               'ime': _imeController.text,
+//               'prezime': _prezimeController.text,
+//               'email': _emailController.text,
+//               'pol': _polController.text,
+//               'korisnicko_ime': _korisnickoImeController.text,
+//               'lozinka': _lozinkaController.text,
+//               'broj_telefona': _brojTelefonaController.text,
+//               'datum_rodjenja': _datumRodjenjaController.text,
+//             };
+
+//             // Ovde biste mogli slati podatke na server ili ih obraditi kako vam odgovara
+
+//             // Primer: Snimanje korisnika na server
+//             try {
+//               await _userProvider.insert(formData);
+//               // Korisnik je uspešno dodat
+//               ScaffoldMessenger.of(context).showSnackBar(
+//                 SnackBar(content: Text('Korisnik je uspešno dodat.')),
+//               );
+//             } catch (e) {
+//               // Greška pri dodavanju korisnika
+//               ScaffoldMessenger.of(context).showSnackBar(
+//                 SnackBar(content: Text('Greška prilikom dodavanja korisnika: $e')),
+//               );
+//             }
+//           }
+//         },
+//         style: ElevatedButton.styleFrom(
+//           primary: Colors.purple,
+//           padding: EdgeInsets.all(20), // Povećajte veličinu gumba
+//         ),
+//         child: Text("Dodaj korisnika"),
+//       ),
+//     ),
+//   );
+// }
+
 Widget _buildSubmitButton() {
-  return Container(
-   
-    height: 78, // Povećajte visinu containera
-    child: Center(
-      child: ElevatedButton(
-        onPressed: () async {
-          if (_formKey.currentState!.validate()) {
+  return Form(
+    key:_formKey,
+    child: ElevatedButton(onPressed: () async{
+  if (_formKey.currentState!.validate()) {
             // Forma je uspešno validirana
             final formData = {
               'ime': _imeController.text,
               'prezime': _prezimeController.text,
               'email': _emailController.text,
               'pol': _polController.text,
-              'korisnicko_ime': _korisnickoImeController.text,
+              'korisnickoIme': _korisnickoImeController.text,
               'lozinka': _lozinkaController.text,
-              'broj_telefona': _brojTelefonaController.text,
+              'telefon': _brojTelefonaController.text,
               'datum_rodjenja': _datumRodjenjaController.text,
             };
 
@@ -250,13 +294,12 @@ Widget _buildSubmitButton() {
           primary: Colors.purple,
           padding: EdgeInsets.all(20), // Povećajte veličinu gumba
         ),
-        child: Text("Dodaj korisnika"),
-      ),
-    ),
+  
+  
+  child: Text("sumbit")),
   );
 }
 
-} 
-
+}
 
 

@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -25,6 +26,7 @@ namespace FitnessCentar.Services
             var query = _context.Set<TDb>().AsQueryable();
 
             query = AddFilter(query, search);
+            query = AddInclude(query);
 
             if (search?.Page.HasValue == true && search?.PageSize.HasValue == true)
             {
@@ -61,11 +63,16 @@ namespace FitnessCentar.Services
         }
         public virtual async Task<T> GetById(int id)
         {
+
             var entity = await _context.Set<TDb>().FindAsync(id);
 
             return _mapper.Map<T>(entity);
         }
 
+        public virtual IQueryable<TDb> AddInclude(IQueryable<TDb> query)
+        {
+            return query;
+        }
 
     }
 }

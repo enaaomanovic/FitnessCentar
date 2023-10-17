@@ -15,7 +15,7 @@ namespace FitnessCentar.Model.Requests
         public string Prezime { get; set; }
 
         public string Specijalnost { get; set; }
+      
 
-        
     }
 }

@@ -18,7 +18,7 @@ namespace FitnessCentar.Controllers
             _service = service;
         }
         [HttpGet()]
-        public async Task<IEnumerable<T>> Get([FromQuery] TSearch? search = null)
+        public  async Task<IEnumerable<T>> Get([FromQuery] TSearch? search = null)
         {
             return await _service.Get(search);
         }
@@ -29,12 +29,12 @@ namespace FitnessCentar.Controllers
             return await _service.GetById(id);
         }
         [HttpPost()]
-        public async Task<T> Insert(TInsert insert)
+        public  async Task<T> Insert(TInsert insert)
         {
             return await _service.Insert(insert);
         }
         [HttpPut("{id}")]
-        public async Task<T> Update(int id, TUpdate update)
+        public  async Task<T> Update(int id, TUpdate update)
         {
            
             return await _service.Update(id, update);

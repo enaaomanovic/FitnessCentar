@@ -15,5 +15,6 @@ namespace FitnessCentar.Services
         public TrenerService(Ib200005rs2Context context, IMapper mapper) : base(context, mapper)
         {
         }
+      
     }
 }

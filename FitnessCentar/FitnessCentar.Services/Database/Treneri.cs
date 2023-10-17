@@ -9,8 +9,6 @@ public partial class Treneri
     [ForeignKey(nameof(Korisnik))]
     public int Id { get; set; }
 
-
-
     public string? Specijalnost { get; set; }
 
     public virtual Korisnici Korisnik { get; set; } = null!;

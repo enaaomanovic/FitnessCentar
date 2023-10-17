@@ -23,7 +23,7 @@ namespace FitnessCentar.Services
             CreateMap<Model.Requests.NovostiInsertRequest, Database.Novosti>();
             CreateMap<Model.Requests.NovostiUpdateRequest, Database.Novosti>();
 
-            CreateMap<Database.Treneri, Model.Treneri>();
+            CreateMap<Database.Treneri, Model.Treneri>().ReverseMap();
             CreateMap<Model.Requests.TrenerInsertRequest, Database.Treneri>();
             CreateMap<Model.Requests.TrenerUpdateRequest, Database.Treneri>();
 

@@ -94,6 +94,7 @@ namespace FitnessCentar.Services
             var query = _context.Set<Database.Korisnici>().AsQueryable();
 
             query = AddFilter(query, search);
+            query = AddInclude(query);
             query = IncludeUserDetails(query);
 
             if (search?.Page.HasValue == true && search?.PageSize.HasValue == true)
@@ -105,6 +106,20 @@ namespace FitnessCentar.Services
 
             return _mapper.Map<List<Model.Korisnici>>(list);
             
+        }
+
+        public override IQueryable<Korisnici> AddInclude(IQueryable<Korisnici> query)
+        {
+            query = query.Include(x => x.Trener);
+            return query;
+        }
+        public override async Task<Model.Korisnici> GetById(int id)
+        {
+            var query = _context.Korisnicis.Where(x => x.Id == id).AsQueryable();
+            query = AddInclude(query);
+            var entity = await query.FirstOrDefaultAsync();
+
+            return  _mapper.Map<Model.Korisnici>(entity);
         }
         //public override IQueryable<Korisnici> AddFilter(IQueryable<Korisnici> query, KorisniciSearchObject? search = null)
         //{
