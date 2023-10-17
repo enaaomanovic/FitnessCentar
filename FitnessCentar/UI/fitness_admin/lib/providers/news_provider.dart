@@ -1,25 +1,21 @@
 import 'dart:convert';
+import 'package:fitness_admin/models/novosti.dart';
 import 'package:fitness_admin/models/search_result.dart';
-import 'package:fitness_admin/models/korisnici.dart';
 import 'package:fitness_admin/providers/base_provider.dart';
 import 'package:fitness_admin/utils/util.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 
-class UserProvider extends BaseProvider<Korisnici> {
-  UserProvider():super("Korisnici");
+class NewsProvider extends BaseProvider<Novosti> {
+  NewsProvider():super("Novosti");
 
   @override
-  Korisnici fromJson(data) {
+  Novosti fromJson(data) {
     // TODO: implement fromJson
-    return Korisnici.fromJson(data);
+    return Novosti.fromJson(data);
   }
   
 }
-
-
-
-
 
 

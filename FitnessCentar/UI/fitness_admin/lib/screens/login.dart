@@ -84,7 +84,7 @@ class LoginPage extends StatelessWidget {
                             var username = _usernameControler.text;
                             var password = _passwordControler.text;
 
-                            print("login proceed $username $password");
+                           
 
                            Authorization.username = username;
                            Authorization.password = password;

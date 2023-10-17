@@ -22,7 +22,8 @@ Korisnici _$KorisniciFromJson(Map<String, dynamic> json) => Korisnici(
       json['pol'] as String?,
       (json['tezina'] as num?)?.toDouble(),
       (json['visina'] as num?)?.toDouble(),
-      (json['slika'] as String?)
+      json['slika'] as String?,
+      json['lozinka'] as String?,
     );
 
 Map<String, dynamic> _$KorisniciToJson(Korisnici instance) => <String, dynamic>{
@@ -37,5 +38,6 @@ Map<String, dynamic> _$KorisniciToJson(Korisnici instance) => <String, dynamic>{
       'pol': instance.pol,
       'tezina': instance.tezina,
       'visina': instance.visina,
-      'slika':instance.slika,
+      'slika': instance.slika,
+      'lozinka': instance.lozinka,
     };

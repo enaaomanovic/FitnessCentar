@@ -16,33 +16,11 @@ class _MasterScreanWidgetState extends State<MasterScreanWidget> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor:  Color.fromARGB(255, 247, 236, 249), 
       appBar: AppBar(
         title: widget.title_widget ?? Text(widget.title ?? "FITNESS CENTAR"),
       ),
-      drawer: Drawer(
-          child: ListView(
-        children: [
-         
-          ListTile(
-              title: Text("Korisnici"),
-              onTap: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) => const UserDetalScreen(),
-                  ),
-                );
-              }),
-               ListTile(
-              title: Text("Detalji"),
-              onTap: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) => const UserDetalScreen(),
-                  ),
-                );
-              }),
-        ],
-      )),
+     
       body: widget.child!,
     );
   }

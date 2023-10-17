@@ -136,10 +136,10 @@ namespace FitnessCentar.Services
 
                 if (!string.IsNullOrWhiteSpace(search.FTS))
                 {
-                    var ftsFilter = search.FTS.ToLower(); // Pretvaranje u lowercase za case-insensitive pretragu
+                    var ftsFilter = search.FTS.ToLower(); 
                     filteredQuery = filteredQuery.Where(x =>
-                        x.Ime.ToLower().Contains(ftsFilter) || // Pretraga po imenu
-                        x.Prezime.ToLower().Contains(ftsFilter) // Pretraga po prezimenu
+                        x.Ime.ToLower().Contains(ftsFilter) || 
+                        x.Prezime.ToLower().Contains(ftsFilter) 
                     );
                 }
             }

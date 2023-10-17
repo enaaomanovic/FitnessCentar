@@ -12,3 +12,5 @@ class Authorization {
 Image imageFromBase64String(String base64Image) {
   return Image.memory(base64Decode(base64Image));
 }
+
+

@@ -16,8 +16,12 @@ String? pol;
 double? tezina;
 double? visina;
 String? slika;
+String? lozinka;
 
-  Korisnici(this.id,this.ime,this.prezime,this.korisnickoIme,this.email,this.telefon,this.datumRegistracije,this.datumRodjenja,this.pol,this.tezina,this.visina,this.slika);
+  Korisnici(this.id,this.ime,this.prezime,this.korisnickoIme,this.email,this.telefon,this.datumRegistracije,this.datumRodjenja,this.pol,this.tezina,this.visina,this.slika,this.lozinka);
+
+
+
 
   factory Korisnici.fromJson(Map<String, dynamic> json) =>
       _$KorisniciFromJson(json);

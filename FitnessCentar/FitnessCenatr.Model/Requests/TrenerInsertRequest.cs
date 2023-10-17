@@ -8,6 +8,7 @@ namespace FitnessCentar.Model.Requests
 {
     public class TrenerInsertRequest
     {
+        
       
         public string Ime { get; set; }
 

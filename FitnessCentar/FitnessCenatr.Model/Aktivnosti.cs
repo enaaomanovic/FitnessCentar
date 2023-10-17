@@ -12,6 +12,6 @@ namespace FitnessCentar.Model
 
         public string? Naziv { get; set; }
 
-        public virtual ICollection<Raspored> Rasporeds { get; set; } = new List<Raspored>();
+       // public virtual ICollection<Raspored> Rasporeds { get; set; } = new List<Raspored>();
     }
 }
