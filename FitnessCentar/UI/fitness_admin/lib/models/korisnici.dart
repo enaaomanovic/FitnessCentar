@@ -1,3 +1,4 @@
+import 'package:fitness_admin/models/trener.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'korisnici.g.dart';
@@ -17,8 +18,8 @@ double? tezina;
 double? visina;
 String? slika;
 String? lozinka;
-
-  Korisnici(this.id,this.ime,this.prezime,this.korisnickoIme,this.email,this.telefon,this.datumRegistracije,this.datumRodjenja,this.pol,this.tezina,this.visina,this.slika,this.lozinka);
+Trener? trener;
+  Korisnici(this.id,this.ime,this.prezime,this.korisnickoIme,this.email,this.telefon,this.datumRegistracije,this.datumRodjenja,this.pol,this.tezina,this.visina,this.slika,this.lozinka,this.trener);
 
 
 

@@ -81,24 +81,7 @@ Widget _buildDataListView(List<Novosti> novosti, List<Korisnici> treneri) {
               children: novosti.map((novost) {
                final trener = treneri.firstWhere(
   (t) => t.id == novost.autorId,
-  orElse: () {
-    final defaultUser = Korisnici(
-      novost.autorId, // Postavite odgovarajući ID
-      "nepoznat", // Ime
-      'Trener', // Prezime
-      'username', // Korisničko ime
-      'email', // Email
-      'telefon', // Telefon
-      DateTime.now(), // Datum registracije
-      DateTime.now(), // Datum rođenja
-      'pol', // Pol
-      0.0, // Težina
-      0.0, // Visina
-      'slika', // Slika
-      'lozinka', // Lozinka
-    );
-    return defaultUser;
-  },
+ 
 );
 
               return Padding(

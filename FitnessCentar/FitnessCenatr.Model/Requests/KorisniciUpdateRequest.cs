@@ -15,7 +15,9 @@ namespace FitnessCentar.Model.Requests
 
         public string? Telefon { get; set; }
 
-        
+        public byte[]? Slika { get; set; }
+
+
 
     }
 }

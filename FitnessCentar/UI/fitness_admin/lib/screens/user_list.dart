@@ -83,86 +83,94 @@ class _UserListScrean extends State<UserListScrean> {
     );
   }
 
-  Widget _buildDataListView() {
-    return Container(
-      child: Center(
+  
+Widget _buildDataListView() {
+  return Expanded(
+    child: ListView(
+      children: [
+        Center(
           child: Card(
-              child: Expanded(
-                  child: SingleChildScrollView(
-        child: DataTable(
-            columnSpacing: 200,
-            dataRowMinHeight: 80,
-            dataRowMaxHeight: 80,
-            columns: [
-              const DataColumn(
-                label: Expanded(
-                  child: Text(
+            child: DataTable(
+              columnSpacing: 200,
+              dataRowMinHeight: 80,
+              dataRowMaxHeight: 80,
+              columns: [
+                DataColumn(
+                  label: Text(
                     'Ime',
                     style: TextStyle(fontStyle: FontStyle.italic, fontSize: 19),
                   ),
                 ),
-              ),
-              const DataColumn(
-                label: Expanded(
-                  child: Text(
+                DataColumn(
+                  label: Text(
                     'Prezime',
                     style: TextStyle(fontStyle: FontStyle.italic, fontSize: 19),
                   ),
                 ),
-              ),
-              const DataColumn(
-                label: Expanded(
-                  child: Text(
+                DataColumn(
+                  label: Text(
                     'Korisničko ime',
                     style: TextStyle(fontStyle: FontStyle.italic, fontSize: 19),
                   ),
                 ),
-              ),
-              const DataColumn(
-                label: Expanded(
-                  child: Text(
+                DataColumn(
+                  label: Text(
                     'Slika',
                     style: TextStyle(fontStyle: FontStyle.italic, fontSize: 19),
                   ),
                 ),
-              )
-            ],
-            rows: result?.result
-                    .map((Korisnici e) => DataRow(
-                            onSelectChanged: (selected) => {
-                                  if (selected == true)
-                                    {
-                                      Navigator.of(context).push(
-                                        MaterialPageRoute(
-                                          builder: (context) => UserDetalScreen(
-                                            korisnik: e,
-                                          ),
-                                        ),
-                                      )
-                                    }
-                                },
-                            cells: [
-                              DataCell(Text(
-                                e.ime ?? "",
-                                style: TextStyle(
-                                  fontSize: 20,
+              ],
+              rows: result?.result
+                  .map((Korisnici e) => DataRow(
+                        onSelectChanged: (selected) {
+                          if (selected == true) {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) => UserDetalScreen(
+                                  korisnik: e,
                                 ),
-                              )),
-                              DataCell(Text(e.prezime ?? "",
-                                  style: TextStyle(fontSize: 20))),
-                              DataCell(Text(e.korisnickoIme ?? "",
-                                  style: TextStyle(fontSize: 20))),
-                              DataCell(e.slika != ""
-                                  ? Container(
-                                      width: 100,
-                                      height: 100,
-                                      child: imageFromBase64String(e.slika!),
-                                    )
-                                  : Text(""))
-                            ]))
-                    .toList() ??
-                []),
-      )))),
-    );
-  }
+                              ),
+                            );
+                          }
+                        },
+                        cells: [
+                          DataCell(
+                            Text(
+                              e.ime ?? "",
+                              style: TextStyle(
+                                fontSize: 20,
+                              ),
+                            ),
+                          ),
+                          DataCell(
+                            Text(e.prezime ?? "", style: TextStyle(fontSize: 20)),
+                          ),
+                          DataCell(
+                            Text(
+                              e.korisnickoIme ?? "",
+                              style: TextStyle(fontSize: 20),
+                            ),
+                          ),
+                          DataCell(
+                            e.slika != ""
+                                ? Container(
+                                    width: 100,
+                                    height: 100,
+                                    child: imageFromBase64String(e.slika!),
+                                  )
+                                : Text(""),
+                          ),
+                        ],
+                      ))
+                  .toList() ??
+                  [],
+            ),
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+
 }

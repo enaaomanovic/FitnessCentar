@@ -1,305 +1,350 @@
+import 'dart:convert';
+import 'dart:io';
 
+import 'package:file_picker/file_picker.dart';
+import 'package:fitness_admin/screens/add_treiner.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:intl/date_time_patterns.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:fitness_admin/models/korisnici.dart';
 import 'package:fitness_admin/providers/user_provider.dart';
 import 'package:fitness_admin/widgets/master_screens.dart';
 
 class AddUser extends StatefulWidget {
-  const AddUser({Key? key}) : super(key: key);
+  const AddUser({Key? key, this.korisnik}) : super(key: key);
+
+  final Korisnici? korisnik;
 
   @override
   State<AddUser> createState() => _AddUserState();
 }
 
 class _AddUserState extends State<AddUser> {
-  final _formKey = GlobalKey<FormState>();
+  final _formKey = GlobalKey<FormBuilderState>();
   late UserProvider _userProvider;
-  List<String> spolovi = ['Muški', 'Ženski'];
+  bool isLoading = true;
 
-  final TextEditingController _imeController = TextEditingController();
-  final TextEditingController _prezimeController = TextEditingController();
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _polController = TextEditingController();
-  final TextEditingController _korisnickoImeController = TextEditingController();
-  final TextEditingController _lozinkaController = TextEditingController();
-  final TextEditingController _brojTelefonaController = TextEditingController();
-  final TextEditingController _datumRodjenjaController = TextEditingController();
-  final TextEditingController _potvrdiLozinkuController = TextEditingController();
-
+  Korisnici? korisnik;
 
   @override
   void initState() {
+    // TODO: implement initState
     super.initState();
+
     _userProvider = context.read<UserProvider>();
+    initForm();
   }
 
   @override
-  void dispose() {
-    _imeController.dispose();
-    _prezimeController.dispose();
-    _emailController.dispose();
-    _polController.dispose();
-    _korisnickoImeController.dispose();
-    _lozinkaController.dispose();
-    _brojTelefonaController.dispose();
-    _datumRodjenjaController.dispose();
-    super.dispose();
+  void didChangeDependencies() {
+    // TODO: implement didChangeDependencies
+    super.didChangeDependencies();
   }
+
+  Future initForm() async {
+    setState(() {
+      isLoading = false;
+    });
+  }
+
+   File? _image;
+  String? _base64Image;
+
+  Future getImage()  async {
+    var result = await FilePicker.platform.pickFiles(type: FileType.image);
+
+    if(result != null && result.files.single.path != null) {
+      _image = File(result.files.single.path!);
+      _base64Image = base64Encode(_image!.readAsBytesSync());
+    }
+
+  }
+
 
   @override
-  Widget build(BuildContext context) {
-    return MasterScreanWidget(
-
-      title_widget: Text("Dodaj korisnika"),
-      child: Container(
-        
-        child: Column(
-         
-          children: [_addForm(), _buildSubmitButton()]),
-      ),
-    );
-  }
-
-
-Widget _addForm() {
-  return Container(
-    child: Center(
-      child: Card(
-        elevation: 6,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20.0),
-        ),
-          child: SizedBox(
-            width: 800,
-            height: 650,
-            child: Padding(
-              padding: const EdgeInsets.all(40.0),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                  "Dodavanje novog korisnika", // Dodajte naslov
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                SizedBox(height: 5.0),
-               buildInputField(
-                  "Ime",
-                  "Unesite ime",
-                  Icons.person, // Dodajte ikonu za ime
-                  _imeController,
-                ),
-               
-                 SizedBox(height: 5.0),
-           buildInputField(
-                  "Prezime",
-                  "Unesite prezime",
-                  Icons.person, // Dodajte ikonu za ime
-                  _prezimeController,
-                ),
-            SizedBox(height: 5.0),
-         buildInputField(
-                  "Email",
-                  "Unesite E-mail",
-                    Icons.mail, // Dodajte ikonu za ime
-                    _emailController,
-                  ),
-                  SizedBox(height: 5.0),
-                  FormBuilderDropdown(
-                    name: 'pol',
-                    decoration: InputDecoration(
-                      labelText: 'Pol',
-                      border: OutlineInputBorder(),
-                     
-                    ),
-                    initialValue: 'Muški',
-                    items: spolovi.map((spol) {
-                      return DropdownMenuItem(
-                        value: spol,
-                        child: Text(spol),
-                      );
-                    }).toList(),
-),
-          SizedBox(height: 5.0),
-         buildInputField(
-                  "Korisničko ime",
-                  "Unesite korisničko ime",
-                  Icons.person, // Dodajte ikonu za ime
-                  _korisnickoImeController,
-                ),
-          SizedBox(height: 5.0),
-          TextFormField(
-            decoration: InputDecoration(labelText: "Lozinka",border: OutlineInputBorder()),
-            controller: _lozinkaController,
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return 'Unesite lozinku';
-              }
-              // Opciono, možete dodati proveru za minimalnu dužinu lozinke.
-              return null;
-            },
-              
-            obscureText: true,
-          ),
-          SizedBox(height: 5.0),
-          TextFormField(
-            decoration: InputDecoration(labelText: "Potvrdite lozinku",border: OutlineInputBorder()),
-            controller: _potvrdiLozinkuController,
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return 'Potvrdite lozinku';
-              }
-              if (value != _lozinkaController.text) {
-                return 'Lozinke se ne podudaraju';
-              }
-              return null;
-            },
-            obscureText: true,
-          ),
-          SizedBox(height: 5.0),
-          buildInputField(
-                  "Telefon",
-                  "Unesite telefon",
-                  Icons.phone, // Dodajte ikonu za ime
-                  _brojTelefonaController,
-                ),
-          SizedBox(height: 5.0),
-           FormBuilderDateTimePicker(
-           keyboardType: TextInputType.datetime,
-            name: 'datumRodjenja',
-            inputType: InputType.date,
-        
-            decoration: InputDecoration(labelText: 'Datum rođenja',border: OutlineInputBorder(),prefixIcon: Icon(Icons.date_range)),
-            initialDate: DateTime.now(),
-           controller: _datumRodjenjaController,
-          ),
-              ],
+ Widget build(BuildContext context) {
+  return MasterScreanWidget(
+    child: Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(top:10.0),
+          child: Text(
+            "Dodaj novog korisnika", // Dodajte naslov
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
             ),
           ),
         ),
-        
+        isLoading ? Container() : _addForm(),
+        _submitbtn(),
+      ],
+    ),
+    title: "Dodaj korisnika",
+  );
+}
+
+
+Widget _addForm() {
+  return FormBuilder(
+    key: _formKey, // Postavljanje ključa forme
+    child: Padding(
+      padding: const EdgeInsets.all(20.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Card(
+            elevation: 6,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20.0),
+            ),
+            child: SizedBox(
+              height: 550,
+              width: 600,
+              child: Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    SizedBox(height: 15),
+                    FormBuilderTextField(
+                      decoration: InputDecoration(labelText: "Ime"),
+                      name: "ime",
+                    ),
+                    SizedBox(height: 15),
+                    FormBuilderTextField(
+                      decoration: InputDecoration(labelText: "Prezime"),
+                      name: "prezime",
+                    ),
+                    SizedBox(height: 15),
+                    FormBuilderTextField(
+                      decoration: InputDecoration(labelText: "Korisničko ime"),
+                      name: "korisnickoIme",
+                    ),
+                    SizedBox(height: 15),
+                    FormBuilderTextField(
+                      decoration: InputDecoration(labelText: "E-mail"),
+                      name: "email",
+                    ),
+                    SizedBox(height: 15),
+                    FormBuilderTextField(
+                      decoration: InputDecoration(labelText: "Lozinka"),
+                      name: "lozinka",
+                    ),
+                    SizedBox(height: 15),
+                    FormBuilderTextField(
+                      decoration: InputDecoration(labelText: "Telefon"),
+                      name: "telefon",
+                    ),
+                    SizedBox(height: 15),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          SizedBox(width: 20),
+          Card(
+            elevation: 6,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20.0),
+            ),
+            child: SizedBox(
+              height: 550,
+              width: 600,
+              child: Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    SizedBox(height: 15),
+                    FormBuilderDropdown(
+                      name: 'pol',
+                      decoration: InputDecoration(labelText: 'Pol'),
+                      initialValue: 'Muški',
+                      items: ['Muški', 'Ženski'].map((pol) {
+                        return DropdownMenuItem(
+                          value: pol,
+                          child: Text(pol),
+                        );
+                      }).toList(),
+                    ),
+                    SizedBox(height: 15),
+                    FormBuilderTextField(
+                      decoration: InputDecoration(labelText: "Težina"),
+                      name: "tezina",
+                    ),
+                    SizedBox(height: 15),
+                    FormBuilderTextField(
+                      decoration: InputDecoration(labelText: "Visina"),
+                      name: "visina",
+                    ),
+                    SizedBox(height: 15),
+                    FormBuilderDateTimePicker(
+                      name: 'datumRodjenja',
+                      inputType: InputType.date,
+                      decoration: InputDecoration(labelText: 'Datum rođenja'),
+                      initialDate: DateTime.now(),
+                      onChanged: (DateTime? newDate) {},
+                    ),
+                    FormBuilderField(
+                      name: 'slika',
+                      builder: (field) {
+                        return InputDecorator(
+                          decoration: InputDecoration(
+                            labelText: 'Odaberite sliku',
+                            errorText: field.errorText,
+                          ),
+                          child: ListTile(
+                            leading: Icon(Icons.photo),
+                            title: Text("Select image"),
+                            trailing: Icon(Icons.file_upload),
+                            onTap: getImage,
+                          ),
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     ),
+  );
+}
+
+
+
+
+Widget _submitbtn() {
+  return Center(
+    child:
+        Column(
+          children: [
+            Align(
+              alignment: Alignment.center,
+              child: SizedBox(
+                width: 250, 
+               // Povećajte širinu dugmeta po potrebi
+                child: ElevatedButton(
+                  onPressed: () async {
+                    _formKey.currentState?.saveAndValidate();
+                    var request = Map<String, dynamic>.from(_formKey.currentState!.value);
+                    var pol = request['pol'];
+
+                    String formattedDate = request['datumRodjenja'].toIso8601String();
+                    request['datumRodjenja'] = formattedDate;
+
+
+                  request['slika'] = _base64Image;
+                 
+
+
+                    try {
+                      if (widget.korisnik == null) {
+                        request['pol'] = pol;
+
+                        await _userProvider.insert(request);
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) => AlertDialog(
+                            title: Text("Uspešno dodat korisnik"),
+                            content: Text("Korisnik je uspešno dodat."),
+                            actions: [
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                  _formKey.currentState?.reset();
+                                },
+                                child: Text("OK"),
+                              ),
+                            ],
+                          ),
+                        );
+                      } else {
+                        await _userProvider.update(widget.korisnik!.id!, request);
+                      }
+                    } on Exception catch (e) {
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) => AlertDialog(
+                          title: Text("Error"),
+                          content: Text(e.toString()),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(context),
+                              child: Text("OK"),
+                            ),
+                          ],
+                        ),
+                      );
+                    }
+                  },
+                  child: Text("Sačuvaj"),
+                  style: ElevatedButton.styleFrom(
+                    padding: EdgeInsets.all(15),
+                  ),
+                ),
+              ),
+            ),
+             Align(
+  alignment: Alignment.topRight,
+  child: SizedBox(
+    width: 250, // Povećajte širinu dugmeta po potrebi
+    child: Padding(
+      padding: const EdgeInsets.only(right: 10),
+      child: ElevatedButton(
+        onPressed: () async {
+           Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => const AddTreiner(),
+                        ),
+                      );
+        },
+        child: Text("Dodaj novog trenera"),
+        style: ElevatedButton.styleFrom(
+          padding: EdgeInsets.all(10),
+        ),
+      ),
+    ),
+  ),
+), 
+         Align(
+  alignment: Alignment.topRight,
+  child: SizedBox(
+    width: 250, // Povećajte širinu dugmeta po potrebi
+    child: Padding(
+      padding: const EdgeInsets.only(top: 10,right: 10),
+
+
+      child: ElevatedButton(
+        onPressed: () async {
+         
+        },
+        child: Text("Isprintaj korisnika"),
+        style: ElevatedButton.styleFrom(
+          padding: EdgeInsets.all(10),
+        ),
+      ),
+    ),
+  ),
+), 
+          ],
+        ),
+         
+       
     
   );
 }
 
-Widget buildInputField(String label, String hint, IconData icon, TextEditingController controller) {
-  return TextFormField(
-    decoration: InputDecoration(
-      labelText: label,
-      hintText: hint,
-     
-      prefixIcon: Icon(icon), 
-      border: OutlineInputBorder(),
-    ),
-    controller: controller,
-    validator: (value) {
-      if (value == null || value.isEmpty) {
-        return hint;
-      }
-      return null;
-    },
-  );
+
+
+
+
 }
 
-
-// Widget _buildSubmitButton() {
-
-//   return Container(
-//     height: 78, // Povećajte visinu containera
-//     child: Center(
-//       child: ElevatedButton(
-//         onPressed: () async {
-//           if (_formKey.currentState!.validate()) {
-//             // Forma je uspešno validirana
-//             final formData = {
-//               'ime': _imeController.text,
-//               'prezime': _prezimeController.text,
-//               'email': _emailController.text,
-//               'pol': _polController.text,
-//               'korisnicko_ime': _korisnickoImeController.text,
-//               'lozinka': _lozinkaController.text,
-//               'broj_telefona': _brojTelefonaController.text,
-//               'datum_rodjenja': _datumRodjenjaController.text,
-//             };
-
-//             // Ovde biste mogli slati podatke na server ili ih obraditi kako vam odgovara
-
-//             // Primer: Snimanje korisnika na server
-//             try {
-//               await _userProvider.insert(formData);
-//               // Korisnik je uspešno dodat
-//               ScaffoldMessenger.of(context).showSnackBar(
-//                 SnackBar(content: Text('Korisnik je uspešno dodat.')),
-//               );
-//             } catch (e) {
-//               // Greška pri dodavanju korisnika
-//               ScaffoldMessenger.of(context).showSnackBar(
-//                 SnackBar(content: Text('Greška prilikom dodavanja korisnika: $e')),
-//               );
-//             }
-//           }
-//         },
-//         style: ElevatedButton.styleFrom(
-//           primary: Colors.purple,
-//           padding: EdgeInsets.all(20), // Povećajte veličinu gumba
-//         ),
-//         child: Text("Dodaj korisnika"),
-//       ),
-//     ),
-//   );
-// }
-
-Widget _buildSubmitButton() {
-  return Form(
-    key:_formKey,
-    child: ElevatedButton(onPressed: () async{
-  if (_formKey.currentState!.validate()) {
-            // Forma je uspešno validirana
-            final formData = {
-              'ime': _imeController.text,
-              'prezime': _prezimeController.text,
-              'email': _emailController.text,
-              'pol': _polController.text,
-              'korisnickoIme': _korisnickoImeController.text,
-              'lozinka': _lozinkaController.text,
-              'telefon': _brojTelefonaController.text,
-              'datum_rodjenja': _datumRodjenjaController.text,
-            };
-
-            // Ovde biste mogli slati podatke na server ili ih obraditi kako vam odgovara
-
-            // Primer: Snimanje korisnika na server
-            try {
-              await _userProvider.insert(formData);
-              // Korisnik je uspešno dodat
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Korisnik je uspešno dodat.')),
-              );
-            } catch (e) {
-              // Greška pri dodavanju korisnika
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Greška prilikom dodavanja korisnika: $e')),
-              );
-            }
-          }
-        },
-        style: ElevatedButton.styleFrom(
-          primary: Colors.purple,
-          padding: EdgeInsets.all(20), // Povećajte veličinu gumba
-        ),
-  
-  
-  child: Text("sumbit")),
-  );
-}
-
-}
 
 

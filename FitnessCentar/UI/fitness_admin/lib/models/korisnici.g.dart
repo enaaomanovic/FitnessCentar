@@ -24,6 +24,9 @@ Korisnici _$KorisniciFromJson(Map<String, dynamic> json) => Korisnici(
       (json['visina'] as num?)?.toDouble(),
       json['slika'] as String?,
       json['lozinka'] as String?,
+      json['trener'] == null
+          ? null
+          : Trener.fromJson(json['trener'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$KorisniciToJson(Korisnici instance) => <String, dynamic>{
@@ -40,4 +43,5 @@ Map<String, dynamic> _$KorisniciToJson(Korisnici instance) => <String, dynamic>{
       'visina': instance.visina,
       'slika': instance.slika,
       'lozinka': instance.lozinka,
+      'trener': instance.trener,
     };

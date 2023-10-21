@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:fitness_admin/providers/user_provider.dart';
 import 'package:fitness_admin/screens/homepage.dart';
 
@@ -84,17 +85,25 @@ class LoginPage extends StatelessWidget {
                             var username = _usernameControler.text;
                             var password = _passwordControler.text;
 
-                           
-
-                           Authorization.username = username;
-                           Authorization.password = password;
+                            Authorization.username = username;
+                            Authorization.password = password;
 
                             try {
-                              await _userProvider.get();
-
+                              var data = await _userProvider.get(filter: {
+                                'IsTrener': "true",
+                              });
+                              if (data != null) {
+                                if (data.result.firstWhereOrNull((x) =>
+                                        x.korisnickoIme?.toLowerCase() ==
+                                        username.toLowerCase()) ==
+                                    null) {
+                                  throw Exception("Trener ne psotoji");
+                                }
+                              }
                               Navigator.of(context).push(
                                 MaterialPageRoute(
-                                  builder: (context) => const HomeAuthenticated(),
+                                  builder: (context) =>
+                                      const HomeAuthenticated(),
                                 ),
                               );
                             } on Exception catch (e) {

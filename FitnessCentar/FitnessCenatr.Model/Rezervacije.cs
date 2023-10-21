@@ -18,6 +18,6 @@ namespace FitnessCentar.Model
 
         public virtual Korisnici? Korisnik { get; set; }
 
-        //public virtual Raspored? Raspored { get; set; }
+        public virtual Raspored? Raspored { get; set; }
     }
 }

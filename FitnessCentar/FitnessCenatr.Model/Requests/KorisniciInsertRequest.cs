@@ -21,12 +21,14 @@ namespace FitnessCentar.Model.Requests
         public string Telefon { get; set; }
 
          public DateTime? DatumRodjenja { get; set; }
+        public DateTime? DatumRegistracije { get; set; }
+
 
         public string Pol { get; set; }
 
-        public decimal Tezina { get; set; }
+        public decimal? Tezina { get; set; }
 
-        public decimal Visina { get; set; }
+        public decimal? Visina { get; set; }
         public byte[]? Slika { get; set; }
         public  Treneri? Trener { get; set; } = null!;
     }

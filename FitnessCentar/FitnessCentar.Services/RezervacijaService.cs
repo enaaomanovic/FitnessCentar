@@ -15,5 +15,16 @@ namespace FitnessCentar.Services
         public RezervacijaService(Ib200005rs2Context context, IMapper mapper) : base(context, mapper)
         {
         }
+
+
+        public override IQueryable<Rezervacije> AddInclude(IQueryable<Rezervacije> query)
+        {
+            return base.AddInclude(query);
+        }
+
+        public override IQueryable<Rezervacije> AddFilter(IQueryable<Rezervacije> query, RezervacijaSearchObject? search = null)
+        {
+            return base.AddFilter(query, search);
+        }
     }
 }
