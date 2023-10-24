@@ -353,6 +353,8 @@ class _AddUserState extends State<AddUser> {
 
       request['slika'] = _base64Image;
 
+      request['datumRegistracije']= DateTime.now().toIso8601String();
+
       try {
         if (widget.korisnik == null) {
           request['pol'] = pol;

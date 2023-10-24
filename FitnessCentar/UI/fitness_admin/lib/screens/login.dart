@@ -1,3 +1,5 @@
+//import 'dart:js_util';
+
 import 'package:collection/collection.dart';
 import 'package:fitness_admin/providers/user_provider.dart';
 import 'package:fitness_admin/screens/homepage.dart';
@@ -92,6 +94,21 @@ class LoginPage extends StatelessWidget {
                               var data = await _userProvider.get(filter: {
                                 'IsTrener': "true",
                               });
+
+                              var userr= data.result.firstWhereOrNull((x) => x.korisnickoIme?.toLowerCase()==username.toLowerCase() );
+                           
+
+                              var userid=userr?.id;
+                              print(userid);
+                              if (userr != null) {
+                               
+                                Provider.of<UserProvider>(context,
+                                        listen: false)
+                                    .setCurrentUserId(userr.id);
+                                
+}
+                            
+                             
                               if (data != null) {
                                 if (data.result.firstWhereOrNull((x) =>
                                         x.korisnickoIme?.toLowerCase() ==
@@ -100,12 +117,15 @@ class LoginPage extends StatelessWidget {
                                   throw Exception("Trener ne psotoji");
                                 }
                               }
+                              if (userid != null) {
                               Navigator.of(context).push(
                                 MaterialPageRoute(
                                   builder: (context) =>
-                                      const HomeAuthenticated(),
+                                       HomeAuthenticated(userId:userid ,userProvider: _userProvider ),
                                 ),
                               );
+                              }
+                              
                             } on Exception catch (e) {
                               showDialog(
                                 context: context,
