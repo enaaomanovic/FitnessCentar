@@ -11,6 +11,8 @@ import 'package:provider/provider.dart';
 import 'package:fitness_admin/models/korisnici.dart';
 import 'package:fitness_admin/providers/user_provider.dart';
 import 'package:fitness_admin/widgets/master_screens.dart';
+import 'package:form_builder_validators/form_builder_validators.dart';
+
 
 class AddTreiner extends StatefulWidget {
   const AddTreiner({Key? key, this.korisnik}) : super(key: key);
@@ -77,6 +79,8 @@ class _AddTreinerState extends State<AddTreiner> {
 Widget _addForm() {
   return FormBuilder(
     key: _formKey,
+       autovalidateMode: AutovalidateMode.onUserInteraction,
+
     child: Padding(
       padding: const EdgeInsets.all(20.0),
       child: Center(
@@ -108,6 +112,17 @@ Widget _addForm() {
                         flex: 2,
                         child: FormBuilderTextField(
                           decoration: InputDecoration(labelText: "Ime"),
+                            validator: (value) {
+                          if (_formKey.currentState?.fields['ime']?.isDirty ==
+                              true) {
+                            if (value == null || value.isEmpty) {
+                              return 'Ovo polje je obavezno!';
+                            } else if (value[0] != value[0].toUpperCase()) {
+                              return 'Ime mora početi velikim slovom.';
+                            }
+                          }
+                          return null;
+                        },
                           name: "ime",
                         ),
                       ),
@@ -116,6 +131,18 @@ Widget _addForm() {
                         flex: 2,
                         child: FormBuilderTextField(
                           decoration: InputDecoration(labelText: "Prezime"),
+                           validator: (value) {
+                          if (_formKey
+                                  .currentState?.fields['prezime']?.isDirty ==
+                              true) {
+                            if (value == null || value.isEmpty) {
+                              return 'Ovo polje je obavezno!';
+                            } else if (value[0] != value[0].toUpperCase()) {
+                              return 'Prezime mora početi velikim slovom.';
+                            }
+                          }
+                          return null;
+                        },
                           name: "prezime",
                         ),
                       ),
@@ -128,6 +155,18 @@ Widget _addForm() {
                         flex: 2,
                         child: FormBuilderTextField(
                           decoration: InputDecoration(labelText: "Korisničko ime"),
+                           validator: (value) {
+                          if (_formKey.currentState?.fields['korisnickoIme']
+                                  ?.isDirty ==
+                              true) {
+                            if (value == null || value.isEmpty) {
+                              return 'Ovo polje je obavezno!';
+                            } else if (value[0] != value[0].toUpperCase()) {
+                              return 'Korisničko ime mora početi velikim slovom.';
+                            }
+                          }
+                          return null;
+                        },
                           name: "korisnickoIme",
                         ),
                       ),
@@ -136,6 +175,20 @@ Widget _addForm() {
                         flex: 2,
                         child: FormBuilderTextField(
                           decoration: InputDecoration(labelText: "E-mail"),
+                           validator: (value) {
+                          if (_formKey
+                                  .currentState?.fields['email']?.isDirty ==
+                              true) {
+                            if (value == null || value.isEmpty) {
+                              return 'Ovo polje je obavezno!';
+                            } else if (!RegExp(
+                                    r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
+                                .hasMatch(value)) {
+                              return 'Unesite ispravan email.';
+                            }
+                          }
+                          return null;
+                        },
                           name: "email",
                         ),
                       ),
@@ -148,6 +201,21 @@ Widget _addForm() {
                         flex: 2,
                         child: FormBuilderTextField(
                           decoration: InputDecoration(labelText: "Lozinka"),
+                            validator: (value) {
+                          if (_formKey
+                                  .currentState?.fields['lozinka']?.isDirty ==
+                              true) {
+                            if (value == null || value.isEmpty) {
+                              return 'Ovo polje je obavezno!';
+                            } else if (value.length < 8 ||
+                                !value.contains(RegExp(r'[A-Z]')) ||
+                                !value.contains(RegExp(r'[a-z]')) ||
+                                !value.contains(RegExp(r'[0-9]'))) {
+                              return '8 karaktera,uključujući najmanje jedno veliko slovo (A-Z), jedno malo slovo (a-z) i jednu cifru (0-9)';
+                            }
+                          }
+                          return null;
+                        },
                           name: "lozinka",
                         ),
                       ),
@@ -156,6 +224,18 @@ Widget _addForm() {
                         flex: 2,
                         child: FormBuilderTextField(
                           decoration: InputDecoration(labelText: "Telefon"),
+                          validator: (value) {
+                          if (_formKey
+                                  .currentState?.fields['telefon']?.isDirty ==
+                              true) {
+                            if (value == null || value.isEmpty) {
+                              return 'Ovo polje je obavezno!';
+                            } else if (!RegExp(r'^[0-9]+$').hasMatch(value)) {
+                              return 'Unesite ispravan broj telefona (samo brojevi).';
+                            }
+                          }
+                          return null;
+                        },
                           name: "telefon",
                         ),
                       ),
@@ -184,6 +264,16 @@ Widget _addForm() {
                           name: 'datumRodjenja',
                           inputType: InputType.date,
                           decoration: InputDecoration(labelText: 'Datum rođenja'),
+                           validator: (value) {
+                          if (_formKey.currentState?.fields['datumRodjenja']
+                                  ?.isDirty ==
+                              true) {
+                            if (value == null) {
+                              return 'Unesite datum rođenja';
+                            }
+                          }
+                          return null;
+                        },
                           initialDate: DateTime.now(),
                           onChanged: (DateTime? newDate) {},
                         ),
@@ -193,6 +283,16 @@ Widget _addForm() {
                   SizedBox(height: 20),
                   FormBuilderTextField(
                     decoration: InputDecoration(labelText: "Specijalizacija"),
+                     validator: (value) {
+                          if (_formKey.currentState?.fields['specijalnost']
+                                  ?.isDirty ==
+                              true) {
+                            if (value == null || value.isEmpty) {
+                              return 'Ovo polje je obavezno!';
+                            } 
+                          }
+                          return null;
+                        },
                     name: "specijalnost",
                   ),
                   SizedBox(height: 20),

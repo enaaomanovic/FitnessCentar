@@ -25,8 +25,6 @@ class _NewsListScrean extends State<NewsListScrean> {
   List<Novosti> _novosti = [];
   List<Korisnici> _treneri = [];
 
-
-
   @override
  void initState() {
   super.initState();
