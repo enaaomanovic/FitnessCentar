@@ -26,6 +26,9 @@ namespace FitnessCentar.Model
 
         public virtual Treneri? Trener { get; set; }
 
-       // public virtual Treningi? Trening { get; set; }
+        // public virtual Treningi? Trening { get; set; }
+
+        public DayOfWeek Dan { get; set; }
+
     }
 }

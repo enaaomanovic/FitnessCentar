@@ -191,7 +191,6 @@ public partial class Ib200005rs2Context : DbContext
             entity.HasKey(e => e.Id).HasName("PK__Raspored__3214EC2788CB231D");
 
             entity.ToTable("Raspored");
-
             entity.Property(e => e.Id).HasColumnName("ID");
             entity.Property(e => e.AktivnostId).HasColumnName("AktivnostID");
             entity.Property(e => e.DatumPocetka).HasColumnType("datetime");

@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:ui';
+
 import 'package:fitness_admin/models/korisnici.dart';
 import 'package:fitness_admin/providers/user_provider.dart';
 import 'package:fitness_admin/screens/add_news.dart';
@@ -6,29 +9,39 @@ import 'package:fitness_admin/screens/news_list.dart';
 import 'package:fitness_admin/screens/schedule_list.dart';
 import 'package:fitness_admin/screens/user_details_screens.dart';
 import 'package:fitness_admin/screens/user_list.dart';
+import 'package:fitness_admin/utils/util.dart';
 import 'package:fitness_admin/widgets/master_screens.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter/material.dart';
 
 class HomeAuthenticated extends StatelessWidget {
-     final int? userId;
+  final int? userId;
   final UserProvider userProvider;
-  
-  const HomeAuthenticated({Key? key, required this.userId, required this.userProvider,}) : super(key: key);
+ 
 
+  const HomeAuthenticated({
+    Key? key,
+    required this.userId,
+    required this.userProvider,
+       
+  }) : super(key: key);
 
-
- Future<Korisnici?> getUserFromUserId(int userId) async {
-    
+  Future<Korisnici?> getUserFromUserId(int userId) async {
     final user = await userProvider.getById(userId);
-    print("korisnici su ${user}");
     return user;
   }
 
    @override
   Widget build(BuildContext context) {
+    return _buildHomepage(context);
+  }
+
+
+
+  Widget _buildHomepage(BuildContext context) {
+     
+    
     return Scaffold(
       appBar: AppBar(
         title: Text("Fitness Centar"),
@@ -58,43 +71,69 @@ class HomeAuthenticated extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.all(15.0),
             child: Row(
-              children: [
-                Container(
-                  width: 150,
-                  height: 150,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    image: DecorationImage(
-                      image: AssetImage("assets/images/FitnessLogo.jpg"),
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                ),
-                SizedBox(width: 20),
-                FutureBuilder<Korisnici?>(
-                  future: getUserFromUserId(userId ?? 0),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return CircularProgressIndicator();
-                    } else if (snapshot.hasError) {
-                      return Text('Greška: ${snapshot.error}');
-                    } else if (snapshot.hasData) {
-                      final user = snapshot.data!;
-                      return Text(
-                        "Dobro došli, ${user.ime} ${user.prezime}",
-                        style: TextStyle(
-                          fontSize: 24,
-                          color: Colors.white,
-                         fontWeight: FontWeight.bold,
-                        ),
-                      );
-                    } else {
-                      return Text('Nema dostupnih podataka');
-                    }
-                  },
-                ),
-              ],
+  children: [
+    Container(
+      width: 150,
+      height: 150,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        image: DecorationImage(
+          image: AssetImage("assets/images/FitnessLogo.jpg"),
+          fit: BoxFit.cover,
+        ),
+      ),
+    ),
+    SizedBox(width: 20),
+    FutureBuilder<Korisnici?>(
+      future: getUserFromUserId(userId ?? 0),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return CircularProgressIndicator();
+        } else if (snapshot.hasError) {
+          return Text('Greška: ${snapshot.error}');
+        } else if (snapshot.hasData) {
+          final user = snapshot.data!;
+          return Text(
+            "Dobro došli, ${user.ime} ${user.prezime}",
+            style: TextStyle(
+              fontSize: 24,
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
             ),
+          );
+        } else {
+          return Text('Nema dostupnih podataka');
+        }
+      },
+    ),
+    // Dodajte korisnikovu sliku sa desne strane
+    SizedBox(width: 10), // Dodajte odgovarajući razmak
+  FutureBuilder<Korisnici?>(
+  future: getUserFromUserId(userId ?? 0),
+  builder: (context, snapshot) {
+    if (snapshot.connectionState == ConnectionState.waiting) {
+      return CircularProgressIndicator();
+    } else if (snapshot.hasError) {
+      return Text('Greška: ${snapshot.error}');
+    } else if (snapshot.hasData) {
+      final user = snapshot.data!;
+      //final userImage = imageFromBase64String(user.slika!); 
+      final userImage = user.slika != null ? imageFromBase64String(user.slika!) : null;
+final userImageBytes = user.slika != null ? Uint8List.fromList(base64Decode(user.slika!)) : null;
+
+     return CircleAvatar(
+  backgroundImage: Image.memory(Uint8List.fromList(userImageBytes!)).image,
+  radius: 50,
+);
+    } else {
+      return Text('Nema dostupnih podataka');
+    }
+  },
+)
+
+
+  ],
+)
           ),
           Center(
             child: Column(
@@ -163,11 +202,11 @@ class HomeAuthenticated extends StatelessWidget {
                   children: [
                     ElevatedButton(
                       onPressed: () {
-                          Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) => const NewsListScrean(),
-                        ),
-                      );
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => const NewsListScrean(),
+                          ),
+                        );
                       },
                       child: Padding(
                         padding: const EdgeInsets.all(20.0),
@@ -182,14 +221,14 @@ class HomeAuthenticated extends StatelessWidget {
                       onPressed: () {
                         Navigator.of(context).push(
                           MaterialPageRoute(
-                            builder: (context) => const ScheduleListScrean(),
+                            builder: (context) => const ScheduleListScreen(),
                           ),
                         );
                       },
                       child: Padding(
                         padding: const EdgeInsets.all(20.0),
                         child: Text(
-                          "Pregled rezervacija",
+                          "Pregled rasporeda",
                           style: TextStyle(fontSize: 18),
                         ),
                       ),
@@ -217,5 +256,5 @@ class HomeAuthenticated extends StatelessWidget {
     );
   }
 
-
+ 
 }

@@ -18,6 +18,8 @@ namespace FitnessCentar.Model.Requests
         public int? TrenerId { get; set; }
 
         public int? AktivnostId { get; set; }
+        public DayOfWeek Dan { get; set; }
+
 
 
 

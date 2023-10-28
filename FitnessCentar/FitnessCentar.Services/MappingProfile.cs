@@ -52,7 +52,12 @@ namespace FitnessCentar.Services
             CreateMap<Model.Requests.AktivnostiInsertRequest, Database.Aktivnosti>();
             CreateMap<Model.Requests.AktivnostiUpdateRequest, Database.Aktivnosti>();
 
-           
+
+            CreateMap<Database.Raspored, Model.Raspored>();
+            CreateMap<Model.Requests.RasporedInsertRequest, Database.Raspored>();
+            CreateMap<Model.Requests.RasporedUpdateRequest, Database.Raspored>();
+
+
 
         }
     }

@@ -1,5 +1,7 @@
 import 'package:fitness_admin/providers/news_provider.dart';
+import 'package:fitness_admin/providers/schedule_provider.dart';
 import 'package:fitness_admin/providers/user_provider.dart';
+import 'package:fitness_admin/providers/workout_provider.dart';
 import 'package:fitness_admin/screens/home_unauthenticated.dart';
 import 'package:fitness_admin/utils/util.dart';
 import 'package:flutter/foundation.dart';
@@ -9,7 +11,9 @@ import 'package:provider/provider.dart';
 void main() {
   runApp(MultiProvider(
     providers: [ChangeNotifierProvider(create: (_) => UserProvider()),
-    ChangeNotifierProvider(create: (_) => NewsProvider())],
+    ChangeNotifierProvider(create: (_) => NewsProvider()),
+    ChangeNotifierProvider(create: (_)=>ScheduleProvider()),
+    ChangeNotifierProvider(create: (_)=>WorkoutProvider())],
 
 
 

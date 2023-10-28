@@ -52,6 +52,9 @@ class _UserListScrean extends State<UserListScrean> {
     );
   }
 
+
+
+
   Widget _buildSearch() {
   return Padding(
     padding: const EdgeInsets.all(8.0),
@@ -120,6 +123,7 @@ Widget _buildDataListView() {
                     style: TextStyle(fontStyle: FontStyle.italic, fontSize: 19),
                   ),
                 ),
+
               ],
               rows: result?.result
                   .map((Korisnici e) => DataRow(
@@ -152,16 +156,18 @@ Widget _buildDataListView() {
                               style: TextStyle(fontSize: 20),
                             ),
                           ),
-                          DataCell(
-                            e.slika != ""
-                                ? Container(
-                                    width: 100,
-                                    height: 100,
-                                    child: imageFromBase64String(e.slika!),
-                                  )
-                                : Text(""),
-                          ),
-                        ],
+                         DataCell(
+                                  e.slika != ""
+                                      ? Container(
+                                          width: 100,
+                                          height: 100,
+                                          child:
+                                              imageFromBase64String(e.slika!),
+                                        )
+                                      : Image.asset(
+                                          'assets/images/male_icon.jpg'),
+                                ),
+                              ],
                       ))
                   .toList() ??
                   [],

@@ -4,6 +4,7 @@ using FitnessCentar.Services.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FitnessCentar.Services.Migrations
 {
     [DbContext(typeof(Ib200005rs2Context))]
-    partial class Ib200005rs2ContextModelSnapshot : ModelSnapshot
+    [Migration("20231026185301_back")]
+    partial class back
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -281,9 +284,6 @@ namespace FitnessCentar.Services.Migrations
                     b.Property<int?>("AktivnostId")
                         .HasColumnType("int")
                         .HasColumnName("AktivnostID");
-
-                    b.Property<int>("Dan")
-                        .HasColumnType("int");
 
                     b.Property<DateTime?>("DatumPocetka")
                         .HasColumnType("datetime");

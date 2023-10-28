@@ -64,18 +64,18 @@ class _AddTreinerState extends State<AddTreiner> {
 
   }
 
+ 
   @override
-  Widget build(BuildContext context) {
-    return MasterScreanWidget(
-      // ignore: sort_child_properties_last
-     
+Widget build(BuildContext context) {
+  return MasterScreanWidget(
+    child: SingleChildScrollView(
       child: Column(
         children: [isLoading ? Container() : _addForm(), _submitbtn()],
       ),
-      title: "Dodaj korisnika",
-       
-    );
-  }
+    ),
+    title: "Dodaj korisnika",
+  );
+}
 Widget _addForm() {
   return FormBuilder(
     key: _formKey,
@@ -344,6 +344,7 @@ Widget _submitbtn() {
                 // Kreirajte objekat Trener sa specijalizacijom
                 var trener = Trener(0, request['specijalnost']);
                 request['trener'] = trener;
+                request['slika']=_base64Image;
 
                 try {
                   if (widget.korisnik == null) {

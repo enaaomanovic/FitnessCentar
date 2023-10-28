@@ -65,17 +65,26 @@ class _UserDetalScreenState extends State<UserDetalScreen> {
     super.didChangeDependencies();
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return MasterScreanWidget(
-       child: Container(
-        child: Column(children: [_buildForm(),_buildButton()]),
-      ),
-     
-     title: (this.widget.korisnik?.ime ?? "") + "  " + (this.widget.korisnik?.prezime ?? "Users Details"),
 
-    );
-  }
+
+  @override
+Widget build(BuildContext context) {
+  return MasterScreanWidget(
+    child: SingleChildScrollView(
+      scrollDirection: Axis.vertical,
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Container(
+          child: Column(
+            children: [_buildForm(), _buildButton()],
+          ),
+        ),
+      ),
+    ),
+    title: (this.widget.korisnik?.ime ?? "") + "  " + (this.widget.korisnik?.prezime ?? "Users Details"),
+  );
+}
+
 
   FormBuilder _buildForm() {
     return FormBuilder(
