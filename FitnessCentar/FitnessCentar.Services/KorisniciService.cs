@@ -121,19 +121,7 @@ namespace FitnessCentar.Services
 
             return  _mapper.Map<Model.Korisnici>(entity);
         }
-        //public override IQueryable<Korisnici> AddFilter(IQueryable<Korisnici> query, KorisniciSearchObject? search = null)
-        //{
-        //    if (search?.IsTrener ?? false)
-        //    {
-        //        query = query.Where(x => x.Trener != null);
-
-        //    }
-        //    else
-        //    {
-        //        query = query.Where(x => x.Trener == null);
-        //    }
-        //    return base.AddFilter(query, search);
-        //}
+        
         public override IQueryable<Korisnici> AddFilter(IQueryable<Korisnici> query, KorisniciSearchObject? search = null)
         {
             var filteredQuery = base.AddFilter(query, search);

@@ -1,4 +1,6 @@
+import 'package:fitness_admin/providers/active_provider.dart';
 import 'package:fitness_admin/providers/news_provider.dart';
+import 'package:fitness_admin/providers/reservation_provider.dart';
 import 'package:fitness_admin/providers/schedule_provider.dart';
 import 'package:fitness_admin/providers/user_provider.dart';
 import 'package:fitness_admin/providers/workout_provider.dart';
@@ -13,7 +15,9 @@ void main() {
     providers: [ChangeNotifierProvider(create: (_) => UserProvider()),
     ChangeNotifierProvider(create: (_) => NewsProvider()),
     ChangeNotifierProvider(create: (_)=>ScheduleProvider()),
-    ChangeNotifierProvider(create: (_)=>WorkoutProvider())],
+    ChangeNotifierProvider(create: (_)=>WorkoutProvider()),
+    ChangeNotifierProvider(create: (_)=>ActiveProvider()),
+    ChangeNotifierProvider(create: (_)=>ReservationProvider())],
 
 
 

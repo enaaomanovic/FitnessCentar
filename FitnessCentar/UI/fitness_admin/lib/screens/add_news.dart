@@ -87,7 +87,7 @@ void initState() {
                 borderRadius: BorderRadius.circular(20.0),
               ),
               child: SizedBox(
-                height: 500,
+                height: 550,
                 width: 600,
                 child: Padding(
                   padding: const EdgeInsets.all(20.0),
@@ -202,9 +202,9 @@ void initState() {
                     }
                   }
                 },
-                child: Text("Sačuvaj"),
+                child: Text("Sačuvaj", style: TextStyle(fontSize: 18)),
                 style: ElevatedButton.styleFrom(
-                  padding: EdgeInsets.all(25),
+                  padding: EdgeInsets.all(20),
                 ),
               ),
             ),

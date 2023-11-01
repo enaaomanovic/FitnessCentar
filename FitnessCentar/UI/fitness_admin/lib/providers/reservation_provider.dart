@@ -1,6 +1,5 @@
 import 'dart:convert';
-import 'package:fitness_admin/models/raspored.dart';
-import 'package:fitness_admin/models/trening.dart';
+import 'package:fitness_admin/models/rezervacija.dart';
 import 'package:fitness_admin/models/search_result.dart';
 import 'package:fitness_admin/providers/base_provider.dart';
 import 'package:fitness_admin/utils/util.dart';
@@ -8,13 +7,12 @@ import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 
-class WorkoutProvider extends BaseProvider<Trening> {
-  WorkoutProvider():super("Trening");
+class ReservationProvider extends BaseProvider<Rezervacija> {
+  ReservationProvider() : super("Rezervacija");
 
   @override
-  Trening fromJson(data) {
+  Rezervacija fromJson(data) {
     // TODO: implement fromJson
-    return Trening.fromJson(data);
+    return Rezervacija.fromJson(data);
   }
-  
 }

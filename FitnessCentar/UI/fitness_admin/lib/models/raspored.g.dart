@@ -27,5 +27,5 @@ Map<String, dynamic> _$RasporedToJson(Raspored instance) => <String, dynamic>{
       'trenerId': instance.trenerId,
       'treningId': instance.treningId,
       'aktivnostId': instance.aktivnostId,
-      'dan':instance.dan,
+      'dan': instance.dan,
     };

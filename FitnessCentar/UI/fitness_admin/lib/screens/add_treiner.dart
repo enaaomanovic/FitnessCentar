@@ -73,7 +73,7 @@ Widget build(BuildContext context) {
         children: [isLoading ? Container() : _addForm(), _submitbtn()],
       ),
     ),
-    title: "Dodaj korisnika",
+    title: "Dodaj trenera",
   );
 }
 Widget _addForm() {
@@ -386,9 +386,9 @@ Widget _submitbtn() {
                   );
                 }
               },
-              child: Text("Sačuvaj trenera"),
+              child: Text("Sačuvaj trenera",style: TextStyle(fontSize: 18)),
               style: ElevatedButton.styleFrom(
-                padding: EdgeInsets.all(15),
+                padding: EdgeInsets.all(20),
               ),
             ),
           ),

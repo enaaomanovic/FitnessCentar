@@ -24,7 +24,18 @@ namespace FitnessCentar.Services
 
         public override IQueryable<Rezervacije> AddFilter(IQueryable<Rezervacije> query, RezervacijaSearchObject? search = null)
         {
-            return base.AddFilter(query, search);
+            var filteredQuery = base.AddFilter(query, search);
+
+            if (search != null)
+            {
+                
+                
+                    filteredQuery = filteredQuery.Where(x => x.RasporedId == search.rasporedId);
+                
+
+            }
+            return filteredQuery;
+            
         }
     }
 }
