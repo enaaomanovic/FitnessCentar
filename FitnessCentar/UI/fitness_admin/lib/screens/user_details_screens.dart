@@ -1,10 +1,20 @@
 import 'package:fitness_admin/models/korisnici.dart';
+import 'package:fitness_admin/models/raspored.dart';
+import 'package:fitness_admin/models/rezervacija.dart';
+import 'package:fitness_admin/models/search_result.dart';
+import 'package:fitness_admin/models/trening.dart';
+import 'package:fitness_admin/providers/reservation_provider.dart';
+import 'package:fitness_admin/providers/schedule_provider.dart';
+import 'package:fitness_admin/providers/workout_provider.dart';
 import 'package:fitness_admin/utils/util.dart';
 import 'package:fitness_admin/widgets/master_screens.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
+import 'package:intl/intl.dart';
 import 'dart:convert';
+
+import 'package:provider/provider.dart';
 
 class UserDetalScreen extends StatefulWidget {
   Korisnici? korisnik;
@@ -18,6 +28,11 @@ class _UserDetalScreenState extends State<UserDetalScreen> {
   final _formKey = GlobalKey<FormBuilderState>();
   Map<String, dynamic> _initialValue = {};
   Image? userImage;
+  late ReservationProvider _reservationProvider;
+  late ScheduleProvider _scheduleProvider;
+  late WorkoutProvider _workoutProvider;
+  SearchResult<Rezervacija>? result;
+  List<Rezervacija>? userReservations;
 
   @override
   void initState() {
@@ -57,6 +72,10 @@ class _UserDetalScreenState extends State<UserDetalScreen> {
         "slika": widget.korisnik?.slika
       };
     }
+    _workoutProvider = context.read<WorkoutProvider>();
+    _reservationProvider = context.read<ReservationProvider>();
+    _scheduleProvider = context.read<ScheduleProvider>();
+    _loadData();
   }
 
   @override
@@ -65,26 +84,132 @@ class _UserDetalScreenState extends State<UserDetalScreen> {
     super.didChangeDependencies();
   }
 
+  void _loadData() async {
+    final korisnikid = widget.korisnik!.id;
+    var data = await _reservationProvider.get(filter: {
+      'korisnikId': korisnikid.toString(),
+    });
 
+    setState(() {
+      userReservations = data.result;
+    });
+  }
 
-  @override
-Widget build(BuildContext context) {
-  return MasterScreanWidget(
-    child: SingleChildScrollView(
-      scrollDirection: Axis.vertical,
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
+  Future<Raspored?> getRasporedFromId(int rasporedId) async {
+    final raspored = await _scheduleProvider.getById(rasporedId);
+    return raspored;
+  }
+
+    String _dayOfWeekToString(int dan) {
+    switch (dan) {
+      case 0:
+        return 'Ned';
+      case 1:
+        return 'Ponedjeljak';
+      case 2:
+        return 'Utorak';
+      case 3:
+        return 'Srijeda';
+      case 4:
+        return 'Červrtak';
+      case 5:
+        return 'Petak';
+
+      default:
+        return '';
+    }
+  }
+
+  Future<Trening?> getTreningFromId(int treningId) async {
+    final trening = await _workoutProvider.getById(treningId);
+   
+    return trening;
+  }
+
+Future<void> _showReservationPopup(BuildContext context) async {
+  final List<Widget> listTiles = [];
+
+  if (userReservations != null && userReservations!.isNotEmpty) {
+    await Future.forEach(userReservations!, (userReservation) async {
+      final raspored = await getRasporedFromId(userReservation.rasporedId ?? 0);
+      final trening = await getTreningFromId(raspored?.treningId ?? 0);
+
+      // Konvertujte datum u odgovarajući format (samo sati)
+      final satnicaOd = DateFormat.Hm().format(raspored?.datumPocetka ?? DateTime.now());
+      final satnicaDo = DateFormat.Hm().format(raspored?.datumZavrsetka ?? DateTime.now());
+
+      // Konvertujte dan u odgovarajući format (pon, uto, sri, ...)
+      final dan = _dayOfWeekToString(raspored?.dan ?? 0);
+
+      listTiles.add(
+        ListTile(
+          title: Text('Trening: Kružni'),
+          subtitle: Text('Dan: $dan, Satnica: $satnicaOd - $satnicaDo'),
+        ),
+      );
+
+      // Dodajte Divider između termina
+      listTiles.add(Divider());
+    });
+  }
+
+  await showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return Dialog(
         child: Container(
+          width: 400,
+          height: 400,
+          color: Colors.white,
           child: Column(
-            children: [_buildForm(), _buildButton()],
+            children: <Widget>[
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  Text(
+                    'Korisnik je rezervisao sljedeće termine',
+                    style: TextStyle(color: Colors.black, fontSize: 18),
+                  ),
+                  IconButton(
+                    icon: Icon(Icons.close, color: Colors.purple),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                  ),
+                ],
+              ),
+              if (listTiles.isNotEmpty) ...listTiles,
+            ],
           ),
         ),
-      ),
-    ),
-    title: (this.widget.korisnik?.ime ?? "") + "  " + (this.widget.korisnik?.prezime ?? "Users Details"),
+      );
+    },
   );
 }
 
+
+
+
+
+  @override
+  Widget build(BuildContext context) {
+    return MasterScreanWidget(
+      child: SingleChildScrollView(
+        scrollDirection: Axis.vertical,
+        child: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Container(
+            child: Column(
+              children: [_buildForm(), _buildButton()],
+            ),
+          ),
+        ),
+      ),
+      title: (this.widget.korisnik?.ime ?? "") +
+          "  " +
+          (this.widget.korisnik?.prezime ?? "Users Details"),
+    );
+  }
 
   FormBuilder _buildForm() {
     return FormBuilder(
@@ -92,12 +217,10 @@ Widget build(BuildContext context) {
       initialValue: _initialValue,
       child: Row(
         children: [
-Padding(
-  padding: EdgeInsets.all(40.0),
-  child: Container(
-    decoration: BoxDecoration(
-               
-              ),
+          Padding(
+            padding: EdgeInsets.all(40.0),
+            child: Container(
+              decoration: BoxDecoration(),
               child: Align(
                 alignment: Alignment.topLeft,
                 child: ConstrainedBox(
@@ -128,346 +251,347 @@ Padding(
                               height: 400.0,
                               decoration: BoxDecoration(
                                 border: Border.all(
-              color: Colors.purple, // Boja bordera
-              width: 2.0, // Debljina bordera
+                                  color: Colors.purple, // Boja bordera
+                                  width: 2.0, // Debljina bordera
+                                ),
+                              ),
+                              child: Image.asset('assets/images/male_icon.jpg'),
+                            ),
+                    )),
+              ),
             ),
           ),
-          child: Image.asset('assets/images/male_icon.jpg'),
-        ),
-)
-
-      ),
-    ),
-  ),
-),
-Card(
-  elevation: 6,
-  shape: RoundedRectangleBorder(
-    borderRadius: BorderRadius.circular(20.0),
-  ),
-  child: SizedBox(
-    width: 900,
-    height: 500,
-    child: Padding(
-      padding: const EdgeInsets.all(40.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Prvi red: Ime i Prezime
-          Row(
-            children: [
-              Expanded(
-                child: FormBuilderTextField(
+          Card(
+            elevation: 6,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20.0),
+            ),
+            child: SizedBox(
+              width: 900,
+              height: 500,
+              child: Padding(
+                padding: const EdgeInsets.all(40.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Prvi red: Ime i Prezime
+                    Row(
+                      children: [
+                        Expanded(
+                          child: FormBuilderTextField(
                             style: TextStyle(
                               fontSize: 20,
                               color: Colors.black,
                             ),
-                  decoration: InputDecoration(
-                    
-                    labelText: "Ime",
-                    border: OutlineInputBorder(
-                      borderSide: BorderSide(
-                        color: Colors.purple,
-                        width: 2.0,
-                      ),
-                    ),
-                    labelStyle: TextStyle(
-                      color: Colors.black,
-                     fontSize: 25,
-                    ),
-                  ),
-                  name: "ime",
-                  enabled: false,
-                ),
-              ),
-              SizedBox(width: 30),
-              Expanded(
-                child: FormBuilderTextField(
-                  style: TextStyle(
+                            decoration: InputDecoration(
+                              labelText: "Ime",
+                              border: OutlineInputBorder(
+                                borderSide: BorderSide(
+                                  color: Colors.purple,
+                                  width: 2.0,
+                                ),
+                              ),
+                              labelStyle: TextStyle(
+                                color: Colors.black,
+                                fontSize: 25,
+                              ),
+                            ),
+                            name: "ime",
+                            enabled: false,
+                          ),
+                        ),
+                        SizedBox(width: 30),
+                        Expanded(
+                          child: FormBuilderTextField(
+                            style: TextStyle(
                               fontSize: 20,
                               color: Colors.black,
                             ),
-                  decoration: InputDecoration(
-                    labelText: "Prezime",
-                    border: OutlineInputBorder(
-                      borderSide: BorderSide(
-                        color: Colors.purple,
-                        width: 2.0,
-                      ),
+                            decoration: InputDecoration(
+                              labelText: "Prezime",
+                              border: OutlineInputBorder(
+                                borderSide: BorderSide(
+                                  color: Colors.purple,
+                                  width: 2.0,
+                                ),
+                              ),
+                              labelStyle: TextStyle(
+                                color: Colors.black,
+                                fontSize: 25,
+                              ),
+                            ),
+                            name: "prezime",
+                            enabled: false,
+                          ),
+                        ),
+                      ],
                     ),
-                    labelStyle: TextStyle(
-                      color: Colors.black,
-                      fontSize: 25,
-                    ),
-                  ),
-                  name: "prezime",
-                  enabled: false,
-                ),
-              ),
-            ],
-          ),
-          SizedBox(height: 30),
+                    SizedBox(height: 30),
 
-          // Drugi red: Email i Telefon
-          Row(
-            children: [
-              Expanded(
-                child: FormBuilderTextField(
-                  style: TextStyle(
+                    // Drugi red: Email i Telefon
+                    Row(
+                      children: [
+                        Expanded(
+                          child: FormBuilderTextField(
+                            style: TextStyle(
                               fontSize: 20,
                               color: Colors.black,
                             ),
-                  decoration: InputDecoration(
-                    labelText: "Email",
-                    border: OutlineInputBorder(
-                      borderSide: BorderSide(
-                        color: Colors.purple,
-                        width: 2.0,
-                      ),
-                    ),
-                    labelStyle: TextStyle(
-                      color: Colors.black,
-                     fontSize: 25,
-                    ),
-                  ),
-                  name: "email",
-                  enabled: false,
-                ),
-              ),
-              SizedBox(width: 30),
-              Expanded(
-                child: FormBuilderTextField(
-                  style: TextStyle(
+                            decoration: InputDecoration(
+                              labelText: "Email",
+                              border: OutlineInputBorder(
+                                borderSide: BorderSide(
+                                  color: Colors.purple,
+                                  width: 2.0,
+                                ),
+                              ),
+                              labelStyle: TextStyle(
+                                color: Colors.black,
+                                fontSize: 25,
+                              ),
+                            ),
+                            name: "email",
+                            enabled: false,
+                          ),
+                        ),
+                        SizedBox(width: 30),
+                        Expanded(
+                          child: FormBuilderTextField(
+                            style: TextStyle(
                               fontSize: 20,
                               color: Colors.black,
                             ),
-                  decoration: InputDecoration(
-                    labelText: "Telefon",
-                    border: OutlineInputBorder(
-                      borderSide: BorderSide(
-                        color: Colors.purple,
-                        width: 2.0,
-                      ),
+                            decoration: InputDecoration(
+                              labelText: "Telefon",
+                              border: OutlineInputBorder(
+                                borderSide: BorderSide(
+                                  color: Colors.purple,
+                                  width: 2.0,
+                                ),
+                              ),
+                              labelStyle: TextStyle(
+                                color: Colors.black,
+                                fontSize: 25,
+                              ),
+                            ),
+                            name: "telefon",
+                            enabled: false,
+                          ),
+                        ),
+                      ],
                     ),
-                    labelStyle: TextStyle(
-                      color: Colors.black,
-                      fontSize: 25,
-                    ),
-                  ),
-                  name: "telefon",
-                  enabled: false,
-                ),
-              ),
-            ],
-          ),
-          SizedBox(height: 30),
+                    SizedBox(height: 30),
 
-          // Treći red: Datum rodjenja i Datum registracije
-          Row(
-            children: [
-              Expanded(
-                child: FormBuilderTextField(
-                  style: TextStyle(
+                    // Treći red: Datum rodjenja i Datum registracije
+                    Row(
+                      children: [
+                        Expanded(
+                          child: FormBuilderTextField(
+                            style: TextStyle(
                               fontSize: 20,
                               color: Colors.black,
                             ),
-                  decoration: InputDecoration(
-                    labelText: "Datum rodjenja",
-                    border: OutlineInputBorder(
-                      borderSide: BorderSide(
-                        color: Colors.purple,
-                        width: 2.0,
-                      ),
-                    ),
-                    labelStyle: TextStyle(
-                      color: Colors.black,
-                      fontSize: 25,
-                    ),
-                  ),
-                  name: "datumRodjenja",
-                  enabled: false,
-                ),
-              ),
-              SizedBox(width: 30),
-              Expanded(
-                child: FormBuilderTextField(
-                  style: TextStyle(
+                            decoration: InputDecoration(
+                              labelText: "Datum rodjenja",
+                              border: OutlineInputBorder(
+                                borderSide: BorderSide(
+                                  color: Colors.purple,
+                                  width: 2.0,
+                                ),
+                              ),
+                              labelStyle: TextStyle(
+                                color: Colors.black,
+                                fontSize: 25,
+                              ),
+                            ),
+                            name: "datumRodjenja",
+                            enabled: false,
+                          ),
+                        ),
+                        SizedBox(width: 30),
+                        Expanded(
+                          child: FormBuilderTextField(
+                            style: TextStyle(
                               fontSize: 20,
                               color: Colors.black,
                             ),
-                  decoration: InputDecoration(
-                    labelText: "Datum registracije",
-                    border: OutlineInputBorder(
-                      borderSide: BorderSide(
-                        color: Colors.purple,
-                        width: 2.0,
-                      ),
+                            decoration: InputDecoration(
+                              labelText: "Datum registracije",
+                              border: OutlineInputBorder(
+                                borderSide: BorderSide(
+                                  color: Colors.purple,
+                                  width: 2.0,
+                                ),
+                              ),
+                              labelStyle: TextStyle(
+                                color: Colors.black,
+                                fontSize: 25,
+                              ),
+                            ),
+                            name: "datumRegistracije",
+                            enabled: false,
+                          ),
+                        ),
+                      ],
                     ),
-                    labelStyle: TextStyle(
-                      color: Colors.black,
-                     fontSize: 25,
-                    ),
-                  ),
-                  name: "datumRegistracije",
-                  enabled: false,
-                ),
-              ),
-            ],
-          ),
-          SizedBox(height: 30),
+                    SizedBox(height: 30),
 
-          // Četvrti red: Korisnicko Ime, Pol, Visina i Tezina
-          Row(
-            children: [
-              Expanded(
-                child: FormBuilderTextField(
-                  style: TextStyle(
+                    // Četvrti red: Korisnicko Ime, Pol, Visina i Tezina
+                    Row(
+                      children: [
+                        Expanded(
+                          child: FormBuilderTextField(
+                            style: TextStyle(
                               fontSize: 20,
                               color: Colors.black,
                             ),
-                  decoration: InputDecoration(
-                    labelText: "Korisnicko ime",
-                    border: OutlineInputBorder(
-                      borderSide: BorderSide(
-                        color: Colors.purple,
-                        width: 2.0,
-                      ),
-                    ),
-                    labelStyle: TextStyle(
-                      color: Colors.black,
-                      fontSize: 25,
-                    ),
-                  ),
-                  name: "korisnickoIme",
-                  enabled: false,
-                ),
-              ),
-              SizedBox(width: 30),
-              Expanded(
-                child: FormBuilderTextField(
-                  style: TextStyle(
+                            decoration: InputDecoration(
+                              labelText: "Korisnicko ime",
+                              border: OutlineInputBorder(
+                                borderSide: BorderSide(
+                                  color: Colors.purple,
+                                  width: 2.0,
+                                ),
+                              ),
+                              labelStyle: TextStyle(
+                                color: Colors.black,
+                                fontSize: 25,
+                              ),
+                            ),
+                            name: "korisnickoIme",
+                            enabled: false,
+                          ),
+                        ),
+                        SizedBox(width: 30),
+                        Expanded(
+                          child: FormBuilderTextField(
+                            style: TextStyle(
                               fontSize: 20,
                               color: Colors.black,
                             ),
-                  decoration: InputDecoration(
-                    labelText: "Pol",
-                    border: OutlineInputBorder(
-                      borderSide: BorderSide(
-                        color: Colors.purple,
-                        width: 2.0,
-                      ),
+                            decoration: InputDecoration(
+                              labelText: "Pol",
+                              border: OutlineInputBorder(
+                                borderSide: BorderSide(
+                                  color: Colors.purple,
+                                  width: 2.0,
+                                ),
+                              ),
+                              labelStyle: TextStyle(
+                                color: Colors.black,
+                                fontSize: 25,
+                              ),
+                            ),
+                            name: "pol",
+                            enabled: false,
+                          ),
+                        ),
+                      ],
                     ),
-                    labelStyle: TextStyle(
-                      color: Colors.black,
-                      fontSize: 25,
-                    ),
-                  ),
-                  name: "pol",
-                  enabled: false,
-                ),
-              ),
-            ],
-          ),
-          SizedBox(height: 30),
+                    SizedBox(height: 30),
 
-          Row(
-            children: [
-              Expanded(
-                child: FormBuilderTextField(
-                  style: TextStyle(
+                    Row(
+                      children: [
+                        Expanded(
+                          child: FormBuilderTextField(
+                            style: TextStyle(
                               fontSize: 20,
                               color: Colors.black,
                             ),
-                  decoration: InputDecoration(
-                    labelText: "Visina",
-                    border: OutlineInputBorder(
-                      borderSide: BorderSide(
-                        color: Colors.purple,
-                        width: 2.0,
-                      ),
-                    ),
-                    labelStyle: TextStyle(
-                      color: Colors.black,
-                      fontSize: 25,
-                    ),
-                  ),
-                  name: "visina",
-                  enabled: false,
-                ),
-              ),
-              SizedBox(width: 30),
-              Expanded(
-                child: FormBuilderTextField(
-                  style: TextStyle(
+                            decoration: InputDecoration(
+                              labelText: "Visina",
+                              border: OutlineInputBorder(
+                                borderSide: BorderSide(
+                                  color: Colors.purple,
+                                  width: 2.0,
+                                ),
+                              ),
+                              labelStyle: TextStyle(
+                                color: Colors.black,
+                                fontSize: 25,
+                              ),
+                            ),
+                            name: "visina",
+                            enabled: false,
+                          ),
+                        ),
+                        SizedBox(width: 30),
+                        Expanded(
+                          child: FormBuilderTextField(
+                            style: TextStyle(
                               fontSize: 20,
                               color: Colors.black,
                             ),
-                  decoration: InputDecoration(
-                    labelText: "Tezina",
-                    border: OutlineInputBorder(
-                      borderSide: BorderSide(
-                        color: Colors.purple,
-                        width: 2.0,
-                      ),
+                            decoration: InputDecoration(
+                              labelText: "Tezina",
+                              border: OutlineInputBorder(
+                                borderSide: BorderSide(
+                                  color: Colors.purple,
+                                  width: 2.0,
+                                ),
+                              ),
+                              labelStyle: TextStyle(
+                                color: Colors.black,
+                                fontSize: 25,
+                              ),
+                            ),
+                            name: "tezina",
+                            enabled: false,
+                          ),
+                        ),
+                      ],
                     ),
-                    labelStyle: TextStyle(
-                      color: Colors.black,
-                    fontSize: 25,
-                    ),
-                  ),
-                  name: "tezina",
-                  enabled: false,
+                  ],
                 ),
               ),
-            ],
-          ),
-        ],
-      ),
-    ),
-  ),
-)
+            ),
+          )
         ],
       ),
     );
   }
-Widget _buildButton() {
-  return Column(
-  children: [
-    Row(
-      mainAxisAlignment: MainAxisAlignment.center, // Centrira dugmad u okviru reda
+
+  Widget _buildButton() {
+    return Column(
       children: [
-        ElevatedButton(
-          onPressed: () {
-            // Ovde postavite šta želite da se dešava kada se pritisne dugme "Napredak korisnika"
-          },
-          style: ElevatedButton.styleFrom(
-            padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15), // Prilagodite veličinu dugmeta
-          ),
-          child: Text(
-            "Napredak korisnika",
-            style: TextStyle(fontSize: 18), // Povećava veličinu teksta
-          ),
-        ),
-        SizedBox(width: 20), // Dodaje razmak između dugmadi
-        ElevatedButton(
-          onPressed: () {
-            // Ovde postavite šta želite da se dešava kada se pritisne dugme "Rezervacije korisnika"
-          },
-          style: ElevatedButton.styleFrom(
-            padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15), // Prilagodite veličinu dugmeta
-          ),
-          child: Text(
-            "Rezervacije korisnika",
-            style: TextStyle(fontSize: 18), // Povećava veličinu teksta
-          ),
+        Row(
+          mainAxisAlignment:
+              MainAxisAlignment.center, // Centrira dugmad u okviru reda
+          children: [
+            ElevatedButton(
+              onPressed: () {
+                // Ovde postavite šta želite da se dešava kada se pritisne dugme "Napredak korisnika"
+              },
+              style: ElevatedButton.styleFrom(
+                padding: EdgeInsets.symmetric(
+                    horizontal: 30,
+                    vertical: 15), // Prilagodite veličinu dugmeta
+              ),
+              child: Text(
+                "Napredak korisnika",
+                style: TextStyle(fontSize: 18), // Povećava veličinu teksta
+              ),
+            ),
+            SizedBox(width: 20), // Dodaje razmak između dugmadi
+            ElevatedButton(
+              onPressed: () {
+                _showReservationPopup(context);
+                // Ovde postavite šta želite da se dešava kada se pritisne dugme "Napredak korisnika"
+              },
+              style: ElevatedButton.styleFrom(
+                padding: EdgeInsets.symmetric(
+                    horizontal: 30,
+                    vertical: 15), // Prilagodite veličinu dugmeta
+              ),
+              child: Text(
+                "Rezervacije korisnika",
+                style: TextStyle(fontSize: 18), // Povećava veličinu teksta
+              ),
+            ),
+            SizedBox(width: 20), // Dodaje razmak između dugmadi
+          ],
         ),
       ],
-    ),
-  ],
-);
-
-
-
-}
-
+    );
+  }
 }

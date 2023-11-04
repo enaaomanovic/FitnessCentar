@@ -6,11 +6,11 @@ part 'rezervacija.g.dart';
 class Rezervacija{
 int? id;
 int? korisnikId;
-int? rasporedID;
+int? rasporedId;
 String? status;
 
 
-  Rezervacija(this.id,this.korisnikId,this.rasporedID,this.status);
+  Rezervacija(this.id,this.korisnikId,this.rasporedId,this.status);
 
   factory Rezervacija.fromJson(Map<String, dynamic> json) =>
       _$RezervacijaFromJson(json);

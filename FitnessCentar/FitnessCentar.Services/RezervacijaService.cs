@@ -26,16 +26,18 @@ namespace FitnessCentar.Services
         {
             var filteredQuery = base.AddFilter(query, search);
 
-            if (search != null)
+            if (search.rasporedId != null)
             {
-                
-                
-                    filteredQuery = filteredQuery.Where(x => x.RasporedId == search.rasporedId);
-                
+
+                filteredQuery = filteredQuery.Where(x => x.RasporedId == search.rasporedId);
 
             }
+            if (search.korisnikId != null)
+            {
+                filteredQuery = filteredQuery.Where(x => x.KorisnikId == search.korisnikId);
+            }
             return filteredQuery;
-            
+
         }
     }
 }

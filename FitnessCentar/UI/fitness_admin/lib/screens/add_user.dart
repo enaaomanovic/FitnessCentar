@@ -64,30 +64,7 @@ class _AddUserState extends State<AddUser> {
     }
   }
 
-  //   @override
-  // Widget build(BuildContext context) {
-  //   return MasterScreanWidget(
-  //     child: SingleChildScrollView(
-  //       child: Column(
-  //         children: [
-  //           Padding(
-  //             padding: const EdgeInsets.only(top: 10.0),
-  //             child: Text(
-  //               "Dodaj novog korisnika",
-  //               style: TextStyle(
-  //                 fontSize: 18,
-  //                 fontWeight: FontWeight.bold,
-  //               ),
-  //             ),
-  //           ),
-  //           isLoading ? Container() : _addForm(),
-  //           _submitbtn(),
-  //         ],
-  //       ),
-  //     ),
-  //     title: "Dodaj korisnika",
-  //   );
-  // }
+ 
 
   
     @override
@@ -123,31 +100,7 @@ class _AddUserState extends State<AddUser> {
     );
   }
 
-//   @override
-//   Widget build(BuildContext context) {
-//     return MasterScreanWidget(
-//       title_widget: Text("Detalji treninga"),
-//    child: Center(
-//   child: SingleChildScrollView(
-//     scrollDirection: Axis.horizontal, // Omogućava horizontalno skroliranje
-//     child: Row(
-//       mainAxisAlignment: MainAxisAlignment.center, // Centrira horizontalno
-//       children: [
-//         Center(
-//           child: isLoading
-//               ? Container()
-//               : _buildWorkout(),
-//         ),
-//         SizedBox(width: 20), // Dodajte razmak između Card-ova ako je potrebno
-//         Center(
-//           child: isLoading
-//               ? Container()
-//               : _buildDataListView(),
-//         ),
-//       ],
-//     ),
-//   ),
-// ),
+
 
   Widget _addForm() {
     return FormBuilder(

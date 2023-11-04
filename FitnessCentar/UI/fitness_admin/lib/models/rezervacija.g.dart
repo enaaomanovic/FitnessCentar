@@ -9,7 +9,7 @@ part of 'rezervacija.dart';
 Rezervacija _$RezervacijaFromJson(Map<String, dynamic> json) => Rezervacija(
       json['id'] as int?,
       json['korisnikId'] as int?,
-      json['rasporedID'] as int?,
+      json['rasporedId'] as int?,
       json['status'] as String?,
     );
 
@@ -17,6 +17,6 @@ Map<String, dynamic> _$RezervacijaToJson(Rezervacija instance) =>
     <String, dynamic>{
       'id': instance.id,
       'korisnikId': instance.korisnikId,
-      'rasporedID': instance.rasporedID,
+      'rasporedId': instance.rasporedId,
       'status': instance.status,
     };
