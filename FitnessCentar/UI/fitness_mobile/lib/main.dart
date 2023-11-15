@@ -1,4 +1,5 @@
 
+import 'package:fitness_mobile/providers/progress_provider.dart';
 import 'package:fitness_mobile/providers/user_provider.dart';
 import 'package:fitness_mobile/screens/home_unautenticated.dart';
 import 'package:flutter/foundation.dart';
@@ -9,6 +10,7 @@ void main() {
   runApp(MultiProvider(
     providers: [
       ChangeNotifierProvider(create: (_) => UserProvider()),
+      ChangeNotifierProvider(create: (_)=>ProgressProvider())
     ],
 
 

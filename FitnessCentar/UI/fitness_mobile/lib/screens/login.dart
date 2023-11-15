@@ -1,4 +1,5 @@
 import 'package:collection/collection.dart';
+import 'package:fitness_mobile/providers/progress_provider.dart';
 import 'package:fitness_mobile/providers/user_provider.dart';
 import 'package:fitness_mobile/screens/home_authenticated.dart';
 import 'package:fitness_mobile/utils/utils.dart';
@@ -13,10 +14,12 @@ class LoginPage extends StatelessWidget {
   TextEditingController _usernameController = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
   late UserProvider _userProvider;
+  late ProgressProvider _progressProvider;
 
 @override
 Widget build(BuildContext context) {
   _userProvider = context.read<UserProvider>();
+  _progressProvider=context.read<ProgressProvider>();
   return Scaffold(
     appBar: AppBar(
       backgroundColor: Colors.transparent,
@@ -33,6 +36,7 @@ Widget build(BuildContext context) {
       ),
     ),
     body: Stack(
+      
       fit: StackFit.expand,
       children: [
         Image.asset(
@@ -48,8 +52,9 @@ Widget build(BuildContext context) {
           child: Align(
             alignment: Alignment.center,
             child: Container(
-              constraints: BoxConstraints(maxHeight: 400, maxWidth: 400),
+              constraints: BoxConstraints(maxHeight: 430, maxWidth: 350),
               child: Card(
+                
                 child: Padding(
                   padding: const EdgeInsets.all(10.0), 
                   child: Column(
@@ -120,6 +125,7 @@ Widget build(BuildContext context) {
                                   builder: (context) => HomeAuthenticated(
                                     userId: userId,
                                     userProvider: _userProvider,
+                                    progressProvider: _progressProvider,
                                   ),
                                 ),
                               );
