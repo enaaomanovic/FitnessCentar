@@ -6,6 +6,7 @@ import 'package:fitness_mobile/models/napredak.dart';
 import 'package:fitness_mobile/models/search_result.dart';
 import 'package:fitness_mobile/providers/progress_provider.dart';
 import 'package:fitness_mobile/providers/user_provider.dart';
+import 'package:fitness_mobile/screens/news_list.dart';
 import 'package:fitness_mobile/screens/user_details.dart';
 import 'package:fitness_mobile/utils/utils.dart';
 import 'package:fitness_mobile/widgets/master_screens.dart';
@@ -525,50 +526,72 @@ void _showErrorDialog(BuildContext context, String message) {
     );
   }
 
-  Widget _buildBottomNavigationBar(BuildContext context) {
-  return BottomNavigationBar(
-    items: [
-      BottomNavigationBarItem(
-        icon: Icon(Icons.home, color: Colors.purple, size: 35),
-        label: 'Početna',
+ 
+
+Widget _buildBottomNavigationBar(BuildContext context) {
+  return Container(
+    decoration: BoxDecoration(
+      border: Border(
+        top: BorderSide(
+          color: Colors.purpleAccent, // Boja gornje granice
+          width: 2.0, // Debljina gornje granice
+        ),
       ),
-      BottomNavigationBarItem(
-        icon: Icon(Icons.schedule, color: Colors.purple, size: 35),
-        label: 'Pretraga',
-      ),
-      BottomNavigationBarItem(
-        icon: Icon(Icons.newspaper_sharp, color: Colors.purple, size: 35),
-        label: 'Favoriti',
-      ),
-      BottomNavigationBarItem(
-        icon: Icon(Icons.person, color: Colors.purple, size: 35),
-        label: 'Profil',
-      ),
-    ],
-    onTap: (index) {
-      // Ovde postavite šta želite da se dešava kada se pritisne dugme na donjoj navigaciji
-      switch (index) {
-        case 0:
-          // Navigacija na Početnu stranicu
-          break;
-        case 1:
-          // Navigacija na Pretraga stranicu
-          break;
-        case 2:
-          // Navigacija na Favoriti stranicu
-          break;
-        case 3:
-          // Navigacija na Profil stranicu
+    ),
+    child: BottomNavigationBar(
+      items: [
+        BottomNavigationBarItem(
+          icon: Icon(Icons.home, color: Colors.purple, size: 35),
+          label: 'Početna',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.schedule, color: Colors.purple, size: 35),
+          label: 'Pretraga',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.newspaper_sharp, color: Colors.purple, size: 35),
+          label: 'Favoriti',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.person, color: Colors.purple, size: 35),
+          label: 'Profil',
+        ),
+      ],
+      onTap: (index) {
+        // Ovde postavite šta želite da se dešava kada se pritisne dugme na donjoj navigaciji
+        switch (index) {
+          case 0:
+          
+            // Navigacija na Početnu stranicu
+            break;
+          case 1:
+            // Navigacija na Pretraga stranicu
+            break;
+          case 2:
+           Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => NewsListScreen(),
+            ),
+          );
+            // Navigacija na Favoriti stranicu
+            break;
+          case 3:
+           // Navigacija na Profil stranicu
           Navigator.of(context).push(
             MaterialPageRoute(
               builder: (context) => MobileUserDetailScreen(userId: userId,),
             ),
           );
-          break;
-      }
-    },
+            // Navigacija na Profil stranicu
+           
+            break;
+        }
+      },
+    ),
   );
 }
+
+
 
 
 }

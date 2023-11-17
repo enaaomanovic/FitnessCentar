@@ -1,6 +1,7 @@
 import 'package:fitness_mobile/models/korisnici.dart';
 import 'package:fitness_mobile/models/search_result.dart';
 import 'package:fitness_mobile/providers/user_provider.dart';
+import 'package:fitness_mobile/screens/news_list.dart';
 import 'package:fitness_mobile/utils/utils.dart';
 import 'package:fitness_mobile/widgets/master_screens.dart';
 import 'package:flutter/material.dart';
@@ -55,20 +56,19 @@ class _MobileUserDetailScreenState extends State<MobileUserDetailScreen> {
         setState(() {
            isLoading = false;
           _initialValue = {
-            'ime': korisnik?.ime,
+            'ime': korisnik.ime,
             'prezime': korisnik.prezime,
             'korisnickoIme': korisnik.korisnickoIme,
             'datumRegistracije': korisnik.datumRegistracije.toString(),
             'datumRodjenja': korisnik.datumRodjenja.toString(),
             'pol': korisnik.pol,
             'telefon': korisnik.telefon,
-            'tezina': korisnik.tezina.toString(),
-            'visina': korisnik.visina.toString(),
+            'tezina': '${korisnik.tezina} kg',
+            'visina': '${korisnik.visina} cm',
             'email': korisnik.email,
             'slika': korisnik.slika,
           };
           
-
         });
       }
     } catch (e) {
@@ -89,34 +89,45 @@ class _MobileUserDetailScreenState extends State<MobileUserDetailScreen> {
     }
   }
   
-  @override
-  Widget build(BuildContext context) {
-    return MasterScreanWidget(
-      child: SingleChildScrollView(
-        scrollDirection: Axis.vertical,
-        child: SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-           child: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-          child: Container(
-            child: Column(
-              children: [
-               Center(
-          child: isLoading
-              ? Container()
-              : _addForm(),
-        ),
-              ],
+ @override
+Widget build(BuildContext context) {
+  return MasterScreanWidget(
+    child: Stack(
+      children: [
+        SingleChildScrollView(
+          scrollDirection: Axis.vertical,
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Center(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Container(
+                  child: Column(
+                    children: [
+                      // ... Ostatak koda ...
+                      Center(
+                        child: isLoading
+                            ? Container()
+                            : _addForm(),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             ),
           ),
         ),
-           ),
+        Positioned(
+          left: 0,
+          right: 0,
+          bottom: 0,
+          child: _buildBottomNavigationBar(context),
         ),
-      ),
-      title: "User",
-    );
-  }
+      ],
+    ),
+    title: "Profil",
+  );
+}
 
   Widget _addForm() {
     return FormBuilder(
@@ -125,43 +136,48 @@ class _MobileUserDetailScreenState extends State<MobileUserDetailScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Padding(
-            padding: EdgeInsets.all(10.0),
-            child: Container(
-              decoration: BoxDecoration(),
-              child: Align(
-                alignment: Alignment.topLeft,
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(
-                    maxWidth: 130.0, // Maksimalna širina
-                    maxHeight: 130.0, // Maksimalna visina
+       Padding(
+  padding: EdgeInsets.all(5.0),
+  child: Container(
+    decoration: BoxDecoration(
+      shape: BoxShape.circle, // Da biste postavili oblik na krug
+      border: Border.all(
+        color: Colors.purpleAccent, // Boja granice
+        width: 4.0, // Debljina granice
+      ),
+    ),
+    child: Align(
+      alignment: Alignment.topLeft,
+      child: ConstrainedBox(
+        constraints: BoxConstraints(
+          maxWidth: 130.0, // Maksimalna širina
+          maxHeight: 130.0, // Maksimalna visina
+        ),
+        child: ClipOval(
+          child: userImage != null
+              ? Container(
+                  width: 130,
+                  height: 130.0,
+                  decoration: BoxDecoration(),
+                  child: Image(
+                    image: userImage!.image,
+                    width: 130.0,
+                    height: 130.0,
+                    fit: BoxFit.cover,
                   ),
-                  child: ClipOval(
-                    child: userImage != null
-                        ? Container(
-                            width: 130,
-                            height: 130.0,
-                            decoration: BoxDecoration(),
-                            child: Image(
-                              image: userImage!.image,
-                              width: 130.0,
-                              height: 130.0,
-                              fit: BoxFit.cover,
-                            ),
-                          )
-                        : Container(
-                            width: 130.0,
-                            height: 130.0,
-                            decoration: BoxDecoration(
-                             
-                            ),
-                            child: Image.asset('assets/images/male_icon.jpg'),
-                          ),
-                  ),
+                )
+              : Container(
+                  width: 130.0,
+                  height: 130.0,
+                  decoration: BoxDecoration(),
+                  child: Image.asset('assets/images/male_icon.jpg'),
                 ),
-              ),
-            ),
-          ),
+        ),
+      ),
+    ),
+  ),
+),
+
           
           Card(
             elevation: 6,
@@ -170,7 +186,7 @@ class _MobileUserDetailScreenState extends State<MobileUserDetailScreen> {
             ),
             child: SizedBox(
               width: 350,
-              height: 700,
+              height: 900,
               child: Padding(
                 padding: const EdgeInsets.all(30.0),
                 child: Column(
@@ -186,14 +202,18 @@ class _MobileUserDetailScreenState extends State<MobileUserDetailScreen> {
                               fontSize: 15,
                               color: Colors.black,
                             ),
-                            decoration: InputDecoration(
-                              labelText: "Ime",
+                            decoration: const InputDecoration(
+                              labelText: 'Ime',
                               border: OutlineInputBorder(
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(4.0)),
                                 borderSide: BorderSide(
-                                  color: Colors.purple,
+                                  color: Colors.purpleAccent,
                                   width: 2.0,
                                 ),
                               ),
+
+
                               labelStyle: TextStyle(
                                 color: Colors.black,
                                 fontSize: 20,
@@ -204,7 +224,7 @@ class _MobileUserDetailScreenState extends State<MobileUserDetailScreen> {
                           ),
 
                         ),
-                        SizedBox(height: 70),
+                        SizedBox(height: 80),
                       ],
                     ),
                     
@@ -234,6 +254,8 @@ class _MobileUserDetailScreenState extends State<MobileUserDetailScreen> {
                             enabled: false,
                           ),
                         ),
+                        SizedBox(height: 80),
+
                       ],
                     ),
 
@@ -262,6 +284,8 @@ class _MobileUserDetailScreenState extends State<MobileUserDetailScreen> {
                             enabled: false,
                           ),
                         ),
+                        SizedBox(height: 80),
+
                       ],
                     ),
                     Row(
@@ -289,6 +313,8 @@ class _MobileUserDetailScreenState extends State<MobileUserDetailScreen> {
                             enabled: false,
                           ),
                         ),
+                        SizedBox(height: 80),
+
                       ],
                     ),
                   
@@ -317,6 +343,8 @@ class _MobileUserDetailScreenState extends State<MobileUserDetailScreen> {
                             enabled: false,
                           ),
                         ),
+                        SizedBox(height: 80),
+
                       ],
                     ),
                     Row(
@@ -344,6 +372,8 @@ class _MobileUserDetailScreenState extends State<MobileUserDetailScreen> {
                             enabled: false,
                           ),
                         ),
+                        SizedBox(height: 80),
+
                       ],
                     ),
 
@@ -373,6 +403,8 @@ class _MobileUserDetailScreenState extends State<MobileUserDetailScreen> {
                             enabled: false,
                           ),
                         ),
+                        SizedBox(height: 80),
+
                       ],
                     ),
                     Row(
@@ -400,6 +432,8 @@ class _MobileUserDetailScreenState extends State<MobileUserDetailScreen> {
                             enabled: false,
                           ),
                         ),
+                        SizedBox(height: 80),
+
                       ],
                     ),
                     Row(
@@ -427,6 +461,8 @@ class _MobileUserDetailScreenState extends State<MobileUserDetailScreen> {
                             enabled: false,
                           ),
                         ),
+                        SizedBox(height: 80),
+
                       ],
                     ),
                     Row(
@@ -454,6 +490,8 @@ class _MobileUserDetailScreenState extends State<MobileUserDetailScreen> {
                             enabled: false,
                           ),
                         ),
+                        SizedBox(height: 80),
+
                       ],
                     ),
                   ],
@@ -466,4 +504,68 @@ class _MobileUserDetailScreenState extends State<MobileUserDetailScreen> {
       
     );
   }
+
+
+
+
+Widget _buildBottomNavigationBar(BuildContext context) {
+  return Container(
+    decoration: BoxDecoration(
+      border: Border(
+        top: BorderSide(
+          color: Colors.purpleAccent, // Boja gornje granice
+          width: 2.0, // Debljina gornje granice
+        ),
+      ),
+    ),
+    child: BottomNavigationBar(
+      items: [
+        BottomNavigationBarItem(
+          icon: Icon(Icons.home, color: Colors.purple, size: 35),
+          label: 'Početna',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.schedule, color: Colors.purple, size: 35),
+          label: 'Pretraga',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.newspaper_sharp, color: Colors.purple, size: 35),
+          label: 'Favoriti',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.person, color: Colors.purple, size: 35),
+          label: 'Profil',
+        ),
+      ],
+      onTap: (index) {
+        // Ovde postavite šta želite da se dešava kada se pritisne dugme na donjoj navigaciji
+        switch (index) {
+          case 0:
+           Navigator.of(context).pop();
+            // Navigacija na Početnu stranicu
+            break;
+          case 1:
+            // Navigacija na Pretraga stranicu
+            break;
+          case 2:
+           Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => NewsListScreen(),
+            ),
+          );
+            // Navigacija na Favoriti stranicu
+            break;
+          case 3:
+            // Navigacija na Profil stranicu
+           
+            break;
+        }
+      },
+    ),
+  );
+}
+
+
+
+
 }
