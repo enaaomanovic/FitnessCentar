@@ -25,6 +25,9 @@ class _NewsListScreen extends State<NewsListScreen> {
   late NewsProvider _newsProvider;
   late UserProvider _userProvider;
   late CommentProvider _commentProvider;
+  
+   Map<int?, bool> _isExpandedMap = {};
+
 
   List<Novosti> _novosti = [];
 
@@ -36,6 +39,8 @@ class _NewsListScreen extends State<NewsListScreen> {
     _commentProvider = context.read<CommentProvider>();
 
     _loadData();
+
+   
   }
 
   void _loadData() async {
@@ -43,6 +48,11 @@ class _NewsListScreen extends State<NewsListScreen> {
     if (data != null) {
       setState(() {
         _novosti = data.result ?? [];
+        _isExpandedMap = Map.fromIterable(
+          _novosti.map((novost) => novost.id),
+          key: (novostId) => novostId as int?,
+          value: (_) => false,
+        );
       });
     }
   }
@@ -61,96 +71,188 @@ class _NewsListScreen extends State<NewsListScreen> {
     return kom;
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return MasterScreanWidget(
-      title_widget: Text("Prikaz novosti"),
-      child: Stack(
-        children: [
-          ListView.builder(
+ @override
+Widget build(BuildContext context) {
+  return MasterScreanWidget(
+    title_widget: Text("Prikaz novosti"),
+    child: Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Text(
+            "Novosti fitness centra",
+            style: TextStyle(
+              fontSize: 20.0,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+        Expanded(
+          child: ListView.builder(
             itemCount: _novosti.length,
             itemBuilder: (context, index) {
               return _buildNewsCard(_novosti[index]);
             },
           ),
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom: 0,
-            child: _buildBottomNavigationBar(context),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildNewsCard(Novosti novost) {
-    return Padding(
-      padding: EdgeInsets.only(top: 20, left: 20, right: 20, bottom: 50),
-      child: Card(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10.0),
         ),
-        child: Container(
-          padding: EdgeInsets.all(20.0),
-          child: Column(
-            children: <Widget>[
-              Text(
-                novost.naslov ?? "",
-                style: TextStyle(
-                  fontSize: 24.0,
-                  fontWeight: FontWeight.bold,
-                ),
+        _buildBottomNavigationBar(context),
+      ],
+    ),
+  );
+}
+
+
+Widget _buildNewsCard(Novosti novost) {
+  return Padding(
+    padding: EdgeInsets.only(top: 20, left: 20, right: 20, bottom: 20),
+    child: Card(
+    
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10.0),
+      ),
+      child: Container(
+        padding: EdgeInsets.all(20.0),
+          decoration: BoxDecoration(
+          border: Border.all(
+            color: Colors.purple, // Boja granice
+            width: 1.0, // Širina granice
+          ),
+          borderRadius: BorderRadius.circular(10.0), // Radijus granice
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Text(
+              novost.naslov ?? "",
+              style: TextStyle(
+                fontSize: 24.0,
+                fontWeight: FontWeight.bold,
               ),
-              ListTile(
-                title: Text(
-                  "Datum objave: ${DateFormat('dd.MM.yyyy').format(novost.datumObjave ?? DateTime.now())}",
+            ),
+            SizedBox(height: 10), // Dodaj razmak između naslova i informacija o autoru i datumu
+
+            Row(
+              children: <Widget>[
+                Text(
+                  "Objavio: ",
                   style: TextStyle(
                     fontSize: 16.0,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                subtitle: FutureBuilder<Korisnici?>(
+                FutureBuilder<Korisnici?>(
                   future: getUserFromUserId(novost.autorId ?? 0),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.done) {
                       final author = snapshot.data;
                       if (author != null) {
-                        return ListTile(
-                          title: Text(
-                            "Objavio: ${author.ime} ${author.prezime}",
-                            style: TextStyle(
-                              fontSize: 16.0,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          subtitle: Text(
-                            "Sadržaj novosti: ${novost.tekst ?? ''}",
-                            style: TextStyle(
-                              fontSize: 18.0,
-                            ),
+                        return Text(
+                          "${author.ime} ${author.prezime}",
+                          style: TextStyle(
+                            fontSize: 16.0,
                           ),
                         );
                       } else {
-                        return Text("Objavio: Nepoznat autor");
+                        return Text("Nepoznat autor");
                       }
                     } else {
-                      return Text("Objavio: Učitavanje...");
+                      return Text("Učitavanje...");
                     }
                   },
                 ),
-                onTap: () {
-                  // Dodajte funkcionalnost za prikaz celokupne vesti
-                },
+              ],
+            ),
+
+            Row(
+              children: <Widget>[
+                Text(
+                  "Datum objave: ",
+                  style: TextStyle(
+                    fontSize: 16.0,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Text(
+                  DateFormat('dd.MM.yyyy').format(novost.datumObjave ?? DateTime.now()),
+                  style: TextStyle(
+                    fontSize: 16.0,
+                  ),
+                ),
+              ],
+            ),
+
+            SizedBox(height: 10), // Dodaj razmak između informacija o autoru i datumu i ostatka sadržaja
+
+            FutureBuilder<Korisnici?>(
+              future: getUserFromUserId(novost.autorId ?? 0),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.done) {
+                  final author = snapshot.data;
+                  return ListTile(
+                    title: _isExpandedMap[novost.id] != null
+                        ? (_isExpandedMap[novost.id]!
+                            ? Text(
+                                "Sadržaj novosti: ${novost.tekst ?? ''}",
+                                style: TextStyle(
+                                  fontSize: 18.0,
+                                ),
+                              )
+                            : Text(
+                                "Sadržaj novosti: ${novost.tekst?.substring(0, 100) ?? ''}...", // Prikazi samo prvih 100 karaktera
+                                style: TextStyle(
+                                  fontSize: 18.0,
+                                ),
+                              ))
+                        : Text("Sadržaj novosti nije dostupan"),
+                    onTap: () {
+                      setState(() {
+                        if (novost.id != null) {
+                          _isExpandedMap[novost.id!] =
+                              _isExpandedMap[novost.id!] != null
+                                  ? !_isExpandedMap[novost.id!]!
+                                  : false;
+                        }
+                      });
+                    },
+                  );
+                } else {
+                  return Text("Učitavanje...");
+                }
+              },
+            ),
+
+            Divider(),
+
+            ElevatedButton(
+              onPressed: () {
+                setState(() {
+                  if (novost.id != null) {
+                    _isExpandedMap[novost.id!] =
+                        _isExpandedMap[novost.id!] != null
+                            ? !_isExpandedMap[novost.id!]!
+                            : false;
+                  }
+                });
+              },
+              child: Text(
+                _isExpandedMap[novost.id] != null
+                    ? (_isExpandedMap[novost.id]! ? "Smanji" : "Pročitaj više")
+                    : "Pročitaj više",
               ),
-              Divider(),
-              _buildCommentsButton(novost),
-            ],
-          ),
+            ),
+
+            Divider(),
+
+            _buildCommentsButton(novost),
+          ],
         ),
       ),
-    );
-  }
+    ),
+  );
+}
+
+
 
   Widget _buildCommentsButton(Novosti novost) {
     return TextButton(
