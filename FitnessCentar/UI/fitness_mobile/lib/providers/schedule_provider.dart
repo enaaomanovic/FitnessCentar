@@ -1,19 +1,18 @@
 import 'dart:convert';
 
-
-import 'package:fitness_mobile/models/trener.dart';
+import 'package:fitness_mobile/models/raspored.dart';
 import 'package:fitness_mobile/providers/base_provider.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 
-class TrainerProvider extends BaseProvider<Trener> {
-  TrainerProvider():super("Trener");
+class ScheduleProvider extends BaseProvider<Raspored> {
+  ScheduleProvider():super("Raspored");
 
   @override
-  Trener fromJson(data) {
+  Raspored fromJson(data) {
     // TODO: implement fromJson
-    return Trener.fromJson(data);
+    return Raspored.fromJson(data);
   }
   
 }

@@ -7,6 +7,7 @@ import 'package:fitness_mobile/models/search_result.dart';
 import 'package:fitness_mobile/providers/progress_provider.dart';
 import 'package:fitness_mobile/providers/user_provider.dart';
 import 'package:fitness_mobile/screens/news_list.dart';
+import 'package:fitness_mobile/screens/trainer_list.dart';
 import 'package:fitness_mobile/screens/user_details.dart';
 import 'package:fitness_mobile/utils/utils.dart';
 import 'package:fitness_mobile/widgets/master_screens.dart';
@@ -565,7 +566,11 @@ Widget _buildBottomNavigationBar(BuildContext context) {
             // Navigacija na Početnu stranicu
             break;
           case 1:
-            // Navigacija na Pretraga stranicu
+             Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => TreneriScreen(),
+            ),
+          );
             break;
           case 2:
            Navigator.of(context).push(

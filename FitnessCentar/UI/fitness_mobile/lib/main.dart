@@ -1,9 +1,13 @@
 
+import 'package:fitness_mobile/providers/active_provider.dart';
 import 'package:fitness_mobile/providers/comment_provider.dart';
 import 'package:fitness_mobile/providers/news_provider.dart';
 import 'package:fitness_mobile/providers/progress_provider.dart';
+import 'package:fitness_mobile/providers/reservation_provider.dart';
+import 'package:fitness_mobile/providers/schedule_provider.dart';
 import 'package:fitness_mobile/providers/trainer_provider.dart';
 import 'package:fitness_mobile/providers/user_provider.dart';
+import 'package:fitness_mobile/providers/workout_provider.dart';
 import 'package:fitness_mobile/screens/home_unautenticated.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -17,6 +21,14 @@ void main() {
       ChangeNotifierProvider(create: (_)=>NewsProvider()),
       ChangeNotifierProvider(create: (_)=>TrainerProvider()),
       ChangeNotifierProvider(create: (_)=>CommentProvider()),
+      ChangeNotifierProvider(create: (_)=>ScheduleProvider()),
+      ChangeNotifierProvider(create: (_)=>ActiveProvider()),
+      ChangeNotifierProvider(create: (_)=>ReservationProvider()),
+      ChangeNotifierProvider(create: (_)=>WorkoutProvider()),
+
+
+
+
 
 
 
