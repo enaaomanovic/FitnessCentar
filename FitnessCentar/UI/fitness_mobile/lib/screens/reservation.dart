@@ -1,14 +1,19 @@
 import 'dart:math';
 
 import 'package:fitness_mobile/models/raspored.dart';
+import 'package:fitness_mobile/models/rezervacija.dart';
 import 'package:fitness_mobile/models/search_result.dart';
 import 'package:fitness_mobile/models/trening.dart';
+import 'package:fitness_mobile/providers/reservation_provider.dart';
 import 'package:fitness_mobile/providers/schedule_provider.dart';
+import 'package:fitness_mobile/providers/user_provider.dart';
 import 'package:fitness_mobile/providers/workout_provider.dart';
 import 'package:fitness_mobile/widgets/master_screens.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:provider/provider.dart';
 import 'package:table_calendar/table_calendar.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ScheduleListScreen extends StatefulWidget {
   const ScheduleListScreen({Key? key}) : super(key: key);
@@ -20,6 +25,10 @@ class ScheduleListScreen extends StatefulWidget {
 class _ScheduleListScreenState extends State<ScheduleListScreen> {
   late ScheduleProvider _scheduleProvider;
   late WorkoutProvider _workoutProvider;
+  late ReservationProvider _reservationProvider;
+
+
+
   SearchResult<Raspored>? result;
   int? _selectedDay;
 
@@ -28,6 +37,9 @@ class _ScheduleListScreenState extends State<ScheduleListScreen> {
     super.initState();
     _scheduleProvider = context.read<ScheduleProvider>();
     _workoutProvider = context.read<WorkoutProvider>();
+    _reservationProvider = context.read<ReservationProvider>();
+
+
     _loadData();
   }
 
@@ -239,6 +251,8 @@ class _ScheduleListScreenState extends State<ScheduleListScreen> {
 
   Widget _buildCustomTreningCard(Raspored raspored) {
     final treningFuture = getTreningFromId(raspored.treningId);
+        var userProvider = Provider.of<UserProvider>(context, listen: false);
+    int? trenutniKorisnikId = userProvider.currentUserId;
 
     return FutureBuilder<Trening?>(
       future: treningFuture,
@@ -289,22 +303,49 @@ class _ScheduleListScreenState extends State<ScheduleListScreen> {
                       color: Colors.white,
                       thickness: 1.0,
                     ),
-                    ElevatedButton(
-                      onPressed: () {
-                        // Dodajte kod za rezervaciju termina
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor:
-                            Colors.white, // Postavite željenu boju ovdje
-                      ),
-                      child: Text(
-                        'Rezerviši',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.black,
-                        ),
-                      ),
-                    ),
+
+                 ElevatedButton(
+  onPressed: () async {
+    try {
+      var request = <String, dynamic>{
+        'korisnikId': 106,
+        'rasporedId': 27,
+        'status': "zauzet",
+        'datumRezervacija': DateTime.now().toIso8601String(),
+      };
+
+      print("request $request");
+
+      // Poziv insert metode
+      await _reservationProvider.insert(request);
+
+      // Ako insert ne izazove izuzetak, onda je rezervacija uspješna
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Termin uspješno rezerviran.'),
+        ),
+      );
+    } catch (e) {
+      // Ako dođe do izuzetka prilikom obrade podataka
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Došlo je do pogreške prilikom obrade rezervacije.'),
+        ),
+      );
+    }
+  },
+  style: ElevatedButton.styleFrom(
+    backgroundColor: Colors.white, // Postavite željenu boju ovdje
+  ),
+  child: Text(
+    'Rezerviši',
+    style: TextStyle(
+      fontSize: 14,
+      color: Colors.black,
+    ),
+  ),
+),
+
                   ],
                 ),
               ),

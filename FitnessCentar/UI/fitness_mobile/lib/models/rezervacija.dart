@@ -8,9 +8,11 @@ int? id;
 int? korisnikId;
 int? rasporedId;
 String? status;
+DateTime? datumRezervacija;
 
 
-  Rezervacija(this.id,this.korisnikId,this.rasporedId,this.status);
+
+  Rezervacija(this.id,this.korisnikId,this.rasporedId,this.status,this.datumRezervacija);
 
   factory Rezervacija.fromJson(Map<String, dynamic> json) =>
       _$RezervacijaFromJson(json);

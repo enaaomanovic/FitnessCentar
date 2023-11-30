@@ -16,8 +16,11 @@ namespace FitnessCentar.Model
 
         public string? Status { get; set; }
 
-        public virtual Korisnici? Korisnik { get; set; }
+        public DateTime? DatumRezervacija { get; set; }
 
-        public virtual Raspored? Raspored { get; set; }
+
+        //public virtual Korisnici? Korisnik { get; set; }
+
+        //public virtual Raspored? Raspored { get; set; }
     }
 }
