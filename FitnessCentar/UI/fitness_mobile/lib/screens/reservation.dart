@@ -50,17 +50,17 @@ class _ScheduleListScreenState extends State<ScheduleListScreen> {
     });
   }
 
-  void _loadActiveReservation(int trenutniKorisnikId, int rasporedId) async {
-    var data = await _reservationProvider.get(filter: {
-      "korisnikId": trenutniKorisnikId,
-      "rasporedId": rasporedId,
-      "status": "Zauzet"
-    });
+Future<bool> _isReservationActive(int trenutniKorisnikId, int rasporedId) async {
+  var searchResult = await _reservationProvider.get(filter: {
+    "korisnikId": trenutniKorisnikId,
+    "rasporedId": rasporedId,
+    "status": "Aktivna"
+  });
 
-    setState(() {
-      isReserved = data != null;
-    });
-  }
+  return searchResult.result != null && searchResult.result.isNotEmpty;
+}
+
+
 
   Future<Trening?> getTreningFromId(int? id) async {
     if (id == null) {
@@ -260,125 +260,179 @@ class _ScheduleListScreenState extends State<ScheduleListScreen> {
     );
   }
 
-  Widget _buildCustomTreningCard(Raspored raspored) {
+Widget _buildCustomTreningCard(Raspored raspored) {
     final treningFuture = getTreningFromId(raspored.treningId);
+    var userProvider = Provider.of<UserProvider>(context, listen: false);
+    int? trenutniKorisnikId = userProvider.currentUserId;
+  return FutureBuilder<Trening?>(
+    future: treningFuture,
+    builder: (context, snapshot) {
+      if (snapshot.connectionState == ConnectionState.done &&
+          snapshot.hasData) {
+        final trening = snapshot.data!;
+        Color bojaTreninga = bojeTreninga[trening.naziv] ?? Colors.blue;
 
-    return FutureBuilder<Trening?>(
-      future: treningFuture,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.done &&
-            snapshot.hasData) {
-          final trening = snapshot.data!;
-          Color bojaTreninga = bojeTreninga[trening.naziv] ?? Colors.blue;
-
-          return Card(
-            elevation: 2,
-            margin: EdgeInsets.all(8.0),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10.0),
-            ),
-            color: bojaTreninga,
-            child: InkWell(
-              onTap: () {
-                // Dodajte kod za otvaranje detalja o treningu
-              },
-              child: Container(
-                padding: EdgeInsets.all(16.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          '${trening.naziv}',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 18,
-                            color: Colors.white,
-                          ),
+        return Card(
+          elevation: 2,
+          margin: EdgeInsets.all(8.0),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10.0),
+          ),
+          color: bojaTreninga,
+          child: InkWell(
+            onTap: () {
+              // Dodajte kod za otvaranje detalja o treningu
+            },
+            child: Container(
+              padding: EdgeInsets.all(10.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '${trening.naziv}',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                          color: Colors.white,
                         ),
-                        SizedBox(height: 4),
-                        Text(
-                          'Detalji o treningu',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ],
-                    ),
-                    VerticalDivider(
-                      color: Colors.white,
-                      thickness: 1.0,
-                    ),
-                    ElevatedButton(
-                      onPressed: () async {
-                        // Dohvati trenutnog korisnika
-                        var userProvider =
-                            Provider.of<UserProvider>(context, listen: false);
-                        int? trenutniKorisnikId = userProvider.currentUserId;
-
-                        // Provjeri da li imamo trenutnog korisnika
-                        if (trenutniKorisnikId != null) {
-                          var request = <String, dynamic>{
-                            'korisnikId': trenutniKorisnikId,
-                            'rasporedId': raspored.id,
-                            'status': "zauzet",
-                            'datumRezervacija':
-                                DateTime.now().toIso8601String(),
-                          };
-
-                          try {
-                            // Poziv insert metode
-                            await _reservationProvider.insert(request);
-
-                            // Ako insert ne izazove izuzetak, onda je rezervacija uspješna
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text('Termin uspješno rezerviran.'),
-                              ),
-                            );
-                          } catch (e) {
-                            print(
-                                'Došlo je do pogreške prilikom obrade rezervacije. $e');
-                            // Ako dođe do izuzetka prilikom obrade podataka
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                    'Došlo je do pogreške prilikom obrade rezervacije. $e'),
-                              ),
-                            );
-                          }
-                        } else {
-                          // Korisnik nije prijavljen, možete rukovati ovim slučajem prema vašim potrebama
-                          print('Korisnik nije prijavljen.');
-                        }
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor:
-                            Colors.white, // Postavite željenu boju ovdje
                       ),
-                      child: Text(
-                        'Rezerviši',
+                      SizedBox(height: 4),
+                      Text(
+                        'Detalji o treningu',
                         style: TextStyle(
                           fontSize: 14,
-                          color: Colors.black,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
+                  ),
+                  VerticalDivider(
+                    color: Colors.white,
+                    thickness: 1.0,
+                  ),
+                FutureBuilder<bool>(
+  future: _isReservationActive(
+    trenutniKorisnikId!,
+    raspored.id!,
+  ),
+  builder: (context, reservationSnapshot) {
+    bool isReservationActive = reservationSnapshot.data ?? false;
+
+    return ElevatedButton(
+      onPressed: () async {
+        if (trenutniKorisnikId != null) {
+          if (isReservationActive) {
+            // Termin je već rezerviran, prikaži odgovarajući dijalog
+            showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return AlertDialog(
+                  content: Text('Već ste rezervirali ovaj termin.'),
+                  actions: [
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                      child: Text(
+                        'OK',
+                        style: TextStyle(
+                          color: Colors.white,
                         ),
                       ),
                     ),
                   ],
+                );
+              },
+            );
+          } else {
+            try {
+              var request = <String, dynamic>{
+                'korisnikId': trenutniKorisnikId,
+                'rasporedId': raspored.id,
+                'status': "Aktivna",
+                'datumRezervacija': DateTime.now().toIso8601String(),
+              };
+
+              await _reservationProvider.insert(request);
+
+              // Osvježi podatke nakon rezervacije
+              _loadData();
+
+              // Prikaži dijalog s porukom
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    content: Text('Termin je uspješno rezerviran!'),
+                    actions: [
+                      ElevatedButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                        child: Text(
+                          'OK',
+                          style: TextStyle(
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ],
+                  );
+                },
+              );
+            } catch (e) {
+              print('Error during reservation: $e');
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    'Došlo je do pogreške prilikom obrade rezervacije. $e',
+                  ),
+                  backgroundColor: Colors.red,
                 ),
-              ),
+              );
+            }
+          }
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Korisnik nije prijavljen.'),
+              backgroundColor: Colors.red,
             ),
           );
-        } else {
-          return SizedBox
-              .shrink(); // Ne prikazujte ništa ako trening nije dostupan
+          print('Korisnik nije prijavljen.');
         }
       },
+      style: ElevatedButton.styleFrom(
+        backgroundColor: isReservationActive ? Colors.red : Colors.white,
+      ),
+      child: Text(
+        isReservationActive ? 'Rezervisano' : 'Rezerviši',
+        style: TextStyle(
+          fontSize: 14,
+          color: isReservationActive ? Colors.white : Colors.black,
+        ),
+      ),
     );
-  }
+  },
+),
+
+                ],
+              ),
+            ),
+          ),
+        );
+      } else {
+        return SizedBox.shrink();
+        // Ne prikazujte ništa ako trening nije dostupan
+      }
+    },
+  );
+}
+
+
 
   Widget _buildRasporedZaDan(int dan, List<String> satnice) {
     return Column(
