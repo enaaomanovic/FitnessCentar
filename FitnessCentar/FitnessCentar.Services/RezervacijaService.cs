@@ -36,6 +36,10 @@ namespace FitnessCentar.Services
             {
                 filteredQuery = filteredQuery.Where(x => x.KorisnikId == search.korisnikId);
             }
+            if (search.status != null)
+            {
+                filteredQuery = filteredQuery.Where(x => x.Status == search.status);
+            }
             return filteredQuery;
 
         }

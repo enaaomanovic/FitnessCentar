@@ -14,4 +14,7 @@ class ReservationProvider extends BaseProvider<Rezervacija> {
     // TODO: implement fromJson
     return Rezervacija.fromJson(data);
   }
+
+
+
 }

@@ -12,5 +12,8 @@ namespace FitnessCentar.Model.SearchObject
 
         public int? korisnikId { get; set; }
 
+        public string? status { get; set; }
+
+
     }
 }
