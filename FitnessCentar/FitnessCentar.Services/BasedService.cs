@@ -38,17 +38,37 @@ namespace FitnessCentar.Services
             return _mapper.Map<List<T>>(list);
         }
 
+        //public virtual async Task<T> Update(int id, TUpdate update)
+        //{
+
+        //    var set = _context.Set<TDb>();
+        //    var entity = await set.FindAsync(id);
+        //    _mapper.Map(update, entity);
+
+        //    await _context.SaveChangesAsync();
+
+        //    return _mapper.Map<T>(entity);
+        //}
         public virtual async Task<T> Update(int id, TUpdate update)
         {
-          
-            var set = _context.Set<TDb>();
-            var entity = await set.FindAsync(id);
-            _mapper.Map(update, entity);
+            try
+            {
+                var set = _context.Set<TDb>();
+                var entity = await set.FindAsync(id);
+                _mapper.Map(update, entity);
 
-            await _context.SaveChangesAsync();
+                await _context.SaveChangesAsync();
 
-            return _mapper.Map<T>(entity);
+                return _mapper.Map<T>(entity);
+            }
+            catch (Exception ex)
+            {
+                // Zabeleži izuzetak u logovima ili ga prikaži na konzoli radi dalje analize.
+                Console.WriteLine($"Greška prilikom čuvanja promena u bazi podataka: {ex.Message}");
+                throw; // Ponovno podizanje izuzetka kako bi se greška prenela na viši nivo.
+            }
         }
+
         public virtual async Task<T> Insert(TInsert insert)
         {
             var set = _context.Set<TDb>();
@@ -73,6 +93,8 @@ namespace FitnessCentar.Services
         {
             return query;
         }
+
+    
 
     }
 }

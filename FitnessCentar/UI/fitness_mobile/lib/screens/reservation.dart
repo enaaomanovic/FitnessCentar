@@ -1,13 +1,17 @@
 import 'dart:math';
 
+import 'package:fitness_mobile/models/korisnici.dart';
 import 'package:fitness_mobile/models/raspored.dart';
 import 'package:fitness_mobile/models/rezervacija.dart';
 import 'package:fitness_mobile/models/search_result.dart';
+import 'package:fitness_mobile/models/trener.dart';
 import 'package:fitness_mobile/models/trening.dart';
 import 'package:fitness_mobile/providers/reservation_provider.dart';
 import 'package:fitness_mobile/providers/schedule_provider.dart';
+import 'package:fitness_mobile/providers/trainer_provider.dart';
 import 'package:fitness_mobile/providers/user_provider.dart';
 import 'package:fitness_mobile/providers/workout_provider.dart';
+import 'package:fitness_mobile/screens/workout_details.dart';
 import 'package:fitness_mobile/widgets/master_screens.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
@@ -27,6 +31,8 @@ class _ScheduleListScreenState extends State<ScheduleListScreen> {
   late ScheduleProvider _scheduleProvider;
   late WorkoutProvider _workoutProvider;
   late ReservationProvider _reservationProvider;
+  late UserProvider _userProvider;
+
   bool isReserved = false;
   Map<int, bool> reservedMap = {};
   SearchResult<Raspored>? result;
@@ -38,6 +44,7 @@ class _ScheduleListScreenState extends State<ScheduleListScreen> {
     _scheduleProvider = context.read<ScheduleProvider>();
     _workoutProvider = context.read<WorkoutProvider>();
     _reservationProvider = context.read<ReservationProvider>();
+    _userProvider = context.read<UserProvider>();
 
     _loadData();
   }
@@ -50,17 +57,211 @@ class _ScheduleListScreenState extends State<ScheduleListScreen> {
     });
   }
 
-Future<bool> _isReservationActive(int trenutniKorisnikId, int rasporedId) async {
-  var searchResult = await _reservationProvider.get(filter: {
-    "korisnikId": trenutniKorisnikId,
-    "rasporedId": rasporedId,
-    "status": "Aktivna"
-  });
+  Future<bool> _isReservationActive(
+      int trenutniKorisnikId, int rasporedId) async {
+    var searchResult = await _reservationProvider.get(filter: {
+      "korisnikId": trenutniKorisnikId,
+      "rasporedId": rasporedId,
+      "status": "Aktivna",
+    });
 
-  return searchResult.result != null && searchResult.result.isNotEmpty;
-}
+    return searchResult.result != null && searchResult.result.isNotEmpty;
+  }
 
+  Future<void> updateStatus(
+      int trenutniKorisnikId, int rasporedId, String status) async {
+    try {
+      // Dobavite sve rezervacije sa određenim korisnikom, rasporedom i statusom "Aktivna"
+      var searchResult = await _reservationProvider.get(
+        filter: {
+          "korisnikId": trenutniKorisnikId,
+          "rasporedId": rasporedId,
+          "status": "Aktivna",
+        },
+      );
 
+      if (searchResult.result != null && searchResult.result.isNotEmpty) {
+        // Sortirajte rezultate po datumu rezervacije silazno
+        searchResult.result
+            .sort((a, b) => b.datumRezervacija!.compareTo(a.datumRezervacija!));
+
+        // Dohvatite prvi rezultat (poslednju rezervaciju)
+        var poslednjaRezervacija = searchResult.result.first;
+
+        // Postoji rezervacija, dohvatite njen ID
+        int rezervacijaId = poslednjaRezervacija.id ?? 0;
+
+        var request = {
+          'korisnikId': trenutniKorisnikId,
+          'rasporedId': rasporedId,
+          'datumRezervacija': DateTime.now().toIso8601String(),
+          "status": status,
+        };
+
+        // Koristite dohvaćeni ID rezervacije za ažuriranje statusa
+        await _reservationProvider.update(rezervacijaId, request);
+
+        print('Successfully updated reservation status.');
+      } else {
+        // Rezervacija nije pronađena
+        print(
+            'No active reservation found for user $trenutniKorisnikId and schedule $rasporedId');
+      }
+    } catch (error) {
+      print('Error updating reservation status: $error');
+      rethrow;
+    }
+  }
+
+  List<Raspored> getReservedRasporedi(int dan, String satnica) {
+    if (result == null) {
+      return [];
+    }
+
+    return result!.result.where((r) {
+      return r.dan == dan &&
+          r.datumPocetka?.hour == int.parse(satnica.split(":")[0]) &&
+          reservedMap[r.id] == true;
+    }).toList();
+  }
+
+  Future<int> calculateReservedCount() async {
+    var userProvider = Provider.of<UserProvider>(context, listen: false);
+    int? trenutniKorisnikId = userProvider.currentUserId;
+    if (result == null) {
+      return 0;
+    }
+
+    int reservedCount = 0;
+
+    for (var raspored in result!.result) {
+      bool isReservationActive = await _isReservationActive(
+        trenutniKorisnikId!,
+        raspored.id!,
+      );
+
+      if (isReservationActive) {
+        // Povećajte broj rezervisanih termina
+        reservedCount++;
+      }
+    }
+
+    return reservedCount;
+  }
+
+  Future<double> calculateReservedPrice() async {
+    var userProvider = Provider.of<UserProvider>(context, listen: false);
+    int? trenutniKorisnikId = userProvider.currentUserId;
+    if (result == null) {
+      return 0.0;
+    }
+
+    double totalPrice = 0.0;
+
+    for (var raspored in result!.result) {
+      bool isReservationActive = await _isReservationActive(
+        trenutniKorisnikId!, // Postavite trenutni korisnički ID
+        raspored.id!,
+      );
+
+      if (isReservationActive) {
+        // Dodajte cenu termina na ukupnu cenu
+        totalPrice += 15.0;
+      }
+    }
+
+    return totalPrice;
+  }
+
+  String _formatTime(DateTime dateTime) {
+    return DateFormat.Hm().format(dateTime); // Formatiranje u "hh:mm"
+  }
+
+  Future<void> _showReservationDialog() async {
+    var userProvider = Provider.of<UserProvider>(context, listen: false);
+    int? trenutniKorisnikId = userProvider.currentUserId;
+
+    List<Raspored> activeReservations = [];
+
+    // Provjeri koje rasporede korisnik ima rezervirane
+    for (var raspored in result!.result) {
+      bool isReservationActive = await _isReservationActive(
+        trenutniKorisnikId!,
+        raspored.id!,
+      );
+
+      if (isReservationActive) {
+        activeReservations.add(raspored);
+      }
+    }
+    showDialog(
+  context: context,
+  builder: (BuildContext context) {
+    return AlertDialog(
+      title: Text('Aktivne rezervacije'),
+      content: SingleChildScrollView(
+        child: Column(
+          children: [
+            for (var raspored in activeReservations)
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Dan: ${_dayOfWeekToString(raspored.dan!)}'),
+                  Text(
+                      'Trajanje: ${_formatTime(raspored.datumPocetka!)} - ${_formatTime(raspored.datumZavrsetka!)}'),
+                  SizedBox(height: 8),
+                  // Dodajte malu prazninu između rezervacija
+
+                  FutureBuilder<Korisnici?>(
+                    future: getTrenerFromId(raspored.trenerId),
+                    builder: (context, trenerSnapshot) {
+                      if (trenerSnapshot.connectionState ==
+                              ConnectionState.done &&
+                          trenerSnapshot.hasData) {
+                        Korisnici? trener = trenerSnapshot.data;
+                        return Text(
+                            'Trener: ${trener?.ime ?? 'N/A'} ${trener?.prezime ?? 'N/A'}');
+                      } else {
+                        return Text('Trener: N/A');
+                      }
+                    },
+                  ),
+                  FutureBuilder<Trening?>(
+                    future: getTreningFromId(raspored.treningId),
+                    builder: (context, treningSnapshot) {
+                      if (treningSnapshot.connectionState ==
+                              ConnectionState.done &&
+                          treningSnapshot.hasData) {
+                        Trening? trening = treningSnapshot.data;
+                        return Text('Trening: ${trening?.naziv ?? 'N/A'}');
+                      } else {
+                        return Text('Trening: N/A');
+                      }
+                    },
+                  ),
+                  Divider(
+                    thickness: 2,
+                    color: Colors.grey,
+                  ),
+                  // Dodajte Divider između rezervacija
+                ],
+              ),
+          ],
+        ),
+      ),
+      actions: [
+        ElevatedButton(
+          onPressed: () {
+            Navigator.of(context).pop(); // Zatvori dijalog
+          },
+          child: Text('Zatvori'),
+        ),
+      ],
+    );
+  },
+);
+
+  }
 
   Future<Trening?> getTreningFromId(int? id) async {
     if (id == null) {
@@ -68,6 +269,14 @@ Future<bool> _isReservationActive(int trenutniKorisnikId, int rasporedId) async 
     }
     final user = await _workoutProvider.getById(id);
     return user;
+  }
+
+  Future<Korisnici?> getTrenerFromId(int? id) async {
+    if (id == null) {
+      return null;
+    }
+    final trener = await _userProvider.getById(id);
+    return trener;
   }
 
   final Map<String, Color> bojeTreninga = {
@@ -96,26 +305,29 @@ Future<bool> _isReservationActive(int trenutniKorisnikId, int rasporedId) async 
               ),
             ),
             _buildWeeklySchedule(),
+            _buildReservationInfo(),
           ],
         ),
       ),
     );
   }
 
-  String _dayOfWeekToString(int dan) {
+
+
+    String _dayOfWeekToString(int dan) {
     switch (dan) {
       case 0:
         return 'Ned';
       case 1:
-        return '  Ponedjeljak';
+        return 'Ponedjeljak';
       case 2:
-        return '      Utorak  ';
+        return 'Utorak';
       case 3:
-        return '     Srijeda  ';
+        return 'Srijeda';
       case 4:
-        return '    Četvrtak  ';
+        return 'Četvrtak';
       case 5:
-        return '      Petak   ';
+        return 'Petak';
       default:
         return '';
     }
@@ -260,179 +472,222 @@ Future<bool> _isReservationActive(int trenutniKorisnikId, int rasporedId) async 
     );
   }
 
-Widget _buildCustomTreningCard(Raspored raspored) {
+  Widget _buildCustomTreningCard(Raspored raspored) {
     final treningFuture = getTreningFromId(raspored.treningId);
     var userProvider = Provider.of<UserProvider>(context, listen: false);
     int? trenutniKorisnikId = userProvider.currentUserId;
-  return FutureBuilder<Trening?>(
-    future: treningFuture,
-    builder: (context, snapshot) {
-      if (snapshot.connectionState == ConnectionState.done &&
-          snapshot.hasData) {
-        final trening = snapshot.data!;
-        Color bojaTreninga = bojeTreninga[trening.naziv] ?? Colors.blue;
 
-        return Card(
-          elevation: 2,
-          margin: EdgeInsets.all(8.0),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10.0),
-          ),
-          color: bojaTreninga,
-          child: InkWell(
-            onTap: () {
-              // Dodajte kod za otvaranje detalja o treningu
-            },
-            child: Container(
-              padding: EdgeInsets.all(10.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        '${trening.naziv}',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 18,
-                          color: Colors.white,
-                        ),
-                      ),
-                      SizedBox(height: 4),
-                      Text(
-                        'Detalji o treningu',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ],
-                  ),
-                  VerticalDivider(
-                    color: Colors.white,
-                    thickness: 1.0,
-                  ),
-                FutureBuilder<bool>(
-  future: _isReservationActive(
-    trenutniKorisnikId!,
-    raspored.id!,
-  ),
-  builder: (context, reservationSnapshot) {
-    bool isReservationActive = reservationSnapshot.data ?? false;
+    return FutureBuilder<Trening?>(
+      future: treningFuture,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.done &&
+            snapshot.hasData) {
+          final trening = snapshot.data!;
+          Color bojaTreninga = bojeTreninga[trening.naziv] ?? Colors.blue;
 
-    return ElevatedButton(
-      onPressed: () async {
-        if (trenutniKorisnikId != null) {
-          if (isReservationActive) {
-            // Termin je već rezerviran, prikaži odgovarajući dijalog
-            showDialog(
-              context: context,
-              builder: (BuildContext context) {
-                return AlertDialog(
-                  content: Text('Već ste rezervirali ovaj termin.'),
-                  actions: [
-                    ElevatedButton(
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                      child: Text(
-                        'OK',
-                        style: TextStyle(
-                          color: Colors.white,
-                        ),
-                      ),
+          return Card(
+            elevation: 2,
+            margin: EdgeInsets.all(8.0),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10.0),
+            ),
+            color: bojaTreninga,
+            child: InkWell(
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => WorkoutDetailScreen(
+                      treningid: raspored.treningId,
+                      rasporedId: raspored.id,
                     ),
-                  ],
+                  ),
                 );
               },
-            );
-          } else {
-            try {
-              var request = <String, dynamic>{
-                'korisnikId': trenutniKorisnikId,
-                'rasporedId': raspored.id,
-                'status': "Aktivna",
-                'datumRezervacija': DateTime.now().toIso8601String(),
-              };
-
-              await _reservationProvider.insert(request);
-
-              // Osvježi podatke nakon rezervacije
-              _loadData();
-
-              // Prikaži dijalog s porukom
-              showDialog(
-                context: context,
-                builder: (BuildContext context) {
-                  return AlertDialog(
-                    content: Text('Termin je uspješno rezerviran!'),
-                    actions: [
-                      ElevatedButton(
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                        },
-                        child: Text(
-                          'OK',
+              child: Container(
+                padding: EdgeInsets.all(10.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          '${trening.naziv}',
                           style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
                             color: Colors.white,
                           ),
                         ),
-                      ),
-                    ],
-                  );
-                },
-              );
-            } catch (e) {
-              print('Error during reservation: $e');
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(
-                    'Došlo je do pogreške prilikom obrade rezervacije. $e',
-                  ),
-                  backgroundColor: Colors.red,
-                ),
-              );
-            }
-          }
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Korisnik nije prijavljen.'),
-              backgroundColor: Colors.red,
-            ),
-          );
-          print('Korisnik nije prijavljen.');
-        }
-      },
-      style: ElevatedButton.styleFrom(
-        backgroundColor: isReservationActive ? Colors.red : Colors.white,
-      ),
-      child: Text(
-        isReservationActive ? 'Rezervisano' : 'Rezerviši',
-        style: TextStyle(
-          fontSize: 14,
-          color: isReservationActive ? Colors.white : Colors.black,
-        ),
-      ),
-    );
-  },
-),
+                        SizedBox(height: 4),
+                        Text(
+                          'Detalji o treningu',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ],
+                    ),
+                    VerticalDivider(
+                      color: Colors.white,
+                      thickness: 1.0,
+                    ),
+                    FutureBuilder<bool>(
+                      future: _isReservationActive(
+                          trenutniKorisnikId!, raspored.id!),
+                      builder: (context, reservationSnapshot) {
+                        bool isReservationActive =
+                            reservationSnapshot.data ?? false;
+                        Color buttonColor =
+                            isReservationActive ? Colors.red : Colors.white;
+                        String buttonText =
+                            isReservationActive ? 'Rezervisano' : 'Rezerviši';
 
-                ],
+                        return ElevatedButton(
+                          onPressed: () async {
+                            if (trenutniKorisnikId != null) {
+                              try {
+                                var isReserved = await _isReservationActive(
+                                  trenutniKorisnikId,
+                                  raspored.id!,
+                                );
+
+                                if (isReserved) {
+                                  var shouldCancel = await showDialog<bool>(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return AlertDialog(
+                                        content: Text(
+                                          'Već ste rezervirali ovaj termin. Želite li otkazati rezervaciju?',
+                                        ),
+                                        actions: [
+                                          ElevatedButton(
+                                            onPressed: () async {
+                                              Navigator.of(context).pop(true);
+
+                                              await updateStatus(
+                                                trenutniKorisnikId,
+                                                raspored.id!,
+                                                "Neaktivna",
+                                              );
+
+                                              _loadData();
+
+                                              ScaffoldMessenger.of(context)
+                                                  .showSnackBar(
+                                                SnackBar(
+                                                  content: Text(
+                                                      'Rezervacija je otkazana.'),
+                                                  backgroundColor: Colors.green,
+                                                ),
+                                              );
+                                            },
+                                            style: ElevatedButton.styleFrom(
+                                              primary: Colors.red,
+                                            ),
+                                            child: Text(
+                                              'Da',
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                          ),
+                                          ElevatedButton(
+                                            onPressed: () {
+                                              Navigator.of(context).pop(false);
+                                            },
+                                            style: ElevatedButton.styleFrom(
+                                              primary: Colors.white,
+                                            ),
+                                            child: Text(
+                                              'Ne',
+                                              style: TextStyle(
+                                                color: Colors.black,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      );
+                                    },
+                                  );
+
+                                  if (shouldCancel == true) {
+                                    return;
+                                  }
+                                }
+
+                                var request = <String, dynamic>{
+                                  'korisnikId': trenutniKorisnikId,
+                                  'rasporedId': raspored.id,
+                                  'status': "Aktivna",
+                                  'datumRezervacija':
+                                      DateTime.now().toIso8601String(),
+                                };
+
+                                await _reservationProvider.insert(request);
+
+                                _loadData();
+
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content:
+                                        Text('Termin je uspešno rezerviran.'),
+                                    backgroundColor: Colors.green,
+                                  ),
+                                );
+                                setState(() {
+                                  buttonColor =
+                                      isReserved ? Colors.red : Colors.white;
+                                  buttonText = 'Rezervisano';
+                                });
+                              } catch (e) {
+                                print('Error during reservation: $e');
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      'Došlo je do pogreške prilikom obrade rezervacije. $e',
+                                    ),
+                                    backgroundColor: Colors.red,
+                                  ),
+                                );
+                              }
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text('Korisnik nije prijavljen.'),
+                                  backgroundColor: Colors.red,
+                                ),
+                              );
+                              print('Korisnik nije prijavljen.');
+                            }
+                          },
+                          style: ElevatedButton.styleFrom(
+                            primary: buttonColor,
+                            side: BorderSide(color: Colors.grey, width: 2.0),
+                          ),
+                          child: Text(
+                            buttonText,
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: isReserved ? Colors.white : Colors.black,
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
-        );
-      } else {
-        return SizedBox.shrink();
-        // Ne prikazujte ništa ako trening nije dostupan
-      }
-    },
-  );
-}
-
-
+          );
+        } else {
+          return SizedBox.shrink();
+          // Ne prikazujte ništa ako trening nije dostupan
+        }
+      },
+    );
+  }
 
   Widget _buildRasporedZaDan(int dan, List<String> satnice) {
     return Column(
@@ -458,5 +713,180 @@ Widget _buildCustomTreningCard(Raspored raspored) {
         ),
       ],
     );
+  }
+
+  Future<void> _showPriceListDialog() async {
+    return showDialog<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          contentPadding: EdgeInsets.all(16.0),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10.0),
+          ),
+          title: Center(
+            child: Text(
+              'Cjenovnik',
+              style: TextStyle(
+                fontSize: 18.0,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          content: Container(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildPriceListItem('1X sedmično', '15KM'),
+                _buildPriceListItem('2X sedmično', '30KM'),
+                _buildPriceListItem('3X sedmično', '45KM'),
+                _buildPriceListItem('4X sedmično', '60KM'),
+                _buildPriceListItem('5X sedmično', '75KM'),
+              ],
+            ),
+          ),
+          actions: [
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('Zatvori'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildPriceListItem(String description, String price) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            description,
+            style: TextStyle(fontSize: 16.0),
+          ),
+          Text(
+            price,
+            style: TextStyle(
+              fontSize: 16.0,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildReservationInfo() {
+    Future<int> reservedCountFuture = calculateReservedCount();
+    Future<double> reservedPriceFuture = calculateReservedPrice();
+
+    return FutureBuilder<int>(
+      future: reservedCountFuture,
+      builder: (context, countSnapshot) {
+        int reservedCount = countSnapshot.data ?? 0;
+
+        return FutureBuilder<double>(
+          future: reservedPriceFuture,
+          builder: (context, priceSnapshot) {
+            double reservedPrice = priceSnapshot.data ?? 0.0;
+
+            return Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(20.0),
+                      child: ElevatedButton(
+                        onPressed: () {
+                          _showPriceListDialog();
+                        },
+                        child: Text('Cjenovnik'),
+                        style: ElevatedButton.styleFrom(
+                          minimumSize: Size(
+                              150, 50), // Postavite željenu veličinu dugmeta
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(20.0),
+                      child: ElevatedButton(
+                        onPressed: () {
+                          _showReservationDialog();
+                          // Implementirajte funkcionalnost za prikaz rezervisanih termina
+                        },
+                        child: Text('Pregled rezervacija'),
+                        style: ElevatedButton.styleFrom(
+                          minimumSize: Size(
+                              150, 50), // Postavite željenu veličinu dugmeta
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                if (reservedCount > 0) ...[
+                  Text('Rezervisani termini: $reservedCount'),
+                  for (var dan in [1, 2, 3, 4, 5])
+                    for (var satnica in _getDailySchedule(dan))
+                      ..._buildReservedRasporedCell(dan, satnica),
+                  SizedBox(height: 16),
+                  Text('Ukupna cena: $reservedPrice KM'),
+                  ElevatedButton(
+                    onPressed: () {
+                      // Implementirajte funkcionalnost za plaćanje rezervacija
+                    },
+                    child: Text('Plati rezervacije'),
+                    style: ElevatedButton.styleFrom(
+                      minimumSize:
+                          Size(150, 50), // Postavite željenu veličinu dugmeta
+                    ),
+                  ),
+                ],
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  List<Widget> _buildReservedRasporedCell(int dan, String satnica) {
+    final reservedRasporedi = getReservedRasporedi(dan, satnica);
+
+    if (reservedRasporedi.isEmpty) {
+      return [];
+    }
+
+    return [
+      Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(height: 8),
+          Text(
+            _dayOfWeekToString(dan),
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 18,
+              color: Colors.black,
+            ),
+          ),
+          SizedBox(height: 8),
+          Text(
+            satnica,
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+            ),
+          ),
+          for (var raspored in reservedRasporedi)
+            _buildCustomTreningCard(raspored),
+        ],
+      ),
+    ];
   }
 }

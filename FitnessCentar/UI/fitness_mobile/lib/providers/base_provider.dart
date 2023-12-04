@@ -90,6 +90,20 @@ Future getById(int id) async {
     throw Exception("Method not implemented");
   }
 
+  Future remove(int id) async {
+   
+    var url = "$_baseUrl$_endpoint/$id";
+    var uri = Uri.parse(url);
+    var headers = createHeaders();
+
+    Response response = await delete(uri, headers: headers);
+    if (isValidResponse(response)) {
+    } else {
+      throw Exception("Unknown error");
+    }
+  }
+
+
   bool isValidResponse(Response response) {
     if (response.statusCode < 299) {
       return true;

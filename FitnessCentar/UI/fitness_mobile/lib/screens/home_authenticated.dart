@@ -112,7 +112,7 @@ class HomeAuthenticated extends StatelessWidget {
                                 return Text('Greška: ${snapshot.error}');
                               } else if (snapshot.hasData) {
                                 final user = snapshot.data!;
-                                //final userImage = imageFromBase64String(user.slika!);
+                              
                                 final userImage = user.slika != null
                                     ? imageFromBase64String(user.slika!)
                                     : null;
