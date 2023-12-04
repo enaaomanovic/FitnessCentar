@@ -780,80 +780,91 @@ class _ScheduleListScreenState extends State<ScheduleListScreen> {
       ),
     );
   }
+Widget _buildReservationInfo() {
+  Future<int> reservedCountFuture = calculateReservedCount();
+  Future<double> reservedPriceFuture = calculateReservedPrice();
 
-  Widget _buildReservationInfo() {
-    Future<int> reservedCountFuture = calculateReservedCount();
-    Future<double> reservedPriceFuture = calculateReservedPrice();
+  return FutureBuilder<int>(
+    future: reservedCountFuture,
+    builder: (context, countSnapshot) {
+      int reservedCount = countSnapshot.data ?? 0;
 
-    return FutureBuilder<int>(
-      future: reservedCountFuture,
-      builder: (context, countSnapshot) {
-        int reservedCount = countSnapshot.data ?? 0;
+      return FutureBuilder<double>(
+        future: reservedPriceFuture,
+        builder: (context, priceSnapshot) {
+          double reservedPrice = priceSnapshot.data ?? 0.0;
 
-        return FutureBuilder<double>(
-          future: reservedPriceFuture,
-          builder: (context, priceSnapshot) {
-            double reservedPrice = priceSnapshot.data ?? 0.0;
-
-            return Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.all(20.0),
-                      child: ElevatedButton(
-                        onPressed: () {
-                          _showPriceListDialog();
-                        },
-                        child: Text('Cjenovnik'),
-                        style: ElevatedButton.styleFrom(
-                          minimumSize: Size(
-                              150, 50), // Postavite željenu veličinu dugmeta
-                        ),
+          return Column(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(20.0),
+                    child: ElevatedButton(
+                      onPressed: () {
+                        _showPriceListDialog();
+                      },
+                      child: Text('Cjenovnik'),
+                      style: ElevatedButton.styleFrom(
+                        minimumSize: Size(
+                            150, 50), // Postavite željenu veličinu dugmeta
                       ),
                     ),
-                    Padding(
-                      padding: const EdgeInsets.all(20.0),
-                      child: ElevatedButton(
-                        onPressed: () {
-                          _showReservationDialog();
-                          // Implementirajte funkcionalnost za prikaz rezervisanih termina
-                        },
-                        child: Text('Pregled rezervacija'),
-                        style: ElevatedButton.styleFrom(
-                          minimumSize: Size(
-                              150, 50), // Postavite željenu veličinu dugmeta
-                        ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(20.0),
+                    child: ElevatedButton(
+                      onPressed: () {
+                        _showReservationDialog();
+                      },
+                      child: Text('Pregled rezervacija'),
+                      style: ElevatedButton.styleFrom(
+                        minimumSize: Size(
+                            150, 50), // Postavite željenu veličinu dugmeta
                       ),
-                    ),
-                  ],
-                ),
-                if (reservedCount > 0) ...[
-                  Text('Rezervisani termini: $reservedCount'),
-                  for (var dan in [1, 2, 3, 4, 5])
-                    for (var satnica in _getDailySchedule(dan))
-                      ..._buildReservedRasporedCell(dan, satnica),
-                  SizedBox(height: 16),
-                  Text('Ukupna cena: $reservedPrice KM'),
-                  ElevatedButton(
-                    onPressed: () {
-                      // Implementirajte funkcionalnost za plaćanje rezervacija
-                    },
-                    child: Text('Plati rezervacije'),
-                    style: ElevatedButton.styleFrom(
-                      minimumSize:
-                          Size(150, 50), // Postavite željenu veličinu dugmeta
                     ),
                   ),
                 ],
+              ),
+              if (reservedCount > 0) ...[
+                SizedBox(height: 16),
+                Text('Uspješno ste rezervisali $reservedCount termina.', 
+                style: TextStyle(
+                   fontSize: 17.5, )),
+                SizedBox(height: 8),
+                Text('Članarina za trenutno rezervisane termine iznosi' , style: TextStyle(
+                   fontSize: 17.5, )),
+                SizedBox(height: 8),
+                Text(
+                  '$reservedPrice KM',
+                  style: TextStyle(
+                    fontSize: 20, // Prilagodite veličinu fonta po potrebi
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                 Padding(
+                    padding: const EdgeInsets.only(bottom:20.0,top:10),
+                    child:
+                ElevatedButton(
+                  onPressed: () {
+                    // Implementirajte funkcionalnost za plaćanje rezervacija
+                  },
+                  child: Text('Plati članarinu'),
+                  style: ElevatedButton.styleFrom(
+                    minimumSize: Size(
+                        150, 50), // Postavite željenu veličinu dugmeta
+                  ),
+                ),
+                 ),
               ],
-            );
-          },
-        );
-      },
-    );
-  }
+            ],
+          );
+        },
+      );
+    },
+  );
+}
 
   List<Widget> _buildReservedRasporedCell(int dan, String satnica) {
     final reservedRasporedi = getReservedRasporedi(dan, satnica);
