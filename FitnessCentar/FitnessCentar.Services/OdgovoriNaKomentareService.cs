@@ -15,5 +15,18 @@ namespace FitnessCentar.Services
         public OdgovoriNaKomentareService(Ib200005rs2Context context, IMapper mapper) : base(context, mapper)
         {
         }
+
+        public override IQueryable<OdgovoriNaKomentare> AddFilter(IQueryable<OdgovoriNaKomentare> query, OdgovoriNaKomentareSearchObject? search = null)
+        {
+            var filteredQuery = base.AddFilter(query, search);
+
+
+            if (search.KomentarId != null)
+            {
+                filteredQuery = filteredQuery.Where(x => x.KomentarId == search.KomentarId);
+            }
+            return filteredQuery;
+
+        }
     }
 }

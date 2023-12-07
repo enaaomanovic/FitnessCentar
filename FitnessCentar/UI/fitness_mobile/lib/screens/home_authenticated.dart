@@ -13,6 +13,7 @@ import 'package:fitness_mobile/utils/utils.dart';
 import 'package:fitness_mobile/widgets/master_screens.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+
 import 'package:provider/provider.dart';
 
 typedef void WeightUpdateCallback(double newWeight);
@@ -43,123 +44,405 @@ class HomeAuthenticated extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return _buildHomepage(context);
+    return 
+    _buildHomepage(context);
   }
-
-  Widget _buildHomepage(BuildContext context) {
-    return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage("assets/images/PozdainaD.jpg"),
-            fit: BoxFit.cover,
-          ),
-        ),
-        child: Column(
-          children: [
-            Expanded(
-              child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(top: 40.0, left: 20.0),
-                      child: Row(
-                        children: [
-                          Container(
-                            width: 100,
-                            height: 100,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              image: DecorationImage(
-                                image:
-                                    AssetImage("assets/images/FitnessLogo.jpg"),
-                                fit: BoxFit.cover,
-                              ),
-                            ),
-                          ),
-                          SizedBox(width: 20),
-                          FutureBuilder<Korisnici?>(
-                            future: getUserFromUserId(userId ?? 0),
-                            builder: (context, snapshot) {
-                              if (snapshot.connectionState ==
-                                  ConnectionState.waiting) {
-                                return CircularProgressIndicator();
-                              } else if (snapshot.hasError) {
-                                return Text('Greška: ${snapshot.error}');
-                              } else if (snapshot.hasData) {
-                                final user = snapshot.data!;
-                                return Text(
-                                  " ${user.ime} ${user.prezime}",
-                                  style: TextStyle(
-                                    fontSize: 20,
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                );
-                              } else {
-                                return Text('Nema dostupnih podataka');
-                              }
-                            },
-                          ),
-                          SizedBox(width: 10),
-                          FutureBuilder<Korisnici?>(
-                            future: getUserFromUserId(userId ?? 0),
-                            builder: (context, snapshot) {
-                              if (snapshot.connectionState ==
-                                  ConnectionState.waiting) {
-                                return CircularProgressIndicator();
-                              } else if (snapshot.hasError) {
-                                return Text('Greška: ${snapshot.error}');
-                              } else if (snapshot.hasData) {
-                                final user = snapshot.data!;
-                              
-                                final userImage = user.slika != null
-                                    ? imageFromBase64String(user.slika!)
-                                    : null;
-                                final userImageBytes = user.slika != null
-                                    ? Uint8List.fromList(
-                                        base64Decode(user.slika!))
-                                    : null;
-
-                                return CircleAvatar(
-                                  backgroundImage: Image.memory(
-                                          Uint8List.fromList(userImageBytes!))
-                                      .image,
-                                  radius: 30,
-                                );
-                              } else {
-                                return Text('Nema dostupnih podataka');
-                              }
-                            },
-                          ),
-                        ],
-                      ),
-                    ),
-                    Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          SizedBox(
-                            height: 20,
-                          ),
-                          _buildProgressSection(),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [],
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            _buildBottomNavigationBar(context),
-          ],
+Image loadMaleIconImage() {
+  return Image.asset('assets/images/male_icon.jpg');
+}
+Widget _buildHomepage(BuildContext context) {
+  return Scaffold(
+    body: Container(
+      decoration: BoxDecoration(
+        image: DecorationImage(
+          image: AssetImage("assets/images/PozdainaD.jpg"),
+          fit: BoxFit.cover,
         ),
       ),
-    );
-  }
+      child: Column(
+        children: [
+          Expanded(
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(top: 40.0, left: 20.0),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 100,
+                          height: 100,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            image: DecorationImage(
+                              image: AssetImage("assets/images/FitnessLogo.jpg"),
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                        ),
+                        SizedBox(width: 20),
+                        FutureBuilder<Korisnici?>(
+                          future: getUserFromUserId(userId ?? 0),
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState ==
+                                ConnectionState.waiting) {
+                              return CircularProgressIndicator();
+                            } else if (snapshot.hasError) {
+                              return Text('Greška: ${snapshot.error}');
+                            } else if (snapshot.hasData) {
+                              final user = snapshot.data!;
+                              return Text(
+                                " ${user.ime} ${user.prezime}",
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              );
+                            } else {
+                              return Text('Nema dostupnih podataka');
+                            }
+                          },
+                        ),
+                        SizedBox(width: 10),
+                        FutureBuilder<Korisnici?>(
+  future: getUserFromUserId(userId ?? 0),
+  builder: (context, snapshot) {
+    if (snapshot.connectionState == ConnectionState.waiting) {
+      return CircularProgressIndicator();
+    } else if (snapshot.hasError) {
+      return Text('Greška: ${snapshot.error}');
+    } else if (snapshot.hasData) {
+      final user = snapshot.data!;
+      final userImageBytes = user.slika != null
+          ? Uint8List.fromList(base64Decode(user.slika!))
+          : null;
+
+      if (userImageBytes != null && userImageBytes.isNotEmpty) {
+        // Prikazi sliku korisnika ako je dostupna
+        return CircleAvatar(
+          backgroundImage: MemoryImage(userImageBytes),
+          radius: 30,
+        );
+      } else {
+        // Ako korisnik nema sliku, prikaži podrazumevanu sliku
+        return CircleAvatar(
+          backgroundImage: AssetImage("assets/images/male_icon.jpg"),
+          radius: 30,
+        );
+      }
+    } else {
+      return Text('Nema dostupnih podataka');
+    }
+  },
+),
+
+                      ],
+                    ),
+                  ),
+                  Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        SizedBox(
+                          height: 20,
+                        ),
+                        _buildProgressSection(),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [],
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          _buildBottomNavigationBar(context),
+        ],
+      ),
+    ),
+  );
+}
+
+// Widget _buildProgressSection() {
+//   return Center(
+//     child: SizedBox(
+//       height: 550,
+//       width: 300,
+//       child: Stack(
+//         children: [
+//           Card(
+//             elevation: 6,
+//             shape: RoundedRectangleBorder(
+//               borderRadius: BorderRadius.circular(20.0),
+//             ),
+//             child: Padding(
+//               padding: const EdgeInsets.all(20.0),
+//               child: Column(
+//                 mainAxisSize: MainAxisSize.min,
+//                 children: [
+//                   Text(
+//                     "Napredak",
+//                     style: TextStyle(
+//                       fontSize: 24,
+//                       fontWeight: FontWeight.bold,
+//                       color: Colors.black,
+//                     ),
+//                   ),
+//                   SizedBox(height: 40),
+//                   FutureBuilder<Korisnici?>(
+//                     future: getUserFromUserId(userId ?? 0),
+//                     builder: (context, snapshot) {
+//                       if (snapshot.connectionState ==
+//                           ConnectionState.waiting) {
+//                         return CircularProgressIndicator();
+//                       } else if (snapshot.hasError) {
+//                         return Text(
+//                           'Greška: ${snapshot.error}',
+//                           style: TextStyle(
+//                             fontSize: 18,
+//                             color: Colors.red,
+//                             fontWeight: FontWeight.bold,
+//                           ),
+//                         );
+//                       } else if (snapshot.hasData) {
+//                         final user = snapshot.data!;
+//                         return Container(
+//                           margin: EdgeInsets.only(bottom: 10),
+//                           padding: EdgeInsets.all(10),
+//                           decoration: BoxDecoration(
+//                             border: Border.all(
+//                               color: Colors.purple,
+//                               width: 2.0,
+//                             ),
+//                             borderRadius: BorderRadius.circular(8),
+//                           ),
+//                           child: Column(
+//                             crossAxisAlignment: CrossAxisAlignment.start,
+//                             children: [
+//                               Text(
+//                                 "Ime: ${user.ime}",
+//                                 style: TextStyle(
+//                                   fontSize: 20,
+//                                   color: Colors.black,
+//                                   fontWeight: FontWeight.bold,
+//                                 ),
+//                               ),
+//                               Text(
+//                                 "Prezime: ${user.prezime}",
+//                                 style: TextStyle(
+//                                   fontSize: 20,
+//                                   color: Colors.black,
+//                                   fontWeight: FontWeight.bold,
+//                                 ),
+//                               ),
+//                               Text(
+//                                 "Visina: ${user.visina} cm",
+//                                 style: TextStyle(
+//                                   fontSize: 20,
+//                                   color: Colors.black,
+//                                   fontWeight: FontWeight.bold,
+//                                 ),
+//                               ),
+//                               Text(
+//                                 "Početna težina: ${user.tezina} kg",
+//                                 style: TextStyle(
+//                                   fontSize: 20,
+//                                   color: Colors.black,
+//                                   fontWeight: FontWeight.bold,
+//                                 ),
+//                               ),
+//                             ],
+//                           ),
+//                         );
+//                       } else {
+//                         return Text(
+//                           'Nema dostupnih podataka',
+//                           style: TextStyle(
+//                             fontSize: 18,
+//                             color: Colors.black,
+//                             fontWeight: FontWeight.bold,
+//                           ),
+//                         );
+//                       }
+//                     },
+//                   ),
+//                   SizedBox(height: 40),
+//                   FutureBuilder<SearchResult<Napredak?>>(
+//                     future: getProgressFromUserId(2),
+//                     builder: (context, snapshot) {
+//                       if (snapshot.connectionState ==
+//                           ConnectionState.waiting) {
+//                         return CircularProgressIndicator();
+//                       } else if (snapshot.hasError) {
+//                         return Text(
+//                           'Greška: ${snapshot.error}',
+//                           style: TextStyle(
+//                             fontSize: 18,
+//                             color: Colors.red,
+//                             fontWeight: FontWeight.bold,
+//                           ),
+//                         );
+//                       } else if (snapshot.hasData) {
+//                         final progress = snapshot.data!;
+//                         if (progress.result.isNotEmpty) {
+//                           return Container(
+//                             margin: EdgeInsets.only(bottom: 10),
+//                             padding: EdgeInsets.all(10),
+//                             decoration: BoxDecoration(
+//                               border: Border.all(
+//                                 color: Colors.purple,
+//                                 width: 2.0,
+//                               ),
+//                               borderRadius: BorderRadius.circular(8),
+//                             ),
+//                             child: Text(
+//                               "Trenutna težina: ${progress.result.last?.tezina} kg",
+//                               style: TextStyle(
+//                                 fontSize: 20,
+//                                 color: Colors.black,
+//                                 fontWeight: FontWeight.bold,
+//                               ),
+//                             ),
+//                           );
+//                         } else {
+//                           return Container(
+//                             margin: EdgeInsets.only(bottom: 10),
+//                             padding: EdgeInsets.all(10),
+//                             decoration: BoxDecoration(
+//                               border: Border.all(
+//                                 color: Colors.purple,
+//                                 width: 2.0,
+//                               ),
+//                               borderRadius: BorderRadius.circular(8),
+//                             ),
+//                             child: Text(
+//                               "Trenutna težina: trenutno nema dostupnih podataka",
+//                               style: TextStyle(
+//                                 fontSize: 20,
+//                                 color: Colors.black,
+//                                 fontWeight: FontWeight.bold,
+//                               ),
+//                             ),
+//                           );
+//                         }
+//                       } else {
+//                         return Text(
+//                           'Nema dostupnih podataka',
+//                           style: TextStyle(
+//                             fontSize: 18,
+//                             color: Colors.black,
+//                             fontWeight: FontWeight.bold,
+//                           ),
+//                         );
+//                       }
+//                     },
+//                   ),
+//                   SizedBox(height: 40),
+//                   FutureBuilder<SearchResult<Napredak?>>(
+//                     future: getProgressFromUserId(userId ?? 0),
+//                     builder: (context, snapshot) {
+//                       if (snapshot.connectionState ==
+//                           ConnectionState.waiting) {
+//                         return CircularProgressIndicator();
+//                       } else if (snapshot.hasError) {
+//                         return Text(
+//                           'Greška: ${snapshot.error}',
+//                           style: TextStyle(
+//                             fontSize: 18,
+//                             color: Colors.red,
+//                             fontWeight: FontWeight.bold,
+//                           ),
+//                         );
+//                       } else if (snapshot.hasData) {
+//                         final progress = snapshot.data!;
+//                         return FutureBuilder<Korisnici?>(
+//                           future: getUserFromUserId(userId ?? 0),
+//                           builder: (context, userSnapshot) {
+//                             if (userSnapshot.connectionState ==
+//                                 ConnectionState.waiting) {
+//                               return CircularProgressIndicator();
+//                             } else if (userSnapshot.hasError) {
+//                               return Text(
+//                                 'Greška: ${userSnapshot.error}',
+//                                 style: TextStyle(
+//                                   fontSize: 18,
+//                                   color: Colors.red,
+//                                   fontWeight: FontWeight.bold,
+//                                 ),
+//                               );
+//                             } else if (userSnapshot.hasData) {
+//                               final user = userSnapshot.data!;
+//                               return Container(
+//                                 margin: EdgeInsets.only(bottom: 10),
+//                                 padding: EdgeInsets.all(10),
+//                                 decoration: BoxDecoration(
+//                                   border: Border.all(
+//                                     color: Colors.purple,
+//                                     width: 4.0,
+//                                   ),
+//                                   borderRadius: BorderRadius.circular(8),
+//                                 ),
+//                                 child: _buildResultMessage(
+//                                   progress.result.isNotEmpty
+//                                     ? progress.result.last?.tezina ?? 0
+//                                     : 0,
+//                                   user.tezina ?? 0,
+//                                 ),
+//                               );
+//                             } else {
+//                               return Text(
+//                                 'Nema dostupnih podataka',
+//                                 style: TextStyle(
+//                                   fontSize: 18,
+//                                   color: Colors.black,
+//                                   fontWeight: FontWeight.bold,
+//                                 ),
+//                               );
+//                             }
+//                           },
+//                         );
+//                       } else {
+//                         return Text(
+//                           'Nema dostupnih podataka',
+//                           style: TextStyle(
+//                             fontSize: 18,
+//                             color: Colors.black,
+//                             fontWeight: FontWeight.bold,
+//                           ),
+//                         );
+//                       }
+//                     },
+//                   ),
+//                 ],
+//               ),
+//             ),
+//           ),
+//           Positioned(
+//             bottom: 20,
+//             right: 16,
+//             child: Builder(
+//               builder: (BuildContext context) {
+//                 return CircleAvatar(
+//                   backgroundColor: Colors.purple,
+//                   radius: 28.0,
+//                   child: IconButton(
+//                     onPressed: () {
+//                       _showMyDialog(context, (double newWeight) {});
+//                     },
+//                     icon: Icon(Icons.add, color: Colors.white),
+//                   ),
+//                 );
+//               },
+//             ),
+//           ),
+//         ],
+//       ),
+//     ),
+//   );
+// }
 
   Widget _buildProgressSection() {
     return Center(
@@ -266,53 +549,75 @@ class HomeAuthenticated extends StatelessWidget {
                     ),
                     SizedBox(height: 40),
                     FutureBuilder<SearchResult<Napredak?>>(
-                      future: getProgressFromUserId(2),
-                      builder: (context, snapshot) {
-                        if (snapshot.connectionState ==
-                            ConnectionState.waiting) {
-                          return CircularProgressIndicator();
-                        } else if (snapshot.hasError) {
-                          return Text(
-                            'Greška: ${snapshot.error}',
-                            style: TextStyle(
-                              fontSize: 18,
-                              color: Colors.red,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          );
-                        } else if (snapshot.hasData) {
-                          final progress = snapshot.data!;
-                          return Container(
-                            margin: EdgeInsets.only(bottom: 10),
-                            padding: EdgeInsets.all(10),
-                            decoration: BoxDecoration(
-                              border: Border.all(
-                                color: Colors.purple,
-                                width: 2.0,
-                              ),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Text(
-                              "Trenutna težina: ${progress.result.last?.tezina} kg",
-                              style: TextStyle(
-                                fontSize: 20,
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          );
-                        } else {
-                          return Text(
-                            'Nema dostupnih podataka',
-                            style: TextStyle(
-                              fontSize: 18,
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          );
-                        }
-                      },
-                    ),
+  future: getProgressFromUserId(2),
+  builder: (context, snapshot) {
+    if (snapshot.connectionState == ConnectionState.waiting) {
+      return CircularProgressIndicator();
+    } else if (snapshot.hasError) {
+      return Text(
+        'Greška: ${snapshot.error}',
+        style: TextStyle(
+          fontSize: 18,
+          color: Colors.red,
+          fontWeight: FontWeight.bold,
+        ),
+      );
+    } else if (snapshot.hasData) {
+      final progress = snapshot.data!;
+      if (progress.result.isNotEmpty) {
+        return Container(
+          margin: EdgeInsets.only(bottom: 10),
+          padding: EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            border: Border.all(
+              color: Colors.purple,
+              width: 2.0,
+            ),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Text(
+            "Trenutna težina: ${progress.result.last?.tezina} kg",
+            style: TextStyle(
+              fontSize: 20,
+              color: Colors.black,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        );
+      } else {
+        return Container(
+          margin: EdgeInsets.only(bottom: 10),
+          padding: EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            border: Border.all(
+              color: Colors.purple,
+              width: 2.0,
+            ),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Text(
+            "Trenutna težina: trenutno nema dostupnih podataka",
+            style: TextStyle(
+              fontSize: 20,
+              color: Colors.black,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        );
+      }
+    } else {
+      return Text(
+        'Nema dostupnih podataka',
+        style: TextStyle(
+          fontSize: 18,
+          color: Colors.black,
+          fontWeight: FontWeight.bold,
+        ),
+      );
+    }
+  },
+),
+
                     SizedBox(height: 40),
                     FutureBuilder<SearchResult<Napredak?>>(
                       future: getProgressFromUserId(userId ?? 0),
@@ -505,27 +810,29 @@ void _showErrorDialog(BuildContext context, String message) {
   );
 }
 
-  Widget _buildResultMessage(double currentWeight, double initialWeight) {
+Widget _buildResultMessage(double currentWeight, double initialWeight) {
+  String resultMessage = '';
+  if (currentWeight == initialWeight) {
+    resultMessage = 'Nije došlo do promjene u težini.';
+  } else {
     double result = currentWeight - initialWeight;
 
-    String resultMessage;
     if (result > 0) {
       resultMessage = 'Udebljali ste se  za ${result.abs()} kg!';
     } else if (result < 0) {
       resultMessage = 'Smršali ste za ${result.abs()} kg!';
-    } else {
-      resultMessage = 'Nije došlo do promjene u težini.';
     }
-
-    return Text(
-      'Rezultat: $resultMessage',
-      style: TextStyle(
-        fontSize: 20,
-        color: Colors.black,
-        fontWeight: FontWeight.bold,
-      ),
-    );
   }
+
+  return Text(
+    'Rezultat: $resultMessage',
+    style: TextStyle(
+      fontSize: 20,
+      color: Colors.black,
+      fontWeight: FontWeight.bold,
+    ),
+  );
+}
 
  
 
@@ -600,3 +907,4 @@ Widget _buildBottomNavigationBar(BuildContext context) {
 
 
 }
+

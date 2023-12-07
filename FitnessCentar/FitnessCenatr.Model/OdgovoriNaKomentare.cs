@@ -18,7 +18,6 @@ namespace FitnessCentar.Model
 
         public DateTime? DatumOdgovora { get; set; }
 
-      
-
+     
     }
 }

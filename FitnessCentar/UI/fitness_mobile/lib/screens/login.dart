@@ -59,16 +59,32 @@ Widget build(BuildContext context) {
                   padding: const EdgeInsets.all(10.0), 
                   child: Column(
                     children: [
-                      ClipOval(
-                        child: Container(
-                          height: 100,
-                          width: 100,
+                        Container(
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: const Color.fromARGB(100, 155, 39, 176),
+                            width: 3.0,
+                          ),
+                        ),
+                        child: ClipOval(
                           child: Image.asset(
                             "assets/images/FitnessLogo.jpg",
-                            fit: BoxFit.cover,
+                            height: 100,
+                            width: 100,
                           ),
                         ),
                       ),
+                      // ClipOval(
+                      //   child: Container(
+                      //     height: 100,
+                      //     width: 100,
+                      //     child: Image.asset(
+                      //       "assets/images/FitnessLogo.jpg",
+                      //       fit: BoxFit.cover,
+                      //     ),
+                      //   ),
+                      // ),
                       SizedBox(height: 20), 
                       TextField(
                         decoration: InputDecoration(
