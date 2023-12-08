@@ -1,8 +1,12 @@
+import 'dart:ffi';
+
 import 'package:fitness_admin/models/korisnici.dart';
+import 'package:fitness_admin/models/napredak.dart';
 import 'package:fitness_admin/models/raspored.dart';
 import 'package:fitness_admin/models/rezervacija.dart';
 import 'package:fitness_admin/models/search_result.dart';
 import 'package:fitness_admin/models/trening.dart';
+import 'package:fitness_admin/providers/progress_provider.dart';
 import 'package:fitness_admin/providers/reservation_provider.dart';
 import 'package:fitness_admin/providers/schedule_provider.dart';
 import 'package:fitness_admin/providers/workout_provider.dart';
@@ -31,8 +35,10 @@ class _UserDetalScreenState extends State<UserDetalScreen> {
   late ReservationProvider _reservationProvider;
   late ScheduleProvider _scheduleProvider;
   late WorkoutProvider _workoutProvider;
+  late ProgressProvider _progressProvider;
   SearchResult<Rezervacija>? result;
   List<Rezervacija>? userReservations;
+  List<Napredak>? userProgress;
 
   @override
   void initState() {
@@ -55,7 +61,7 @@ class _UserDetalScreenState extends State<UserDetalScreen> {
         "slika": widget.korisnik?.slika
       };
     } else {
-      // Ako korisnik nema sliku, postavite zamensku sliku
+      
 
       userImage = Image.asset('assets/images/male_icon.jpg');
       _initialValue = {
@@ -75,12 +81,13 @@ class _UserDetalScreenState extends State<UserDetalScreen> {
     _workoutProvider = context.read<WorkoutProvider>();
     _reservationProvider = context.read<ReservationProvider>();
     _scheduleProvider = context.read<ScheduleProvider>();
+    _progressProvider=context.read<ProgressProvider>();
     _loadData();
   }
 
   @override
   void didChangeDependencies() {
-    // TODO: implement didChangeDependencies
+    
     super.didChangeDependencies();
   }
 
@@ -88,12 +95,56 @@ class _UserDetalScreenState extends State<UserDetalScreen> {
     final korisnikid = widget.korisnik!.id;
     var data = await _reservationProvider.get(filter: {
       'korisnikId': korisnikid.toString(),
+      'status':"Aktivna",
     });
 
     setState(() {
       userReservations = data.result;
     });
   }
+
+void _loadProgress() async {
+  try {
+    final korisnikid = widget.korisnik!.id;
+    print("korisnikid : $korisnikid");
+    var data = await _progressProvider.get(filter: {
+      'korisnikId': korisnikid,
+    });
+
+    print('Dohvaćeni podaci: ${data.result.last.tezina}');
+
+    setState(() {
+      userProgress = data.result;
+    });
+  } catch (error) {
+    print('Greška prilikom dohvaćanja podataka: $error');
+    
+  }
+}
+
+  Widget _buildResultMessage(double currentWeight, double initialWeight) {
+  String resultMessage = '';
+  if (currentWeight == initialWeight) {
+    resultMessage = 'Nije došlo do promjene u težini.';
+  } else {
+    double result = currentWeight - initialWeight;
+
+    if (result > 0) {
+      resultMessage = 'Korisnik se udebljao za ${result.abs()} kg!';
+    } else if (result < 0) {
+      resultMessage = 'Korisnik je smršao za  ${result.abs()} kg!';
+    }
+  }
+
+  return Text(
+    'Rezultat: $resultMessage',
+    style: TextStyle(
+      fontSize: 18,
+      color: Colors.black,
+      fontWeight: FontWeight.bold,
+    ),
+  );
+}
 
   Future<Raspored?> getRasporedFromId(int rasporedId) async {
     final raspored = await _scheduleProvider.getById(rasporedId);
@@ -134,11 +185,11 @@ Future<void> _showReservationPopup(BuildContext context) async {
       final raspored = await getRasporedFromId(userReservation.rasporedId ?? 0);
       final trening = await getTreningFromId(raspored?.treningId ?? 0);
 
-      // Konvertujte datum u odgovarajući format (samo sati)
+     
       final satnicaOd = DateFormat.Hm().format(raspored?.datumPocetka ?? DateTime.now());
       final satnicaDo = DateFormat.Hm().format(raspored?.datumZavrsetka ?? DateTime.now());
 
-      // Konvertujte dan u odgovarajući format (pon, uto, sri, ...)
+    
       final dan = _dayOfWeekToString(raspored?.dan ?? 0);
 
       listTiles.add(
@@ -148,7 +199,7 @@ Future<void> _showReservationPopup(BuildContext context) async {
         ),
       );
 
-      // Dodajte Divider između termina
+     
       listTiles.add(Divider());
     });
   }
@@ -186,8 +237,113 @@ Future<void> _showReservationPopup(BuildContext context) async {
     },
   );
 }
+Future<void> _showNapredakPopup(BuildContext context) async {
+    _loadProgress();
+    if (userProgress != null && userProgress!.isNotEmpty) {
+      await Future.forEach(userProgress!, (napredak) async {
+  
+      });
+    }
+  await showDialog(
+  context: context,
+  builder: (BuildContext context) {
+    return Dialog(
+      child: Container(
+        width: 400,
+        height: 400,
+        color: Colors.white,
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  Text(
+                    'Napredak korisnika',
+                    style: TextStyle(color: Colors.black, fontSize: 18),
+                  ),
+                  IconButton(
+                    icon: Icon(Icons.close, color: Colors.purple),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                  ),
+                ],
+              ),
+              SizedBox(height: 16),
+
+              // Težina korisnika pri registraciji
+              if (widget.korisnik?.tezina != null)
+                Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.purple, width: 2.0),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  padding: EdgeInsets.all(8),
+                  margin: EdgeInsets.only(bottom: 16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Text(
+                        'Težina pri registraciji',
+                        style: TextStyle(fontSize: 16),
+                      ),
+                      Text(
+                        '${widget.korisnik!.tezina} kg',
+                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                ),
+
+              // Zadnja težina korisnika
+              if (userProgress != null && userProgress!.isNotEmpty)
+                Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.purple, width: 2.0),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  padding: EdgeInsets.all(8),
+                  margin: EdgeInsets.only(bottom: 16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Text(
+                        'Trenutna težina',
+                        style: TextStyle(fontSize: 16),
+                      ),
+                      Text(
+                        '${userProgress!.last.tezina} kg',
+                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                ),
+
+              // Dodatne informacije iz userProgress
+              if (userProgress != null && userProgress!.isNotEmpty) ...[
+                // Razdvajanje od prethodnog dijela
+                SizedBox(height: 16),
+                // Rezultat napretka
+                _buildResultMessage(
+                  userProgress!.last.tezina ?? 0,
+                  widget.korisnik?.tezina ?? 0,
+                ),
+                // Dodatne informacije o svim napretcima
+            
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  },
+);
 
 
+  }
 
 
 
@@ -225,8 +381,8 @@ Future<void> _showReservationPopup(BuildContext context) async {
                 alignment: Alignment.topLeft,
                 child: ConstrainedBox(
                     constraints: BoxConstraints(
-                      maxWidth: 400.0, // Maksimalna širina
-                      maxHeight: 500.0, // Maksimalna visina
+                      maxWidth: 400.0,
+                      maxHeight: 500.0, 
                     ),
                     child: ClipRect(
                       child: userImage != null
@@ -235,8 +391,8 @@ Future<void> _showReservationPopup(BuildContext context) async {
                               height: 500.0,
                               decoration: BoxDecoration(
                                 border: Border.all(
-                                  color: Colors.purple, // Boja bordera
-                                  width: 4.0, // Debljina bordera
+                                  color: Colors.purple, 
+                                  width: 4.0,
                                 ),
                               ),
                               child: Image(
@@ -251,8 +407,8 @@ Future<void> _showReservationPopup(BuildContext context) async {
                               height: 400.0,
                               decoration: BoxDecoration(
                                 border: Border.all(
-                                  color: Colors.purple, // Boja bordera
-                                  width: 2.0, // Debljina bordera
+                                  color: Colors.purple, 
+                                  width: 2.0, 
                                 ),
                               ),
                               child: Image.asset('assets/images/male_icon.jpg'),
@@ -274,7 +430,7 @@ Future<void> _showReservationPopup(BuildContext context) async {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Prvi red: Ime i Prezime
+                  
                     Row(
                       children: [
                         Expanded(
@@ -328,7 +484,7 @@ Future<void> _showReservationPopup(BuildContext context) async {
                     ),
                     SizedBox(height: 30),
 
-                    // Drugi red: Email i Telefon
+                   
                     Row(
                       children: [
                         Expanded(
@@ -382,7 +538,7 @@ Future<void> _showReservationPopup(BuildContext context) async {
                     ),
                     SizedBox(height: 30),
 
-                    // Treći red: Datum rodjenja i Datum registracije
+                
                     Row(
                       children: [
                         Expanded(
@@ -436,7 +592,7 @@ Future<void> _showReservationPopup(BuildContext context) async {
                     ),
                     SizedBox(height: 30),
 
-                    // Četvrti red: Korisnicko Ime, Pol, Visina i Tezina
+                   
                     Row(
                       children: [
                         Expanded(
@@ -556,39 +712,40 @@ Future<void> _showReservationPopup(BuildContext context) async {
       children: [
         Row(
           mainAxisAlignment:
-              MainAxisAlignment.center, // Centrira dugmad u okviru reda
+              MainAxisAlignment.center, 
           children: [
             ElevatedButton(
               onPressed: () {
-                // Ovde postavite šta želite da se dešava kada se pritisne dugme "Napredak korisnika"
+                 _showNapredakPopup(context);
+              
               },
               style: ElevatedButton.styleFrom(
                 padding: EdgeInsets.symmetric(
                     horizontal: 30,
-                    vertical: 15), // Prilagodite veličinu dugmeta
+                    vertical: 15),
               ),
               child: Text(
                 "Napredak korisnika",
-                style: TextStyle(fontSize: 18), // Povećava veličinu teksta
+                style: TextStyle(fontSize: 18),
               ),
             ),
-            SizedBox(width: 20), // Dodaje razmak između dugmadi
+            SizedBox(width: 20),
             ElevatedButton(
               onPressed: () {
                 _showReservationPopup(context);
-                // Ovde postavite šta želite da se dešava kada se pritisne dugme "Napredak korisnika"
+              
               },
               style: ElevatedButton.styleFrom(
                 padding: EdgeInsets.symmetric(
                     horizontal: 30,
-                    vertical: 15), // Prilagodite veličinu dugmeta
+                    vertical: 15), 
               ),
               child: Text(
                 "Rezervacije korisnika",
-                style: TextStyle(fontSize: 18), // Povećava veličinu teksta
+                style: TextStyle(fontSize: 18), 
               ),
             ),
-            SizedBox(width: 20), // Dodaje razmak između dugmadi
+            SizedBox(width: 20), 
           ],
         ),
       ],

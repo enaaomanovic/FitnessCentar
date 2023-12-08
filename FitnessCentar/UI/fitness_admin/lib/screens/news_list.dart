@@ -19,6 +19,7 @@ import 'package:provider/provider.dart';
 import '../utils/util.dart';
 
 class NewsListScrean extends StatefulWidget {
+   
   const NewsListScrean({Key? key}) : super(key: key);
 
   @override
@@ -30,6 +31,9 @@ class _NewsListScrean extends State<NewsListScrean> {
   late UserProvider _userProvider;
   late CommentProvider _commentProvider;
   late ReplyToCommentProvider _replyToCommentProvider;
+
+
+  
 
   List<Novosti> _novosti = [];
   bool showComments = false;
@@ -53,6 +57,11 @@ class _NewsListScrean extends State<NewsListScrean> {
         _novosti = data.result ?? [];
       });
     }
+  }
+
+  void refreshComments(int novostiId) async {
+    await _loadComment(novostiId);
+    setState(() {}); 
   }
 
   Future<Korisnici?> getUserFromUserId(int userId) async {
@@ -213,11 +222,13 @@ class _NewsListScrean extends State<NewsListScrean> {
 
   Widget _buildComments(int novostiId) {
     return FutureBuilder<List<Komentari>>(
+        
       future: _loadComment(novostiId),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.done) {
           final comments = snapshot.data;
-          if (comments != null) {
+         
+          if (comments != null && comments.isNotEmpty) {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: comments.map((comment) {
@@ -331,6 +342,7 @@ class _NewsListScrean extends State<NewsListScrean> {
                         SizedBox(height: 8),
                         // Dodajte polje za unos odgovora i gumb za slanje
                          _buildReplies(comment.id ?? 0),
+                     
                         Row(
                           children: [
                             Expanded(
@@ -373,6 +385,7 @@ class _NewsListScrean extends State<NewsListScrean> {
                                       // Zamijenite _replyToCommentProvider sa odgovarajućim providera za unos odgovora na komentar
                                       await _replyToCommentProvider
                                           .insert(request);
+                                             refreshComments(comment.novostId?? 0);
 
                                       // Prikaz poruke o uspjehu
                                       ScaffoldMessenger.of(context)
@@ -421,12 +434,12 @@ class _NewsListScrean extends State<NewsListScrean> {
               }).toList(),
             );
           } else {
-            print("Greška pri dohvatanju komentara");
+            
 
-            return Text("Greška pri dohvatanju komentara");
+             return Text("Nema komentara za ovu novost.");
           }
         } else {
-          print("Učitavanje komentara...");
+          
 
           return Text("Učitavanje komentara...");
         }
@@ -552,6 +565,7 @@ Widget _buildReplies(int komentarId) {
               );
             }).toList(),
           );
+          
         } else {
           print("Greška pri dohvatanju odgovora");
 

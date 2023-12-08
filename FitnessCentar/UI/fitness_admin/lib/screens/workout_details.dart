@@ -70,6 +70,7 @@ class _WorkoutDetails extends State<WorkoutDetails> {
     final rasporedId = widget.raspored.id;
     var data = await _reservationProvider.get(filter: {
       'rasporedId': rasporedId.toString(),
+      'status':"Aktivna",
     });
 
     setState(() {

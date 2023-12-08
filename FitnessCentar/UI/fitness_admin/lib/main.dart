@@ -1,6 +1,7 @@
 import 'package:fitness_admin/providers/active_provider.dart';
 import 'package:fitness_admin/providers/comment_provider.dart';
 import 'package:fitness_admin/providers/news_provider.dart';
+import 'package:fitness_admin/providers/progress_provider.dart';
 import 'package:fitness_admin/providers/replyToComment_provider.dart';
 import 'package:fitness_admin/providers/reservation_provider.dart';
 import 'package:fitness_admin/providers/schedule_provider.dart';
@@ -21,10 +22,8 @@ void main() {
     ChangeNotifierProvider(create: (_)=>ActiveProvider()),
     ChangeNotifierProvider(create: (_)=>ReservationProvider()),
     ChangeNotifierProvider(create: (_)=>CommentProvider()),
-    ChangeNotifierProvider(create: (_)=>ReplyToCommentProvider())],
-    
-    
-
+    ChangeNotifierProvider(create: (_)=>ReplyToCommentProvider()),
+    ChangeNotifierProvider(create: (_)=>ProgressProvider())],
 
 
     child: const MyMaterialApp(),
