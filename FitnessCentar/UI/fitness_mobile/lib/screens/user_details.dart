@@ -6,6 +6,7 @@ import 'package:fitness_mobile/utils/utils.dart';
 import 'package:fitness_mobile/widgets/master_screens.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 class MobileUserDetailScreen extends StatefulWidget {
@@ -36,7 +37,7 @@ class _MobileUserDetailScreenState extends State<MobileUserDetailScreen> {
     _loadUserData();
    
   }
-
+  
   void _loadUserData() async {
     try {
       // Dobavi korisnika na osnovu userId-a
@@ -51,7 +52,7 @@ class _MobileUserDetailScreenState extends State<MobileUserDetailScreen> {
           // Ako korisnik nema sliku, postavi zamensku sliku
           userImage = Image.asset('assets/images/male_icon.jpg');
         }
-
+DateFormat dateFormat = DateFormat('yyyy-MM-dd');
         // Postavi vrednosti u _initialValue
         setState(() {
            isLoading = false;
@@ -59,8 +60,9 @@ class _MobileUserDetailScreenState extends State<MobileUserDetailScreen> {
             'ime': korisnik.ime,
             'prezime': korisnik.prezime,
             'korisnickoIme': korisnik.korisnickoIme,
-            'datumRegistracije': korisnik.datumRegistracije.toString(),
-            'datumRodjenja': korisnik.datumRodjenja.toString(),
+            'datumRegistracije': dateFormat.format(korisnik.datumRegistracije!),
+            'datumRodjenja': dateFormat.format(korisnik.datumRodjenja!),
+
             'pol': korisnik.pol,
             'telefon': korisnik.telefon,
             'tezina': '${korisnik.tezina} kg',
