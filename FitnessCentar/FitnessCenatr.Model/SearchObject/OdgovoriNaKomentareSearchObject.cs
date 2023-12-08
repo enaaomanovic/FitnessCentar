@@ -8,7 +8,7 @@ namespace FitnessCentar.Model.SearchObject
 {
     public class OdgovoriNaKomentareSearchObject:BaseSearchObject
     {
-        public int? KomentarId { get; set; }
+        public int? komentarId { get; set; }
 
     }
 }

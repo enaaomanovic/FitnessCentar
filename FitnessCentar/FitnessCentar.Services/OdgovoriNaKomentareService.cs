@@ -21,9 +21,9 @@ namespace FitnessCentar.Services
             var filteredQuery = base.AddFilter(query, search);
 
 
-            if (search.KomentarId != null)
+            if (search.komentarId != null)
             {
-                filteredQuery = filteredQuery.Where(x => x.KomentarId == search.KomentarId);
+                filteredQuery = filteredQuery.Where(x => x.KomentarId == search.komentarId);
             }
             return filteredQuery;
 
