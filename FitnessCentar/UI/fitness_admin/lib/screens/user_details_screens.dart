@@ -108,7 +108,7 @@ Future<void> _loadProgress() async {
   var data = await _progressProvider.get(filter: {
     'korisnikId': korisnikid.toString(),
   });
-  print(data.result);
+
   setState(() {
     userProgress = data.result;
   });
@@ -116,7 +116,7 @@ Future<void> _loadProgress() async {
 
   Widget _buildResultMessage(double currentWeight, double initialWeight) {
   String resultMessage = '';
-  if (currentWeight == initialWeight) {
+  if (userProgress == null || userProgress!.isEmpty) {
     resultMessage = 'Nije došlo do promjene u težini.';
   } else {
     double result = currentWeight - initialWeight;
