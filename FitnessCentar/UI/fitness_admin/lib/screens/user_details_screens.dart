@@ -103,23 +103,15 @@ class _UserDetalScreenState extends State<UserDetalScreen> {
     });
   }
 
-void _loadProgress() async {
-  try {
-    final korisnikid = widget.korisnik!.id;
-    print("korisnikid : $korisnikid");
-    var data = await _progressProvider.get(filter: {
-      'korisnikId': korisnikid,
-    });
-
-    print('Dohvaćeni podaci: ${data.result.last.tezina}');
-
-    setState(() {
-      userProgress = data.result;
-    });
-  } catch (error) {
-    print('Greška prilikom dohvaćanja podataka: $error');
-    
-  }
+Future<void> _loadProgress() async {
+  final korisnikid = widget.korisnik!.id;
+  var data = await _progressProvider.get(filter: {
+    'korisnikId': korisnikid.toString(),
+  });
+  print(data.result);
+  setState(() {
+    userProgress = data.result;
+  });
 }
 
   Widget _buildResultMessage(double currentWeight, double initialWeight) {
@@ -177,6 +169,7 @@ void _loadProgress() async {
     return trening;
   }
 
+
 Future<void> _showReservationPopup(BuildContext context) async {
   final List<Widget> listTiles = [];
 
@@ -185,21 +178,18 @@ Future<void> _showReservationPopup(BuildContext context) async {
       final raspored = await getRasporedFromId(userReservation.rasporedId ?? 0);
       final trening = await getTreningFromId(raspored?.treningId ?? 0);
 
-     
       final satnicaOd = DateFormat.Hm().format(raspored?.datumPocetka ?? DateTime.now());
       final satnicaDo = DateFormat.Hm().format(raspored?.datumZavrsetka ?? DateTime.now());
 
-    
       final dan = _dayOfWeekToString(raspored?.dan ?? 0);
 
       listTiles.add(
         ListTile(
-          title: Text('Trening: Kružni'),
+          title: Text('Trening: ${trening?.naziv}'),
           subtitle: Text('Dan: $dan, Satnica: $satnicaOd - $satnicaDo'),
         ),
       );
 
-     
       listTiles.add(Divider());
     });
   }
@@ -229,7 +219,17 @@ Future<void> _showReservationPopup(BuildContext context) async {
                   ),
                 ],
               ),
+              // Provjerite da li lista rezervacija nije prazna
               if (listTiles.isNotEmpty) ...listTiles,
+              // Dodajte poruku kada korisnik nema rezervacija
+              if (userReservations == null || userReservations!.isEmpty)
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Text(
+                    'Korisnik još uvijek nema rezervacija.',
+                    style: TextStyle(fontSize: 16),
+                  ),
+                ),
             ],
           ),
         ),
@@ -237,13 +237,10 @@ Future<void> _showReservationPopup(BuildContext context) async {
     },
   );
 }
+
 Future<void> _showNapredakPopup(BuildContext context) async {
-    _loadProgress();
-    if (userProgress != null && userProgress!.isNotEmpty) {
-      await Future.forEach(userProgress!, (napredak) async {
+   await  _loadProgress();
   
-      });
-    }
   await showDialog(
   context: context,
   builder: (BuildContext context) {
