@@ -12,8 +12,15 @@ import 'package:fitness_mobile/screens/home_unautenticated.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_stripe/flutter_stripe.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-void main() {
+
+void main() async {
+   WidgetsFlutterBinding.ensureInitialized();
+   Stripe.publishableKey="pk_test_51OKr40BH5DqSsJZpQniMBdQ4lW4Mysgp6kR6KBdFmmj5Cqv4CFSgc1Pq9C7KD2wwFdx0eBweBBaarnLFSoKmNVYc00qniwhZgj";
+await dotenv.load(fileName:"assets/.env");
+
   runApp(MultiProvider(
     providers: [
       ChangeNotifierProvider(create: (_) => UserProvider()),
@@ -25,15 +32,9 @@ void main() {
       ChangeNotifierProvider(create: (_)=>ActiveProvider()),
       ChangeNotifierProvider(create: (_)=>ReservationProvider()),
       ChangeNotifierProvider(create: (_)=>WorkoutProvider()),
-
-
-
-
-
-
-
-
     ],
+
+   
 
 
 

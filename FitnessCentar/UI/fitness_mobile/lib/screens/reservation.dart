@@ -11,6 +11,7 @@ import 'package:fitness_mobile/providers/schedule_provider.dart';
 import 'package:fitness_mobile/providers/trainer_provider.dart';
 import 'package:fitness_mobile/providers/user_provider.dart';
 import 'package:fitness_mobile/providers/workout_provider.dart';
+import 'package:fitness_mobile/screens/pay.dart';
 import 'package:fitness_mobile/screens/workout_details.dart';
 import 'package:fitness_mobile/widgets/master_screens.dart';
 import 'package:flutter/material.dart';
@@ -848,7 +849,12 @@ Widget _buildReservationInfo() {
                     child:
                 ElevatedButton(
                   onPressed: () {
-                    // Implementirajte funkcionalnost za plaćanje rezervacija
+                     Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => PayScreen(amountToPay: reservedPrice),
+      ),
+    );
                   },
                   child: Text('Plati članarinu'),
                   style: ElevatedButton.styleFrom(

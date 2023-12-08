@@ -22,5 +22,5 @@ Map<String, dynamic> _$RezervacijaToJson(Rezervacija instance) =>
       'korisnikId': instance.korisnikId,
       'rasporedId': instance.rasporedId,
       'status': instance.status,
-      'datumRezervacija':instance.datumRezervacija
+      'datumRezervacija': instance.datumRezervacija?.toIso8601String(),
     };
