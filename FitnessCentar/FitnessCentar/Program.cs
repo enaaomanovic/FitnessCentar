@@ -97,4 +97,24 @@ app.UseAuthorization();
 
 app.MapControllers();
 
+using (var scope = app.Services.CreateScope())
+{
+    var dataContext = scope.ServiceProvider.GetRequiredService<Ib200005rs2Context>();
+
+    if (!dataContext.Database.CanConnect())
+    {
+        dataContext.Database.Migrate();
+
+        //var recommendResutService = scope.ServiceProvider.GetRequiredService<IRecommendResultsService>();
+        //try
+        //{
+        //    await recommendResutService.TrainBooksModelAsync();
+        //}
+        //catch (Exception E)
+        //{
+
+        //}
+    }
+}
+
 app.Run();

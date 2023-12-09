@@ -4,6 +4,7 @@ using FitnessCentar.Services.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FitnessCentar.Services.Migrations
 {
     [DbContext(typeof(Ib200005rs2Context))]
-    partial class Ib200005rs2ContextModelSnapshot : ModelSnapshot
+    [Migration("20231209164030_seedv1")]
+    partial class seedv1
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -241,24 +244,6 @@ namespace FitnessCentar.Services.Migrations
                     b.HasIndex("AutorId");
 
                     b.ToTable("Novosti", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            AutorId = 1,
-                            DatumObjave = new DateTime(2023, 10, 25, 17, 55, 40, 0, DateTimeKind.Unspecified),
-                            Naslov = "Obavještenje za sve aktivne clanove centra!!!",
-                            Tekst = "Obavještavaju se svi clanovi fitness centra da centar nece raditi 26.10.2023 godine. Buduci da renoviramo fitness centar neophodno je bilo da zatvorimo centar na jedan dan kako bi realizacija renoviranja bila moguca.Svi koji propuste svoje termine moci ce ih nadoknaditi u terminima narednih dana. Hvala na razumijevanju."
-                        },
-                        new
-                        {
-                            Id = 2,
-                            AutorId = 1,
-                            DatumObjave = new DateTime(2023, 10, 26, 18, 22, 34, 0, DateTimeKind.Unspecified),
-                            Naslov = "Novi zdravi recept!",
-                            Tekst = "Pozdrav svim clanovima našeg centra. Danas sam isprobala jedan zdravi i brzi recept te sam odlucila da ga podjelim i sa vama. Radi se o salati od tune, ja sam koristila dodatno zelenu salatu, krastavce, kukuruz i mrkvu. Obrok je bio proteinski obogacen niskokalorican ali ipak dovoljno zasitan. Javite mi vaše utiske."
-                        });
                 });
 
             modelBuilder.Entity("FitnessCentar.Services.Database.OdgovoriNaKomentare", b =>
