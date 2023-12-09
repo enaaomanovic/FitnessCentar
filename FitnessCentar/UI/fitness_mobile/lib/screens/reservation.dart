@@ -41,21 +41,96 @@ class _ScheduleListScreenState extends State<ScheduleListScreen> {
 
   @override
   void initState() {
+  
     super.initState();
+     
     _scheduleProvider = context.read<ScheduleProvider>();
     _workoutProvider = context.read<WorkoutProvider>();
     _reservationProvider = context.read<ReservationProvider>();
     _userProvider = context.read<UserProvider>();
+     _loadData();
 
-    _loadData();
+   
+
+   
+  }
+Future<void> _initializeData() async {
+  // Vaša asinkrona logika ovdje
+try {
+ 
+  await checkAndDeactivateExpiredReservations();
+ 
+} catch (e) {
+  
+}
+
+  // Dodajte ostale zadatke koji se trebaju izvršiti prilikom inicijalizacije
+}
+
+Future<void> checkAndDeactivateExpiredReservations() async {
+
+
+    var userProvider = Provider.of<UserProvider>(context, listen: false);
+    int? trenutniKorisnikId = userProvider.currentUserId;
+  if (trenutniKorisnikId == null ) {
+   
+    return;
+  }
+ 
+   if (result == null ) {
+  
+    return;
+  }
+   if ( result!.result == null) {
+    
+    return;
   }
 
+  for (var raspored in result!.result) {
+    print("Petlja za raspored: ${raspored.id}");
+    bool isReservationActive = await _isReservationActive(
+      trenutniKorisnikId,
+      raspored.id!,
+    );
+
+    var searchResult = await _reservationProvider.get(filter: {
+      "korisnikId": trenutniKorisnikId,
+      "rasporedId": raspored.id,
+      "status": "Aktivna",
+    });
+    
+   
+    if (isReservationActive) {
+      for (var rezervacija in searchResult!.result) {
+        
+        DateTime? datumRezervacije = rezervacija.datumRezervacija;
+        if (datumRezervacije != null) {
+          DateTime now = DateTime.now();
+          Duration difference = now.difference(datumRezervacije);
+
+         if (difference.inHours > 30 * 24) {
+  // Ažurirajte status rezervacije na "Neaktivna"
+  await updateStatus(trenutniKorisnikId, raspored.id!, "Neaktivna");
+
+
+}
+        }
+      }
+    }
+  }
+}
+
+
+
   void _loadData() async {
+  
     var data = await _scheduleProvider.get();
 
     setState(() {
       result = data;
     });
+       setState(() {}); // Dodajte dodatni setState kako biste prisilili ponovno iscrtavanje.
+  _initializeData();
   }
 
   Future<bool> _isReservationActive(
@@ -305,6 +380,7 @@ class _ScheduleListScreenState extends State<ScheduleListScreen> {
                 color: Colors.black, // Boja naslova
               ),
             ),
+           
             _buildWeeklySchedule(),
             _buildReservationInfo(),
           ],
