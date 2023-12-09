@@ -11,16 +11,18 @@ abstract class BaseProvider<T> with ChangeNotifier {
   String _endpoint = "";
 
   BaseProvider(String endpoint) {
-    _endpoint=endpoint;
-     _baseUrl = const String.fromEnvironment("baseUrl",defaultValue: "http://10.0.2.2:5266/");
-   
-
-
+    _endpoint = endpoint;
+    // ZA EMULATOR
+    //_baseUrl = const String.fromEnvironment("baseUrl",defaultValue: "http://10.0.2.2:5266/");
+    
+    // ZA MOBILNI TELEFON PREKO MOBILE HOTSPOTA
+    _baseUrl = const String.fromEnvironment("baseUrl",
+        defaultValue: "http://192.168.137.1:5266/");
   }
 
   Future<SearchResult<T>> get({dynamic filter}) async {
     var url = "$_baseUrl$_endpoint";
-     if (filter != null) {
+    if (filter != null) {
       var queryString = getQueryString(filter);
       url = "$url?$queryString";
     }
@@ -31,9 +33,8 @@ abstract class BaseProvider<T> with ChangeNotifier {
     if (isValidResponse(response)) {
       var data = jsonDecode(response.body);
       var result = SearchResult<T>();
-    
+
       for (var item in data) {
-       
         result.result.add(fromJson(item));
       }
 
@@ -42,7 +43,8 @@ abstract class BaseProvider<T> with ChangeNotifier {
       throw new Exception("Unknown error");
     }
   }
-Future getById(int id) async {
+
+  Future getById(int id) async {
     var url = "$_baseUrl$_endpoint/$id";
     var uri = Uri.parse(url);
     var headers = createHeaders();
@@ -56,7 +58,8 @@ Future getById(int id) async {
       throw Exception("Unknown error");
     }
   }
-    Future<T> insert(dynamic request) async {
+
+  Future<T> insert(dynamic request) async {
     var url = "$_baseUrl$_endpoint";
     var uri = Uri.parse(url);
     var headers = createHeaders();
@@ -71,7 +74,8 @@ Future getById(int id) async {
       throw new Exception("Unknown error");
     }
   }
- Future<T> update(int id, [dynamic request]) async {
+
+  Future<T> update(int id, [dynamic request]) async {
     var url = "$_baseUrl$_endpoint/$id";
     var uri = Uri.parse(url);
     var headers = createHeaders();
@@ -86,12 +90,12 @@ Future getById(int id) async {
       throw new Exception("Unknown error");
     }
   }
-   T fromJson(data) {
+
+  T fromJson(data) {
     throw Exception("Method not implemented");
   }
 
   Future remove(int id) async {
-   
     var url = "$_baseUrl$_endpoint/$id";
     var uri = Uri.parse(url);
     var headers = createHeaders();
@@ -102,7 +106,6 @@ Future getById(int id) async {
       throw Exception("Unknown error");
     }
   }
-
 
   bool isValidResponse(Response response) {
     if (response.statusCode < 299) {
@@ -129,9 +132,9 @@ Future getById(int id) async {
 
     return headers;
   }
-  
+
   String getQueryString(Map params,
-      {String prefix= '&', bool inRecursion= false}) {
+      {String prefix = '&', bool inRecursion = false}) {
     String query = '';
     params.forEach((key, value) {
       if (inRecursion) {
