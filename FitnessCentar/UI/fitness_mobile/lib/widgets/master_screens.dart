@@ -1,4 +1,5 @@
 import 'package:fitness_mobile/providers/user_provider.dart';
+import 'package:fitness_mobile/screens/home_unautenticated.dart';
 import 'package:fitness_mobile/screens/login.dart';
 import 'package:fitness_mobile/utils/utils.dart';
 import 'package:flutter/foundation.dart';
@@ -31,12 +32,9 @@ class _MasterScreanWidgetState extends State<MasterScreanWidget> {
               Provider.of<UserProvider>(context, listen: false)
                   .setCurrentUserId(null);
 
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => LoginPage(),
-                ),
-              );
+                Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (_) => HomeUnauthenticated()), (route) => false);
             },
+          
             icon: Icon(Icons.logout),
           ),
         ],

@@ -21,20 +21,7 @@ Widget build(BuildContext context) {
   _userProvider = context.read<UserProvider>();
   _progressProvider=context.read<ProgressProvider>();
   return Scaffold(
-    appBar: AppBar(
-      backgroundColor: Colors.transparent,
-      elevation: 0,
-      iconTheme: IconThemeData(
-        color: Colors.purple,
-      ),
-      title: Text(
-        "LogIn",
-        style: TextStyle(
-          color: Colors.purple,
-          fontSize: 18, 
-        ),
-      ),
-    ),
+   
     body: Stack(
       
       fit: StackFit.expand,
