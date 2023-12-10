@@ -87,7 +87,7 @@ Future<void> checkAndDeactivateExpiredReservations() async {
   }
 
   for (var raspored in result!.result) {
-    print("Petlja za raspored: ${raspored.id}");
+    
     bool isReservationActive = await _isReservationActive(
       trenutniKorisnikId,
       raspored.id!,
@@ -926,11 +926,12 @@ Widget _buildReservationInfo() {
                 ElevatedButton(
                   onPressed: () {
                      Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => PayScreen(amountToPay: reservedPrice),
-      ),
-    );
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                PayScreen(amountToPay: reservedPrice),
+                          ),
+                        );
                   },
                   child: Text('Plati članarinu'),
                   style: ElevatedButton.styleFrom(

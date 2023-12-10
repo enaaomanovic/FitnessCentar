@@ -1,7 +1,10 @@
 import 'package:fitness_mobile/models/korisnici.dart';
 import 'package:fitness_mobile/models/search_result.dart';
+import 'package:fitness_mobile/providers/progress_provider.dart';
 import 'package:fitness_mobile/providers/user_provider.dart';
+import 'package:fitness_mobile/screens/home_authenticated.dart';
 import 'package:fitness_mobile/screens/news_list.dart';
+import 'package:fitness_mobile/screens/trainer_list.dart';
 import 'package:fitness_mobile/utils/utils.dart';
 import 'package:fitness_mobile/widgets/master_screens.dart';
 import 'package:flutter/material.dart';
@@ -24,6 +27,7 @@ class _MobileUserDetailScreenState extends State<MobileUserDetailScreen> {
     bool isLoading = true;
 
   late UserProvider _userProvider;
+  late ProgressProvider _progressProvider;
 
   Future<Korisnici?> getKorisnikFromId(int userId) async {
     final korisnik = await _userProvider.getById(userId);
@@ -34,6 +38,7 @@ class _MobileUserDetailScreenState extends State<MobileUserDetailScreen> {
   void initState() {
     super.initState();
     _userProvider = context.read<UserProvider>();
+    _progressProvider=context.read<ProgressProvider>();
     _loadUserData();
    
   }
@@ -511,6 +516,8 @@ Widget build(BuildContext context) {
 
 
 Widget _buildBottomNavigationBar(BuildContext context) {
+  var userProvider = Provider.of<UserProvider>(context, listen: false);
+    int? trenutniKorisnikId = _userProvider.currentUserId;
   return Container(
     decoration: BoxDecoration(
       border: Border(
@@ -543,10 +550,22 @@ Widget _buildBottomNavigationBar(BuildContext context) {
         // Ovde postavite šta želite da se dešava kada se pritisne dugme na donjoj navigaciji
         switch (index) {
           case 0:
-           Navigator.of(context).pop();
-            // Navigacija na Početnu stranicu
+            Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => HomeAuthenticated(
+                    userId: trenutniKorisnikId,
+                    userProvider: _userProvider,
+                    progressProvider: _progressProvider,
+                  ),
+                ),
+              );
             break;
           case 1:
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => TreneriScreen(),
+            ),
+          );
             // Navigacija na Pretraga stranicu
             break;
           case 2:
@@ -558,6 +577,13 @@ Widget _buildBottomNavigationBar(BuildContext context) {
             // Navigacija na Favoriti stranicu
             break;
           case 3:
+           Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => MobileUserDetailScreen(
+                    userId: trenutniKorisnikId,
+                  ),
+                ),
+              );
             // Navigacija na Profil stranicu
            
             break;

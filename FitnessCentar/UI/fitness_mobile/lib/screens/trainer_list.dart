@@ -7,8 +7,11 @@ import 'package:fitness_mobile/models/korisnici.dart';
 import 'package:fitness_mobile/models/search_result.dart';
 import 'package:fitness_mobile/models/trener.dart';
 import 'package:fitness_mobile/providers/comment_provider.dart';
+import 'package:fitness_mobile/providers/progress_provider.dart';
 import 'package:fitness_mobile/providers/trainer_provider.dart';
 import 'package:fitness_mobile/providers/user_provider.dart';
+import 'package:fitness_mobile/screens/home_authenticated.dart';
+import 'package:fitness_mobile/screens/news_list.dart';
 import 'package:fitness_mobile/screens/reservation.dart';
 import 'package:fitness_mobile/screens/user_details.dart';
 import 'package:fitness_mobile/utils/utils.dart';
@@ -27,13 +30,18 @@ class TreneriScreen extends StatefulWidget {
 class _TreneriScreen extends State<TreneriScreen> {
   late TrainerProvider _trainerProvider;
   late UserProvider _userProvider;
+  late ProgressProvider _progressProvider;
+
   SearchResult<Trener>? result;
+
+
 
   @override
   void initState() {
     super.initState();
     _trainerProvider = context.read<TrainerProvider>();
     _userProvider = context.read<UserProvider>();
+    _progressProvider=context.read<ProgressProvider>();
 
     _loadData();
   }
@@ -220,6 +228,8 @@ Widget _buildTrenerListItem(Trener trener) {
 
   
 Widget _buildBottomNavigationBar(BuildContext context) {
+    var userProvider = Provider.of<UserProvider>(context, listen: false);
+    int? trenutniKorisnikId = _userProvider.currentUserId;
   return Container(
     decoration: BoxDecoration(
       border: Border(
@@ -252,17 +262,38 @@ Widget _buildBottomNavigationBar(BuildContext context) {
         // Ovde postavite šta želite da se dešava kada se pritisne dugme na donjoj navigaciji
         switch (index) {
           case 0:
-          
+           Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => HomeAuthenticated(
+                    userId: trenutniKorisnikId,
+                    userProvider: _userProvider,
+                    progressProvider: _progressProvider,
+                  ),
+                ),
+              );
             // Navigacija na Početnu stranicu
             break;
           case 1:
-          
+           Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => TreneriScreen(),
+            ),
+          );
             break;
           case 2:
-         
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => NewsListScreen(),
+            ),
+          );
             // Navigacija na Favoriti stranicu
             break;
           case 3:
+           Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => MobileUserDetailScreen(userId: trenutniKorisnikId,),
+            ),
+          );
            // Navigacija na Profil stranicu
         
             // Navigacija na Profil stranicu

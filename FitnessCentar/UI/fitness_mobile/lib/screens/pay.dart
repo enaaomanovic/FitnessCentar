@@ -12,6 +12,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter/material.dart' as FlutterMaterial;
 
 class PayScreen extends StatefulWidget {
   final double amountToPay;
@@ -127,24 +128,90 @@ displayPaymentSheet() async {
     super.initState();
  
   }
-
-
 @override
 Widget build(BuildContext context) {
   return MasterScreanWidget(
-    title_widget: Text("Trenerski tim fitness centra"),
+    title_widget: Text("Plaćanje članarine"),
     child: Column(
       children: [
-        
-       
+        Container(
+          width: 150,
+          height: 150,
+          margin: EdgeInsets.only(top: 20),
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            border: Border.all(color: Colors.purple, width: 2),
+            image: DecorationImage(
+              image: AssetImage("assets/images/FitnessLogo.jpg"),
+              fit: BoxFit.cover,
+            ),
+          ),
+        ),
+        Expanded(
+          child: Center(
+            child: FlutterMaterial.Card(
+              margin: EdgeInsets.all(16),
+              child: Padding(
+                padding: EdgeInsets.all(16),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Text(
+                      "Uplatom rezervacije termina, rezervisali ste za sebe treninge za narednih mjesec dana. Napomena: Ne vršimo povrat novca.",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 16),
+                    ),
+                    SizedBox(height: 20),
+                    Text(
+                      "Iznos koji trebate uplatiti:",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 16),
+                    ),
+                    SizedBox(height: 10),
+                    Text(
+                      "${widget.amountToPay.toString()} KM",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    ),
+                    SizedBox(height: 20),
+                    ElevatedButton(
+                      onPressed: () {
+                        // Dodajte logiku koja se izvršava kada se pritisne dugme "Plati"
+                        // Na primjer, možete dodati navigaciju na stranicu za plaćanje
+                        // ili izvršiti odgovarajuće akcije vezane za plaćanje.
+                      },
+                      style: ElevatedButton.styleFrom(
+                        padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15), // Prilagodite veličinu dugmeta prema potrebi
+                      ),
+                      child: Text(
+                        "Plati",
+                        style: TextStyle(fontSize: 18), // Prilagodite veličinu teksta dugmeta prema potrebi
+                      ),
+                    ),
+                    SizedBox(height: 10),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                      style: TextButton.styleFrom(
+                        padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15), // Prilagodite veličinu dugmeta prema potrebi
+                      ),
+                      child: Text(
+                        "Nazad",
+                        style: TextStyle(fontSize: 18), // Prilagodite veličinu teksta dugmeta prema potrebi
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
       ],
     ),
   );
 }
-
-
-
-
 
 
 
