@@ -59,9 +59,7 @@ Future<SearchResult<Napredak>> getProgressFromUserId(int userId) async {
     
     _buildHomepage(context);
   }
-Image loadMaleIconImage() {
-  return Image.asset('assets/images/male_icon.jpg');
-}
+
 
 Widget _buildHomepage(BuildContext context) {
   return Scaffold(
@@ -80,7 +78,7 @@ Widget _buildHomepage(BuildContext context) {
               child: Column(
                 children: [
                   Padding(
-                    padding: const EdgeInsets.only(top: 40.0, left: 20.0),
+                    padding: const EdgeInsets.only(top: 40.0, left: 10.0),
                     child: Row(
                       children: [
                         Container(
@@ -94,7 +92,7 @@ Widget _buildHomepage(BuildContext context) {
                             ),
                           ),
                         ),
-                        SizedBox(width: 20),
+                   
                         FutureBuilder<Korisnici?>(
                           future: getUserFromUserId(userId ?? 0),
                           builder: (context, snapshot) {
@@ -118,7 +116,7 @@ Widget _buildHomepage(BuildContext context) {
                             }
                           },
                         ),
-                        SizedBox(width: 10),
+                         SizedBox(width: 10),
                         FutureBuilder<Korisnici?>(
   future: getUserFromUserId(userId ?? 0),
   builder: (context, snapshot) {
@@ -339,7 +337,7 @@ Widget _buildUserDetails() {
 
 Widget _buildCurrentWeight() {
   return FutureBuilder<SearchResult<Napredak?>>(
-    future: getProgressFromUserId(2),
+    future: getProgressFromUserId(userId ?? 0),
     builder: (context, snapshot) {
       if (snapshot.connectionState == ConnectionState.waiting) {
         return CircularProgressIndicator();
@@ -377,24 +375,14 @@ Widget _buildCurrentWeight() {
             ),
           );
         } else {
-          return Container(
-            margin: EdgeInsets.only(bottom: 10),
-            padding: EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              border: Border.all(
-                color: Colors.purple,
-                width: 2.0,
-              ),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Text(
-              "Trenutna težina: trenutno nema dostupnih podataka",
-              style: TextStyle(
+          
+          return Text(
+            "Još niste ostvarili napredak. Unos napretka možete izvršiti na dugme + ispod forme",
+            style: TextStyle(
                 fontSize: 20,
                 color: Colors.black,
                 fontWeight: FontWeight.bold,
               ),
-            ),
           );
         }
       } else {
@@ -410,6 +398,7 @@ Widget _buildCurrentWeight() {
     },
   );
 }
+
 
 
 Widget _buildNapredak() {

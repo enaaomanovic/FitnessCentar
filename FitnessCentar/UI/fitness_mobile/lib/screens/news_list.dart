@@ -3,10 +3,12 @@ import 'dart:convert';
 import 'package:fitness_mobile/models/komentari.dart';
 import 'package:fitness_mobile/models/korisnici.dart';
 import 'package:fitness_mobile/models/novosti.dart';
+import 'package:fitness_mobile/models/odgovoriNaKomentare.dart';
 import 'package:fitness_mobile/models/search_result.dart';
 import 'package:fitness_mobile/providers/comment_provider.dart';
 import 'package:fitness_mobile/providers/news_provider.dart';
 import 'package:fitness_mobile/providers/progress_provider.dart';
+import 'package:fitness_mobile/providers/replyToComment.dart';
 import 'package:fitness_mobile/providers/user_provider.dart';
 import 'package:fitness_mobile/screens/home_authenticated.dart';
 import 'package:fitness_mobile/screens/trainer_list.dart';
@@ -29,6 +31,7 @@ class _NewsListScreen extends State<NewsListScreen> {
   late UserProvider _userProvider;
   late CommentProvider _commentProvider;
   late ProgressProvider _progressProvider;
+  late ReplyToCommentProvider _replyToCommentProvider;
   
    Map<int?, bool> _isExpandedMap = {};
 
@@ -42,6 +45,7 @@ class _NewsListScreen extends State<NewsListScreen> {
     _userProvider = context.read<UserProvider>();
     _commentProvider = context.read<CommentProvider>();
     _progressProvider=context.read<ProgressProvider>();
+    _replyToCommentProvider=context.read<ReplyToCommentProvider>();
 
     _loadData();
 
@@ -76,6 +80,26 @@ class _NewsListScreen extends State<NewsListScreen> {
     return kom;
   }
 
+Future<SearchResult<OdgovoriNaKomentare>?> getOdgovoriFromNovostiId(
+    int komentarId) async {
+  var data = await _replyToCommentProvider.get(filter: {
+    "komentarId": komentarId,
+  });
+
+  // Dodajte proveru da li je data različita od null pre nego što vratite rezultat
+  if (data != null) {
+    if (data.result.isNotEmpty) {
+      print(data.result.first.tekst);
+    }
+    return data;
+  } else {
+    // Ako je data null, možete odlučiti šta da radite (npr. baciti izuzetak, vratiti neki podrazumevani rezultat itd.)
+    return null;
+  }
+}
+
+
+
  @override
 Widget build(BuildContext context) {
   return MasterScreanWidget(
@@ -109,6 +133,8 @@ Widget build(BuildContext context) {
 
 
 Widget _buildNewsCard(Novosti novost) {
+           
+
   return Padding(
     padding: EdgeInsets.only(top: 20, left: 20, right: 20, bottom: 20),
     child: Card(
@@ -411,27 +437,136 @@ Widget _buildCommentsSection(Novosti novost) {
   );
 }
 
+// List<Widget> _buildCommentsList(List<Komentari> komentari) {
+//   return komentari.map((komentar) => FutureBuilder<Korisnici?>(
+//     future: getUserFromUserId(komentar.korisnikId ?? 0),
+//     builder: (context, userSnapshot) {
+//       if (userSnapshot.connectionState == ConnectionState.done) {
+//         final autor = userSnapshot.data;
+//         final base64Image = autor?.slika;
+
+//         Widget userAvatar;
+//         if (base64Image != null && base64Image.isNotEmpty) {
+//           userAvatar = ClipOval(
+//             child: Image.memory(
+//               base64Decode(base64Image),
+//               width: 40,
+//               height: 40,
+//               fit: BoxFit.cover,
+//             ),
+//           );
+//         } else {
+//           userAvatar = ClipOval(
+//             child: Image.asset(
+//               "assets/images/male_icon.jpg",
+//               width: 40,
+//               height: 40,
+//               fit: BoxFit.cover,
+//             ),
+//           );
+//         }
+
+//         return Container(
+//           margin: EdgeInsets.symmetric(vertical: 8),
+//           child: Column(
+//             crossAxisAlignment: CrossAxisAlignment.start,
+//             children: [
+//               Row(
+//                 crossAxisAlignment: CrossAxisAlignment.start,
+//                 children: [
+//                   userAvatar,
+//                   SizedBox(width: 8),
+//                   Expanded(
+//                     child: Column(
+//                       crossAxisAlignment: CrossAxisAlignment.start,
+//                       children: [
+//                         Text(
+//                           '${autor?.ime ?? 'Nepoznat'} ${autor?.prezime ?? 'Nepoznat'}:',
+//                           style: TextStyle(
+//                             fontWeight: FontWeight.bold,
+//                           ),
+//                         ),
+//                         Container(
+//                           decoration: BoxDecoration(
+//                             border: Border.all(
+//                               color: Colors.purple,
+//                               width: 2.0,
+//                             ),
+//                             borderRadius: BorderRadius.circular(5.0),
+//                           ),
+//                           margin: EdgeInsets.only(top: 4),
+//                           padding: EdgeInsets.all(8),
+//                           child: Text(
+//                             komentar.tekst ?? '',
+//                             style: TextStyle(fontSize: 16),
+//                           ),
+//                         ),
+//                       ],
+//                     ),
+//                   ),
+//                 ],
+//               ),
+//               SizedBox(height: 8),
+//               TextButton(
+//                 onPressed: () async {
+//                  var odgovori =   await getOdgovoriFromNovostiId(komentar.id ?? 0);
+//                  print("odgov $odgovori");
+//                 },
+//                 child: Text('Pogledaj odgovore'),
+//               ),
+//             ],
+//           ),
+//         );
+//       } else {
+//         return CircularProgressIndicator();
+//       }
+//     },
+//   )).toList();
+// }
+
+
+
 
 List<Widget> _buildCommentsList(List<Komentari> komentari) {
+  
   return komentari.map((komentar) => FutureBuilder<Korisnici?>(
     future: getUserFromUserId(komentar.korisnikId ?? 0),
     builder: (context, userSnapshot) {
       if (userSnapshot.connectionState == ConnectionState.done) {
         final autor = userSnapshot.data;
-        final base64Image = autor?.slika; // Zamijenite ovo sa stvarnim base64 podacima slike korisnika
+        final base64Image = autor?.slika;
+
+        Widget userAvatar;
+        if (base64Image != null && base64Image.isNotEmpty) {
+          userAvatar = ClipOval(
+            child: Image.memory(
+              base64Decode(base64Image),
+              width: 40,
+              height: 40,
+              fit: BoxFit.cover,
+            ),
+          );
+        } else {
+          userAvatar = ClipOval(
+            child: Image.asset(
+              "assets/images/male_icon.jpg",
+              width: 40,
+              height: 40,
+              fit: BoxFit.cover,
+            ),
+          );
+        }
+
         return Container(
-          margin: EdgeInsets.symmetric(vertical: 8), // Razmak između komentara
+          margin: EdgeInsets.symmetric(vertical: 8),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  CircleAvatar(
-                    radius: 20,
-                    backgroundImage: MemoryImage(base64Decode(base64Image ?? '')),
-                  ),
-                  SizedBox(width: 8), // Razmak između slike i teksta
+                  userAvatar,
+                  SizedBox(width: 8),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -445,10 +580,10 @@ List<Widget> _buildCommentsList(List<Komentari> komentari) {
                         Container(
                           decoration: BoxDecoration(
                             border: Border.all(
-                              color: Colors.purple, // Boja granice
-                              width: 2.0, // Debljina granice
+                              color: Colors.purple,
+                              width: 2.0,
                             ),
-                            borderRadius: BorderRadius.circular(5.0), // Zaobljeni uglovi
+                            borderRadius: BorderRadius.circular(5.0),
                           ),
                           margin: EdgeInsets.only(top: 4),
                           padding: EdgeInsets.all(8),
@@ -462,16 +597,44 @@ List<Widget> _buildCommentsList(List<Komentari> komentari) {
                   ),
                 ],
               ),
-              SizedBox(height: 8), // Dodajte razmak između komentara i gumba za odgovore
-
-              // Gumb za prikaz odgovora
+              SizedBox(height: 8),
               TextButton(
-                onPressed: () {
-                  // Implementirajte logiku za prikaz odgovora na ovaj komentar
-                  // Ovdje možete otvoriti novi dijalog, preći na novi ekran ili nešto drugo
-                },
-                child: Text('Pogledaj odgovor'),
-              ),
+                        onPressed: () async {
+  var odgovori = await getOdgovoriFromNovostiId(komentar.id ?? 0);
+
+  if (odgovori!.result.isNotEmpty) {
+    print("Odgovori su ${odgovori!.result.first.tekst}");
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return _buildOdgovoriDialog(odgovori.result);
+      },
+    );
+  } else {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Nema odgovora"),
+          content: Text("Ovaj komentar nema odgovora."),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('Zatvori'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+},
+
+
+                          child: Text('Pogledaj odgovore'),
+                        ),
             ],
           ),
         );
@@ -481,6 +644,84 @@ List<Widget> _buildCommentsList(List<Komentari> komentari) {
     },
   )).toList();
 }
+Widget _buildOdgovoriDialog(List<OdgovoriNaKomentare>? odgovori) {
+  return Dialog(
+    child: Container(
+      width: 100,
+      height: 350, // Postavite željenu širinu dijaloga
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Text(
+              'Odgovori na komentar',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+          ),
+          if (odgovori != null && odgovori.isNotEmpty)
+            ...odgovori.map((odgovor) {
+              return FutureBuilder<Korisnici?>(
+                future: getUserFromUserId(odgovor.trenerId ?? 0),
+                builder: (context, userSnapshot) {
+                  if (userSnapshot.connectionState == ConnectionState.done) {
+                    final trener = userSnapshot.data;
+                    final base64Image = trener?.slika;
+
+                    Widget userAvatar;
+                    if (base64Image != null && base64Image.isNotEmpty) {
+                      userAvatar = ClipOval(
+                        child: Image.memory(
+                          base64Decode(base64Image),
+                          width: 40,
+                          height: 40,
+                          fit: BoxFit.cover,
+                        ),
+                      );
+                    } else {
+                      userAvatar = ClipOval(
+                        child: Image.asset(
+                          "assets/images/male_icon.jpg",
+                          width: 40,
+                          height: 40,
+                          fit: BoxFit.cover,
+                        ),
+                      );
+                    }
+
+                    return ListTile(
+                      leading: userAvatar,
+                      title: Text(
+                        '${trener?.ime ?? 'Nepoznat'} ${trener?.prezime ?? 'Nepoznat'}',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      subtitle: Text(odgovor.tekst ?? ''),
+                    );
+                  } else {
+                    return CircularProgressIndicator();
+                  }
+                },
+              );
+            }),
+          if (odgovori == null || odgovori.isEmpty) // Dodajte proveru ovde
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text('Nema dostupnih odgovora.'),
+            ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('Zatvori'),
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
+}
+
 
 
 
@@ -564,3 +805,4 @@ List<Widget> _buildCommentsList(List<Komentari> komentari) {
     );
   }
 }
+

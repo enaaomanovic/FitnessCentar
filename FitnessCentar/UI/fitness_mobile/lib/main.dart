@@ -5,6 +5,7 @@ import 'package:fitness_mobile/providers/news_provider.dart';
 import 'package:fitness_mobile/providers/pay_provider.dart';
 import 'package:fitness_mobile/providers/paymentIntent_provider.dart';
 import 'package:fitness_mobile/providers/progress_provider.dart';
+import 'package:fitness_mobile/providers/replyToComment.dart';
 import 'package:fitness_mobile/providers/reservation_provider.dart';
 import 'package:fitness_mobile/providers/schedule_provider.dart';
 import 'package:fitness_mobile/providers/trainer_provider.dart';
@@ -36,6 +37,8 @@ await dotenv.load(fileName:"assets/.env");
       ChangeNotifierProvider(create: (_)=>WorkoutProvider()),
       ChangeNotifierProvider(create: (_)=>PayProvider()),
       ChangeNotifierProvider(create: (_)=>PaymentIntentProvider()),
+      ChangeNotifierProvider(create: (_)=>ReplyToCommentProvider()),
+
 
 
     ],

@@ -1,5 +1,6 @@
 
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:fitness_mobile/models/komentari.dart';
 import 'package:fitness_mobile/models/korisnici.dart';
@@ -138,59 +139,68 @@ Widget _buildTrenerCard() {
   );
 }
 
-
-
 Widget _buildTrenerListItem(Trener trener) {
   return Card(
-     elevation: 5, // Dodajte sjenku kako biste izdvojili karticu
+    elevation: 5,
     shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(15.0), // Postavite željeni radijus za uglove
-      side: BorderSide(color: Colors.purple, width: 3.0), // Dodajte ljubičasti border
+      borderRadius: BorderRadius.circular(15.0),
+      side: BorderSide(color: Colors.purple, width: 3.0),
     ),
     child: ListTile(
-      contentPadding: EdgeInsets.all(10.0), // Povećajte unutrašnji razmak kartice
+      contentPadding: EdgeInsets.all(10.0),
       title: FutureBuilder<Korisnici?>(
         future: getKorisnikFromId(trener.id ?? 0),
         builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.done) {
-            Korisnici? korisnik = snapshot.data;
-            if (korisnik != null) {
-              return Row(
-                children: [
-                  // Slika u krugu
-                  CircleAvatar(
-                    radius: 35, // Povećajte radijus
-                    backgroundImage: MemoryImage(
-                      base64Decode(korisnik.slika ?? ''),
-                    ),
-                  ),
-                  SizedBox(width: 20), // Povećajte razmak između slike i teksta
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Ime i prezime
-                      Text(
-                        '${korisnik.ime} ${korisnik.prezime}',
-                        style: TextStyle(
-                          fontSize: 22, // Povećajte veličinu fonta
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return CircularProgressIndicator();
+          } else if (snapshot.hasError) {
+            return Text('Greška: ${snapshot.error}');
+          } else if (snapshot.hasData) {
+            final user = snapshot.data!;
+            final userImageBytes = user.slika != null
+                ? Uint8List.fromList(base64Decode(user.slika!))
+                : null;
 
-                      // Godine umesto datuma rođenja
-                      Text(
-                        'Godine: ${_calculateAge(korisnik.datumRodjenja)}',
-                        style: TextStyle(fontSize: 18), // Povećajte veličinu fonta
-                      ),
-                    ],
+            return Row(
+              children: [
+                ClipOval(
+                  child: Container(
+                    width: 70.0,
+                    height: 70.0,
+                    decoration: BoxDecoration(),
+                    child: userImageBytes != null && userImageBytes.isNotEmpty
+                        ? Image.memory(
+                            userImageBytes,
+                            width: 70.0,
+                            height: 70.0,
+                            fit: BoxFit.cover,
+                          )
+                        : Image.asset('assets/images/male_icon.jpg'),
                   ),
-                ],
-              );
-            } else {
-              return Text('Nepoznat korisnik');
-            }
+                ),
+                SizedBox(width: 20), // Povećajte razmak između slike i teksta
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Ime i prezime
+                    Text(
+                      '${user.ime} ${user.prezime}',
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    // Godine umesto datuma rođenja
+                    Text(
+                      'Godine: ${_calculateAge(user.datumRodjenja)}',
+                      style: TextStyle(fontSize: 18),
+                    ),
+                  ],
+                ),
+              ],
+            );
           } else {
-            return Text('Učitavanje...');
+            return Text('Nema dostupnih podataka');
           }
         },
       ),
@@ -198,10 +208,13 @@ Widget _buildTrenerListItem(Trener trener) {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Specijalnosti
-          Text('Specijalnosti: ${trener.specijalnost ?? ''}' ,style: TextStyle(
-                          fontSize: 20, // Povećajte veličinu fonta
-                          fontWeight: FontWeight.bold,
-                        ),),
+          Text(
+            'Specijalnosti: ${trener.specijalnost ?? ''}',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
           // Dodajte ostale informacije o treneru
         ],
       ),
@@ -209,8 +222,6 @@ Widget _buildTrenerListItem(Trener trener) {
   );
 }
 
-
-  // Funkcija za izračunavanje godina na osnovu datuma rođenja
   String _calculateAge(DateTime? birthDate) {
     if (birthDate == null) {
       return 'N/A';
