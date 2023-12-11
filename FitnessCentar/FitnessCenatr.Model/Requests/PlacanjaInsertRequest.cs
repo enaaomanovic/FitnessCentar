@@ -14,7 +14,12 @@ namespace FitnessCentar.Model.Requests
         public DateTime? DatumPlacanja { get; set; }
 
         public decimal? Iznos { get; set; }
+    
+        public string? PaymentIntentId { get; set; }
 
-      
+        public List<int> RezervacijeId { get; set; } = new();
+
+
+
     }
 }

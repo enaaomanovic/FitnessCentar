@@ -8,12 +8,12 @@ namespace FitnessCentar.Model.Requests
 {
     public class RezervacijUpdateRequest
     {
-      //  public int Id { get; set; }
-
         public int? KorisnikId { get; set; }
 
         public int? RasporedId { get; set; }
 
         public string? Status { get; set; }
+
+        public int? PlacanjeId { get; set; }
     }
 }

@@ -14,4 +14,8 @@ public partial class Placanja
     public decimal? Iznos { get; set; }
 
     public virtual Korisnici? Korisnik { get; set; }
+    public string? TxnId { get; set; }
+
+    
+
 }

@@ -55,7 +55,7 @@ namespace FitnessCentar.Services.Database
 
             var hash = new byte[] { 205, 173, 238, 240, 123, 28, 44, 53, 56, 164, 63, 104, 173, 124, 252, 68, 180, 14, 228, 115 };
             var salt = new byte[] { 0, 15, 217, 112, 57, 244, 61, 193, 39, 247, 215, 237, 250, 28, 45, 120 };
-            var slika = File.ReadAllBytes("rs2.jpg");
+            //var slika = File.ReadAllBytes("rs2.jpg");
             modelBuilder.Entity<Korisnici>().HasData(
                  new Korisnici()
                  {
@@ -185,7 +185,7 @@ namespace FitnessCentar.Services.Database
                                   Pol = "Ženski",
                                   Tezina = 60,
                                   Visina = 170,
-                                  Slika = slika
+                                //  Slika = slika
                               }
             ); ;
         }

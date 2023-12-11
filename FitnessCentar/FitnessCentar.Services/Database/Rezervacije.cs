@@ -18,4 +18,7 @@ public partial class Rezervacije
     public virtual Korisnici? Korisnik { get; set; }
 
     public virtual Raspored? Raspored { get; set; }
+
+    public int? PlacanjeId { get; set; }
+    public virtual Placanja? Placanje { get; set; }
 }

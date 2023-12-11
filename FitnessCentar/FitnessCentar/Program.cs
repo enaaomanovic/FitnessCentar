@@ -5,6 +5,7 @@ using FitnessCentar.Services.Database;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
+using Stripe;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,9 +23,6 @@ builder.Services.AddTransient<IPlacanjeService, PlacanjeServices>();
 builder.Services.AddTransient<IRasporedService, RasporedService>();
 builder.Services.AddTransient<IRezervacijaServices, RezervacijaService>();
 builder.Services.AddTransient<INapredakService, NapredakService>();
-
-
-
 
 
 
@@ -82,6 +80,7 @@ builder.Services.AddAuthentication("BasicAuthentication")
  .AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>("BasicAuthentication", null);
 
 var app = builder.Build();
+app.UseHttpLogging();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -90,7 +89,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseAuthorization();
@@ -116,5 +115,6 @@ using (var scope = app.Services.CreateScope())
         //}
     }
 }
+StripeConfiguration.ApiKey = "sk_test_51OKr40BH5DqSsJZplYyDKDiAxawWPMWYG0JGrg5ZnVutsPQFRGD14YdbuwKkKQPsWa3ULdlRe05JvcY2yndIsbc400BT4GyLwo";
 
 app.Run();

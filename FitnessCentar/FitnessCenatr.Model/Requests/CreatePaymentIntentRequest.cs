@@ -1,0 +1,14 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace FitnessCentar.Model.Requests
+{
+    public  class CreatePaymentIntentRequest
+    {
+        public long Amount { get; set; }
+
+    }
+}

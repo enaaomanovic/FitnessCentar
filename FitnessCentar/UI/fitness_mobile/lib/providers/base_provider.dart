@@ -10,6 +10,13 @@ abstract class BaseProvider<T> with ChangeNotifier {
   static String? _baseUrl;
   String _endpoint = "";
 
+  String GetEndpoint()=> _endpoint;
+ static String? GetBaseUrl()=>_baseUrl;
+
+ GetFull(){
+  return GetBaseUrl()!+GetEndpoint();
+}
+
   BaseProvider(String endpoint) {
     _endpoint = endpoint;
     // ZA EMULATOR

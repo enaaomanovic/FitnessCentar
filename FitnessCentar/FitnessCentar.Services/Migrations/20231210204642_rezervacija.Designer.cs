@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FitnessCentar.Services.Migrations
 {
     [DbContext(typeof(Ib200005rs2Context))]
-    [Migration("20231210172943_SeedV4")]
-    partial class SeedV4
+    [Migration("20231210204642_rezervacija")]
+    partial class rezervacija
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -493,6 +493,9 @@ namespace FitnessCentar.Services.Migrations
                     b.Property<int?>("KorisnikId")
                         .HasColumnType("int")
                         .HasColumnName("KorisnikID");
+
+                    b.Property<string>("TxnId")
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id")
                         .HasName("PK__Placanja__3214EC27E0E744DB");
@@ -1112,6 +1115,9 @@ namespace FitnessCentar.Services.Migrations
                         .HasColumnType("int")
                         .HasColumnName("KorisnikID");
 
+                    b.Property<int?>("PlacanjeId")
+                        .HasColumnType("int");
+
                     b.Property<int?>("RasporedId")
                         .HasColumnType("int")
                         .HasColumnName("RasporedID");
@@ -1125,6 +1131,8 @@ namespace FitnessCentar.Services.Migrations
                         .HasName("PK__Rezervac__3214EC2773F50FE4");
 
                     b.HasIndex("KorisnikId");
+
+                    b.HasIndex("PlacanjeId");
 
                     b.HasIndex("RasporedId");
 
@@ -1356,12 +1364,18 @@ namespace FitnessCentar.Services.Migrations
                         .HasForeignKey("KorisnikId")
                         .HasConstraintName("FK__Rezervaci__Koris__693CA210");
 
+                    b.HasOne("FitnessCentar.Services.Database.Placanja", "Placanje")
+                        .WithMany()
+                        .HasForeignKey("PlacanjeId");
+
                     b.HasOne("FitnessCentar.Services.Database.Raspored", "Raspored")
                         .WithMany("Rezervacijes")
                         .HasForeignKey("RasporedId")
                         .HasConstraintName("FK__Rezervaci__Raspo__6A30C649");
 
                     b.Navigation("Korisnik");
+
+                    b.Navigation("Placanje");
 
                     b.Navigation("Raspored");
                 });
