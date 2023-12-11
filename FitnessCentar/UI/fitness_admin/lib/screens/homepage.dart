@@ -108,7 +108,7 @@ class HomeAuthenticated extends StatelessWidget {
     ),
     // Dodajte korisnikovu sliku sa desne strane
     SizedBox(width: 10), // Dodajte odgovarajući razmak
-  FutureBuilder<Korisnici?>(
+ FutureBuilder<Korisnici?>(
   future: getUserFromUserId(userId ?? 0),
   builder: (context, snapshot) {
     if (snapshot.connectionState == ConnectionState.waiting) {
@@ -117,19 +117,26 @@ class HomeAuthenticated extends StatelessWidget {
       return Text('Greška: ${snapshot.error}');
     } else if (snapshot.hasData) {
       final user = snapshot.data!;
-      //final userImage = imageFromBase64String(user.slika!); 
-      final userImage = user.slika != null ? imageFromBase64String(user.slika!) : null;
-final userImageBytes = user.slika != null ? Uint8List.fromList(base64Decode(user.slika!)) : null;
+      final userImageBytes = user.slika != null ? Uint8List.fromList(base64Decode(user.slika!)) : null;
 
-     return CircleAvatar(
-  backgroundImage: Image.memory(Uint8List.fromList(userImageBytes!)).image,
-  radius: 50,
-);
+      if (userImageBytes != null && userImageBytes.isNotEmpty) {
+        return CircleAvatar(
+          backgroundImage: Image.memory(Uint8List.fromList(userImageBytes)).image,
+          radius: 50,
+        );
+      } else {
+        // Ako nema slike korisnika, koristi sliku iz assets foldera
+        return CircleAvatar(
+          backgroundImage: AssetImage('assets/images/male_icon.jpg'),
+          radius: 50,
+        );
+      }
     } else {
       return Text('Nema dostupnih podataka');
     }
   },
 )
+
 
 
   ],
