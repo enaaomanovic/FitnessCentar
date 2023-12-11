@@ -17,9 +17,12 @@ class UserListScrean extends StatefulWidget {
 
 class _UserListScrean extends State<UserListScrean> {
   late UserProvider _userProvider;
-  SearchResult<Korisnici>? result;
+ 
+  List<Korisnici>? pageresult;
   TextEditingController _ftsController = new TextEditingController();
-
+  var page = 1;
+  var totalcount = 0;
+  var numberOfPpl=4;
   @override
   void initState() {
     super.initState();
@@ -32,12 +35,15 @@ class _UserListScrean extends State<UserListScrean> {
   }
 
  void _loadData() async {
-  var data = await _userProvider.get(filter: {
+  var data = await _userProvider.getPaged(filter: {
     'fts': _ftsController.text,
+    'page':page,
+    'pageSize':numberOfPpl
   });
 
   setState(() {
-    result = data;
+    totalcount=data.count!;
+    pageresult = data.result;
   });
 }
 
@@ -74,6 +80,9 @@ class _UserListScrean extends State<UserListScrean> {
               hintText: 'Unesite ime ili prezime korisnika',
             ),
             controller: _ftsController,
+            onChanged:(value) => {
+              page=1
+            },
           ),
         ),
         SizedBox(
@@ -86,6 +95,38 @@ class _UserListScrean extends State<UserListScrean> {
     ),
   );
 }
+
+
+
+Widget _buildPageNumbers() {
+  int totalPages = (totalcount / numberOfPpl).ceil();
+  List<Widget> pageButtons = [];
+
+  for (int i = 1; i <= totalPages; i++) {
+    pageButtons.add(
+      Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+        child: ElevatedButton(
+          onPressed: () {
+            // Update the page variable and load data for the selected page
+            setState(() {
+              page = i;
+              _loadData();
+            });
+          },
+          child: Text('$i'),
+        ),
+      ),
+    );
+  }
+
+  return Row(
+    mainAxisAlignment: MainAxisAlignment.center,
+    children: pageButtons,
+  );
+}
+
+
 
   
 Widget _buildDataListView() {
@@ -125,8 +166,8 @@ Widget _buildDataListView() {
                 ),
 
               ],
-              rows: result?.result
-                  .map((Korisnici e) => DataRow(
+              rows: pageresult
+                  ?.map((Korisnici e) => DataRow(
                         onSelectChanged: (selected) {
                           if (selected == true) {
                             Navigator.of(context).push(
@@ -174,6 +215,8 @@ Widget _buildDataListView() {
             ),
           ),
         ),
+          SizedBox(height: 16), // Add some space between DataTable and page numbers
+        _buildPageNumbers(),
       ],
     ),
   );

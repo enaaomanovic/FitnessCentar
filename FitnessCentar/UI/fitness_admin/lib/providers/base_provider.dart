@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:fitness_admin/models/page_list.dart';
 import 'package:fitness_admin/models/search_result.dart';
 import 'package:fitness_admin/utils/util.dart';
 import 'package:http/http.dart' as http;
@@ -38,6 +39,40 @@ abstract class BaseProvider<T> with ChangeNotifier {
       throw new Exception("Unknown error");
     }
   }
+
+Future<PageResult<T>> getPaged({dynamic filter}) async {
+    var url = "$_baseUrl$_endpoint/GetPage";
+
+    if (filter != null) {
+      var querryString = getQueryString(filter);
+      url = "$url?$querryString";
+    }
+
+    var uri = Uri.parse(url);
+    var headers = createHeaders();
+
+    Response response = await http.get(uri, headers: headers);
+
+    if (isValidResponse(response)) {
+      var data = jsonDecode(response.body);
+
+      var result = PageResult<T>();
+  
+      result.count = data['count'];
+
+      for (var a in data['result']) {
+        result.result.add(fromJson(a));
+      }
+
+      return result;
+    } else {
+      throw Exception("Unknown error");
+    }
+  }
+
+
+
+
 Future getById(int id) async {
     var url = "$_baseUrl$_endpoint/$id";
     var uri = Uri.parse(url);
@@ -67,6 +102,7 @@ Future getById(int id) async {
       throw new Exception("Unknown error");
     }
   }
+
  Future<T> update(int id, [dynamic request]) async {
     var url = "$_baseUrl$_endpoint/$id";
     var uri = Uri.parse(url);
