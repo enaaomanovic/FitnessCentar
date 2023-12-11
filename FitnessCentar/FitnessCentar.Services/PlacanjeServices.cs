@@ -37,6 +37,18 @@ namespace FitnessCentar.Services
             Database.Placanja entity = _mapper.Map<Database.Placanja>(insert);
             entity.TxnId = transactionId;
             set.Add(entity);
+          
+            //foreach (var rezervacijaId in insert.RezervacijeId)
+            //{
+            //    var rezervacija = _context.Rezervacijes.Find(rezervacijaId);
+            //    if (rezervacija != null)
+            //    {
+            //        var amountCaptured = insert.Iznos/15;
+                    
+
+            //    }
+
+            //}
             //ubaciti uzimanje rezervacija iz baze za korisnika koji je logovan napravio placanje
             //i dodati take funckiju na queri koji je za rezervacije
             //i amout  captured iz chargea i podjeliti sa cijenom rezervacije (int)

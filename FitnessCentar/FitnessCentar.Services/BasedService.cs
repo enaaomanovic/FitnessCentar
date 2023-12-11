@@ -21,6 +21,7 @@ namespace FitnessCentar.Services
             _context = context;
             _mapper = mapper;
         }
+
         public virtual async Task<List<T>> Get(TSearch? search = null)
         {
             var query = _context.Set<TDb>().AsQueryable();
@@ -28,15 +29,39 @@ namespace FitnessCentar.Services
             query = AddFilter(query, search);
             query = AddInclude(query);
 
-            if (search?.Page.HasValue == true && search?.PageSize.HasValue == true)
-            {
-                query = query.Take(search.PageSize.Value).Skip(search.Page.Value * search.PageSize.Value);
-            }
+
 
             var list = await query.ToListAsync();
 
             return _mapper.Map<List<T>>(list);
         }
+        public virtual async Task<Model.PageResult<T>> GetPage(TSearch? search = null)
+        {
+            var query = _context.Set<TDb>().AsQueryable();
+
+            query = AddFilter(query, search);
+            query = AddInclude(query);
+            var respons = new Model.PageResult<T>();
+            if (search?.Page is not null && search?.PageSize is not null)
+            {
+                var list = await query
+                   .Skip((int)((search.Page - 1) * search.PageSize))
+                   .Take((int)search.PageSize)
+                   .ToListAsync();
+
+                respons.Result = _mapper.Map<List<T>>(list);
+            }
+            else
+            {
+
+                var list = await query.ToListAsync();
+                respons.Result = _mapper.Map<List<T>>(list);
+            }
+            respons.Count = query.Count();
+            return respons;
+        }
+
+
 
         //public virtual async Task<T> Update(int id, TUpdate update)
         //{

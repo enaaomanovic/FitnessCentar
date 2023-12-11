@@ -1,6 +1,7 @@
 ﻿using FitnessCentar.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Stripe;
 
 namespace FitnessCentar.Controllers
 {
@@ -17,11 +18,18 @@ namespace FitnessCentar.Controllers
             _logger = logger;
             _service = service;
         }
+        [HttpGet("GetPage")]
+        public  async Task<Model.PageResult<T>> GetPage([FromQuery] TSearch? search = null)
+        {
+            return await _service.GetPage(search);
+        }
+
         [HttpGet()]
-        public  async Task<IEnumerable<T>> Get([FromQuery] TSearch? search = null)
+        public async Task<IEnumerable<T>> Get([FromQuery] TSearch? search = null)
         {
             return await _service.Get(search);
         }
+
 
         [HttpGet("{id}")]
         public async Task<T> GetById(int id)

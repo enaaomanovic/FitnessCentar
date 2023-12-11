@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Azure.Core;
+
 using FitnessCentar.Model.Requests;
 using FitnessCentar.Model.SearchObject;
 using FitnessCentar.Services.Database;
@@ -89,7 +90,38 @@ namespace FitnessCentar.Services
 
             return true;
         }
-        public override async Task<List<Model.Korisnici>> Get(KorisniciSearchObject? search = null)
+        public override async Task<Model.PageResult<Model.Korisnici>> GetPage(KorisniciSearchObject? search = null)
+        {
+
+            var query = _context.Set<Database.Korisnici>().AsQueryable();
+
+            var respons = new Model.PageResult<Model.Korisnici>();
+            query = AddFilter(query, search);
+            query = AddInclude(query);
+            query = IncludeUserDetails(query);
+
+            if (search?.Page is not null && search?.PageSize is not null)
+            {
+                //query = query.Take(search.PageSize.Value).Skip(search.Page.Value * search.PageSize.Value);
+             
+
+
+                var list = await query
+                    .Skip((int)((search.Page - 1) * search.PageSize))
+                    .Take((int)search.PageSize)
+                    .ToListAsync();
+
+                respons.Result = _mapper.Map<List<Model.Korisnici>>(list);
+
+                
+            }
+          
+            respons.Count =query.Count();
+
+            return respons;
+        }
+
+        public virtual async Task<List<Korisnici>> Get(KorisniciSearchObject? search = null)
         {
             var query = _context.Set<Database.Korisnici>().AsQueryable();
 
@@ -97,16 +129,12 @@ namespace FitnessCentar.Services
             query = AddInclude(query);
             query = IncludeUserDetails(query);
 
-            if (search?.Page.HasValue == true && search?.PageSize.HasValue == true)
-            {
-                query = query.Take(search.PageSize.Value).Skip(search.Page.Value * search.PageSize.Value);
-            }
 
             var list = await query.ToListAsync();
 
-            return _mapper.Map<List<Model.Korisnici>>(list);
-            
+            return _mapper.Map<List<Korisnici>>(list);
         }
+
 
         public override IQueryable<Korisnici> AddInclude(IQueryable<Korisnici> query)
         {
