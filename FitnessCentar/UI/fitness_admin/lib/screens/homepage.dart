@@ -2,10 +2,12 @@ import 'dart:convert';
 import 'dart:ui';
 
 import 'package:fitness_admin/models/korisnici.dart';
+import 'package:fitness_admin/models/report.dart';
 import 'package:fitness_admin/providers/user_provider.dart';
 import 'package:fitness_admin/screens/add_news.dart';
 import 'package:fitness_admin/screens/add_user.dart';
 import 'package:fitness_admin/screens/news_list.dart';
+import 'package:fitness_admin/screens/report.dart';
 import 'package:fitness_admin/screens/schedule_list.dart';
 import 'package:fitness_admin/screens/user_details_screens.dart';
 import 'package:fitness_admin/screens/user_list.dart';
@@ -39,9 +41,7 @@ class HomeAuthenticated extends StatelessWidget {
 
 
 
-  Widget _buildHomepage(BuildContext context) {
-     
-    
+  Widget _buildHomepage(BuildContext context) {  
     return Scaffold(
       appBar: AppBar(
         title: Text("Fitness Centar"),
@@ -150,22 +150,38 @@ class HomeAuthenticated extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    ElevatedButton(
-                      onPressed: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (context) => const AddUser(),
-                          ),
-                        );
-                      },
-                      child: Padding(
-                        padding: const EdgeInsets.all(20.0),
-                        child: Text(
-                          "Dodaj novog člana",
-                          style: TextStyle(fontSize: 18),
-                        ),
-                      ),
-                    ),
+                   ElevatedButton(
+  onPressed: () {
+    var newKorisniciReport = KorisniciReport(
+        ime:"Ena",
+       prezime:"Omanovic",
+       email:"enadkd",
+       datumRegistracije:DateTime.now(),
+       datumRodjenja :DateTime.now(),
+korisnickoIme: "ena",
+      lozinka: "me",
+      pol: "md",
+      slika: "kdl",
+      telefon: "34",
+      tezina: 23,
+      visina: 2344,
+    );
+
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) =>  AddUser(report: newKorisniciReport),
+      ),
+    );
+  },
+  child: Padding(
+    padding: const EdgeInsets.all(20.0),
+    child: Text(
+      "Dodaj novog člana",
+      style: TextStyle(fontSize: 18),
+    ),
+  ),
+),
+
                     SizedBox(width: 100),
                     ElevatedButton(
                       onPressed: () {
