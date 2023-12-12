@@ -79,7 +79,7 @@ Widget build(BuildContext context) {
 Widget _addForm() {
   return FormBuilder(
     key: _formKey,
-       autovalidateMode: AutovalidateMode.onUserInteraction,
+       autovalidateMode: AutovalidateMode.always,
 
     child: Padding(
       padding: const EdgeInsets.all(20.0),
@@ -323,6 +323,44 @@ Widget _addForm() {
   );
 }
 
+ bool _areAllFieldsFilled(FormBuilderState? formState) {
+  if (formState == null) {
+    return false;
+  }
+
+  // Liste imena obaveznih polja
+  List<String> requiredFields = ['ime', 'prezime', 'korisnickoIme', 'email', 'lozinka', 'telefon', 'pol', 'datumRodjenja','specijalnost'];
+
+    // Provera da li su sva obavezna polja popunjena
+    for (String fieldName in requiredFields) {
+      if (formState.fields[fieldName]?.value == null ||
+          formState.fields[fieldName]!.value.toString().isEmpty) {
+        return false;
+      }
+  }
+
+  return true;
+}
+
+
+
+void _showAlertDialog(String message) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) => AlertDialog(
+      title: Text("Upozorenje"),
+      content: Text(message),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: Text("OK"),
+        ),
+      ],
+    ),
+  );
+}
+
+
 
 Widget _submitbtn() {
   return Center(
@@ -334,7 +372,22 @@ Widget _submitbtn() {
             width: 250,
             child: ElevatedButton(
               onPressed: () async {
+                
                 _formKey.currentState?.saveAndValidate();
+    final currentFormState = _formKey.currentState;
+                if (!_areAllFieldsFilled(currentFormState)) {
+              // Nisu sva polja popunjena, prikažite poruku upozorenja
+              _showAlertDialog("Popunite sva obavezna polja.");
+              return;
+            }
+          if (currentFormState != null) {
+              // Validirajte formu
+              if (!currentFormState.validate()) {
+                // Forma nije ispravna, prikažite poruku upozorenja
+                _showAlertDialog("Molimo vas da ispravno popunite sva obavezna polja.");
+                return;
+              }
+          }
                 var request = Map<String, dynamic>.from(_formKey.currentState!.value);
                 var pol = request['pol'];
 
