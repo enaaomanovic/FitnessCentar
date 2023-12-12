@@ -1,25 +1,25 @@
-import 'dart:math';
-
+import 'package:collection/collection.dart';
 import 'package:fitness_mobile/models/korisnici.dart';
+import 'package:fitness_mobile/models/placanja.dart';
 import 'package:fitness_mobile/models/raspored.dart';
 import 'package:fitness_mobile/models/rezervacija.dart';
+
 import 'package:fitness_mobile/models/search_result.dart';
-import 'package:fitness_mobile/models/trener.dart';
+
 import 'package:fitness_mobile/models/trening.dart';
 import 'package:fitness_mobile/providers/reservation_provider.dart';
 import 'package:fitness_mobile/providers/schedule_provider.dart';
-import 'package:fitness_mobile/providers/trainer_provider.dart';
+import 'package:fitness_mobile/providers/pay_provider.dart';
+
 import 'package:fitness_mobile/providers/user_provider.dart';
 import 'package:fitness_mobile/providers/workout_provider.dart';
 import 'package:fitness_mobile/screens/pay.dart';
 import 'package:fitness_mobile/screens/workout_details.dart';
 import 'package:fitness_mobile/widgets/master_screens.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_form_builder/flutter_form_builder.dart';
+
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import 'package:table_calendar/table_calendar.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class ScheduleListScreen extends StatefulWidget {
   const ScheduleListScreen({Key? key}) : super(key: key);
@@ -33,6 +33,7 @@ class _ScheduleListScreenState extends State<ScheduleListScreen> {
   late WorkoutProvider _workoutProvider;
   late ReservationProvider _reservationProvider;
   late UserProvider _userProvider;
+  late PayProvider _payProvider;
 
   bool isReserved = false;
   Map<int, bool> reservedMap = {};
@@ -41,96 +42,65 @@ class _ScheduleListScreenState extends State<ScheduleListScreen> {
 
   @override
   void initState() {
-  
     super.initState();
-     
+
     _scheduleProvider = context.read<ScheduleProvider>();
     _workoutProvider = context.read<WorkoutProvider>();
     _reservationProvider = context.read<ReservationProvider>();
     _userProvider = context.read<UserProvider>();
-     _loadData();
-
-   
-
-   
-  }
-Future<void> _initializeData() async {
-  // Vaša asinkrona logika ovdje
-try {
- 
-  await checkAndDeactivateExpiredReservations();
- 
-} catch (e) {
-  
-}
-
-  // Dodajte ostale zadatke koji se trebaju izvršiti prilikom inicijalizacije
-}
-
-Future<void> checkAndDeactivateExpiredReservations() async {
-
-
-    var userProvider = Provider.of<UserProvider>(context, listen: false);
-    int? trenutniKorisnikId = userProvider.currentUserId;
-  if (trenutniKorisnikId == null ) {
-   
-    return;
-  }
- 
-   if (result == null ) {
-  
-    return;
-  }
-   if ( result!.result == null) {
-    
-    return;
+    _payProvider = context.read<PayProvider>();
+    _loadData();
   }
 
-  for (var raspored in result!.result) {
-    
-    bool isReservationActive = await _isReservationActive(
-      trenutniKorisnikId,
-      raspored.id!,
-    );
+  Future<Placanja?> GetPlacanje(int korisnikId) async {
+    var searchResult =
+        await _payProvider.get(filter: {"korisnikId": korisnikId});
 
-    var searchResult = await _reservationProvider.get(filter: {
-      "korisnikId": trenutniKorisnikId,
-      "rasporedId": raspored.id,
-      "status": "Aktivna",
-    });
-    
-   
-    if (isReservationActive) {
-      for (var rezervacija in searchResult!.result) {
-        
-        DateTime? datumRezervacije = rezervacija.datumRezervacija;
-        if (datumRezervacije != null) {
-          DateTime now = DateTime.now();
-          Duration difference = now.difference(datumRezervacije);
+    if (searchResult != null && searchResult.result.isNotEmpty) {
+      List<Placanja> data = searchResult.result;
 
-         if (difference.inHours > 30 * 24) {
-  // Ažurirajte status rezervacije na "Neaktivna"
-  await updateStatus(trenutniKorisnikId, raspored.id!, "Neaktivna");
+      data.sort((a, b) => b.datumPlacanja!.compareTo(a.datumPlacanja!));
 
+      var zadnjePlacanje = data[0];
 
-}
-        }
-      }
+      return zadnjePlacanje;
     }
+    return null;
   }
-}
 
+  Future<bool> PlacanjeUZadnjih30Dana(int korisnikId) async {
+    var zadnjePlacanje = await GetPlacanje(korisnikId);
 
+    if (zadnjePlacanje != null) {
+      var trenutnoVrijeme = DateTime.now();
+
+      var datumPlacanja = zadnjePlacanje.datumPlacanja;
+
+      var razlika = trenutnoVrijeme.difference(datumPlacanja!);
+      return razlika.inDays <= 30;
+    }
+
+    return false;
+  }
 
   void _loadData() async {
-  
     var data = await _scheduleProvider.get();
 
     setState(() {
       result = data;
     });
-       setState(() {}); // Dodajte dodatni setState kako biste prisilili ponovno iscrtavanje.
-  _initializeData();
+    setState(() {});
+  }
+
+  Future<bool> _isReservationPlacena(
+      int trenutniKorisnikId, int rasporedId) async {
+    var searchResult = await _reservationProvider.get(filter: {
+      "korisnikId": trenutniKorisnikId,
+      "rasporedId": rasporedId,
+      "status": "Plaćena",
+    });
+
+    return searchResult.result != null && searchResult.result.isNotEmpty;
   }
 
   Future<bool> _isReservationActive(
@@ -259,84 +229,82 @@ Future<void> checkAndDeactivateExpiredReservations() async {
 
     List<Raspored> activeReservations = [];
 
-    // Provjeri koje rasporede korisnik ima rezervirane
     for (var raspored in result!.result) {
-      bool isReservationActive = await _isReservationActive(
+      bool isReservationPlacena = await _isReservationPlacena(
         trenutniKorisnikId!,
         raspored.id!,
       );
-
-      if (isReservationActive) {
+      if (isReservationPlacena) {
         activeReservations.add(raspored);
       }
     }
+
     showDialog(
-  context: context,
-  builder: (BuildContext context) {
-    return AlertDialog(
-      title: Text('Aktivne rezervacije'),
-      content: SingleChildScrollView(
-        child: Column(
-          children: [
-            for (var raspored in activeReservations)
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Dan: ${_dayOfWeekToString(raspored.dan!)}'),
-                  Text(
-                      'Trajanje: ${_formatTime(raspored.datumPocetka!)} - ${_formatTime(raspored.datumZavrsetka!)}'),
-                  SizedBox(height: 8),
-                  // Dodajte malu prazninu između rezervacija
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Aktivne rezervacije'),
+          content: SingleChildScrollView(
+            child: Column(
+              children: [
+                for (var raspored in activeReservations)
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Dan: ${_dayOfWeekToString(raspored.dan!)}'),
+                      Text(
+                          'Trajanje: ${_formatTime(raspored.datumPocetka!)} - ${_formatTime(raspored.datumZavrsetka!)}'),
+                      SizedBox(height: 8),
+                      // Dodajte malu prazninu između rezervacija
 
-                  FutureBuilder<Korisnici?>(
-                    future: getTrenerFromId(raspored.trenerId),
-                    builder: (context, trenerSnapshot) {
-                      if (trenerSnapshot.connectionState ==
-                              ConnectionState.done &&
-                          trenerSnapshot.hasData) {
-                        Korisnici? trener = trenerSnapshot.data;
-                        return Text(
-                            'Trener: ${trener?.ime ?? 'N/A'} ${trener?.prezime ?? 'N/A'}');
-                      } else {
-                        return Text('Trener: N/A');
-                      }
-                    },
+                      FutureBuilder<Korisnici?>(
+                        future: getTrenerFromId(raspored.trenerId),
+                        builder: (context, trenerSnapshot) {
+                          if (trenerSnapshot.connectionState ==
+                                  ConnectionState.done &&
+                              trenerSnapshot.hasData) {
+                            Korisnici? trener = trenerSnapshot.data;
+                            return Text(
+                                'Trener: ${trener?.ime ?? 'N/A'} ${trener?.prezime ?? 'N/A'}');
+                          } else {
+                            return Text('Trener: N/A');
+                          }
+                        },
+                      ),
+                      FutureBuilder<Trening?>(
+                        future: getTreningFromId(raspored.treningId),
+                        builder: (context, treningSnapshot) {
+                          if (treningSnapshot.connectionState ==
+                                  ConnectionState.done &&
+                              treningSnapshot.hasData) {
+                            Trening? trening = treningSnapshot.data;
+                            return Text('Trening: ${trening?.naziv ?? 'N/A'}');
+                          } else {
+                            return Text('Trening: N/A');
+                          }
+                        },
+                      ),
+                      Divider(
+                        thickness: 2,
+                        color: Colors.grey,
+                      ),
+                      // Dodajte Divider između rezervacija
+                    ],
                   ),
-                  FutureBuilder<Trening?>(
-                    future: getTreningFromId(raspored.treningId),
-                    builder: (context, treningSnapshot) {
-                      if (treningSnapshot.connectionState ==
-                              ConnectionState.done &&
-                          treningSnapshot.hasData) {
-                        Trening? trening = treningSnapshot.data;
-                        return Text('Trening: ${trening?.naziv ?? 'N/A'}');
-                      } else {
-                        return Text('Trening: N/A');
-                      }
-                    },
-                  ),
-                  Divider(
-                    thickness: 2,
-                    color: Colors.grey,
-                  ),
-                  // Dodajte Divider između rezervacija
-                ],
-              ),
+              ],
+            ),
+          ),
+          actions: [
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Zatvori dijalog
+              },
+              child: Text('Zatvori'),
+            ),
           ],
-        ),
-      ),
-      actions: [
-        ElevatedButton(
-          onPressed: () {
-            Navigator.of(context).pop(); // Zatvori dijalog
-          },
-          child: Text('Zatvori'),
-        ),
-      ],
+        );
+      },
     );
-  },
-);
-
   }
 
   Future<Trening?> getTreningFromId(int? id) async {
@@ -380,7 +348,6 @@ Future<void> checkAndDeactivateExpiredReservations() async {
                 color: Colors.black, // Boja naslova
               ),
             ),
-           
             _buildWeeklySchedule(),
             _buildReservationInfo(),
           ],
@@ -389,9 +356,7 @@ Future<void> checkAndDeactivateExpiredReservations() async {
     );
   }
 
-
-
-    String _dayOfWeekToString(int dan) {
+  String _dayOfWeekToString(int dan) {
     switch (dan) {
       case 0:
         return 'Ned';
@@ -857,97 +822,137 @@ Future<void> checkAndDeactivateExpiredReservations() async {
       ),
     );
   }
-Widget _buildReservationInfo() {
-  Future<int> reservedCountFuture = calculateReservedCount();
-  Future<double> reservedPriceFuture = calculateReservedPrice();
 
-  return FutureBuilder<int>(
-    future: reservedCountFuture,
-    builder: (context, countSnapshot) {
-      int reservedCount = countSnapshot.data ?? 0;
+  Widget _buildReservationInfo() {
+    var userProvider = Provider.of<UserProvider>(context, listen: false);
+    int? trenutniKorisnikId = userProvider.currentUserId;
+    Future<int> reservedCountFuture = calculateReservedCount();
+    Future<double> reservedPriceFuture = calculateReservedPrice();
+    Future<bool> isPaymentInLast30DaysFuture =
+        PlacanjeUZadnjih30Dana(trenutniKorisnikId!);
 
-      return FutureBuilder<double>(
-        future: reservedPriceFuture,
-        builder: (context, priceSnapshot) {
-          double reservedPrice = priceSnapshot.data ?? 0.0;
+    return FutureBuilder<bool>(
+      future: isPaymentInLast30DaysFuture,
+      builder: (context, isPaymentSnapshot) {
+        bool isPaymentInLast30Days = isPaymentSnapshot.data ?? false;
 
-          return Column(
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.all(20.0),
-                    child: ElevatedButton(
-                      onPressed: () {
-                        _showPriceListDialog();
-                      },
-                      child: Text('Cjenovnik'),
-                      style: ElevatedButton.styleFrom(
-                        minimumSize: Size(
-                            150, 50), // Postavite željenu veličinu dugmeta
-                      ),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(20.0),
-                    child: ElevatedButton(
-                      onPressed: () {
-                        _showReservationDialog();
-                      },
-                      child: Text('Pregled rezervacija'),
-                      style: ElevatedButton.styleFrom(
-                        minimumSize: Size(
-                            150, 50), // Postavite željenu veličinu dugmeta
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              if (reservedCount > 0) ...[
-                SizedBox(height: 16),
-                Text('Uspješno ste rezervisali $reservedCount termina.', 
-                style: TextStyle(
-                   fontSize: 17.5, )),
-                SizedBox(height: 8),
-                Text('Članarina za trenutno rezervisane termine iznosi' , style: TextStyle(
-                   fontSize: 17.5, )),
-                SizedBox(height: 8),
-                Text(
-                  '$reservedPrice KM',
-                  style: TextStyle(
-                    fontSize: 20, // Prilagodite veličinu fonta po potrebi
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                 Padding(
-                    padding: const EdgeInsets.only(bottom:20.0,top:10),
-                    child:
-                ElevatedButton(
-                  onPressed: () {
-                     Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) =>
-                                PayScreen(amountToPay: reservedPrice),
+        return FutureBuilder<int>(
+          future: reservedCountFuture,
+          builder: (context, countSnapshot) {
+            int reservedCount = countSnapshot.data ?? 0;
+
+            return FutureBuilder<double>(
+              future: reservedPriceFuture,
+              builder: (context, priceSnapshot) {
+                double reservedPrice = priceSnapshot.data ?? 0.0;
+
+                return Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(20.0),
+                          child: ElevatedButton(
+                            onPressed: () {
+                              _showPriceListDialog();
+                            },
+                            child: Text('Cjenovnik'),
+                            style: ElevatedButton.styleFrom(
+                              minimumSize: Size(
+                                150,
+                                50,
+                              ),
+                            ),
                           ),
-                        );
-                  },
-                  child: Text('Plati članarinu'),
-                  style: ElevatedButton.styleFrom(
-                    minimumSize: Size(
-                        150, 50), // Postavite željenu veličinu dugmeta
-                  ),
-                ),
-                 ),
-              ],
-            ],
-          );
-        },
-      );
-    },
-  );
-}
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(20.0),
+                          child: ElevatedButton(
+                            onPressed: () {
+                              _showReservationDialog();
+                            },
+                            child: Text('Pregled rezervacija'),
+                            style: ElevatedButton.styleFrom(
+                              minimumSize: Size(
+                                150,
+                                50,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    if (!isPaymentInLast30Days && reservedCount == 0) ...[
+                      SizedBox(height: 16),
+                      Text(
+                        'Niste rezervisali nijedan termin za ovaj mjesec.',
+                        style: TextStyle(
+                          fontSize: 17.5,
+                        ),
+                      ),
+                    ] else if (isPaymentInLast30Days) ...[
+                      SizedBox(height: 16),
+                      Text(
+                        'Već ste izvršili uplatu za ovaj mjesec.',
+                        style: TextStyle(
+                          fontSize: 17.5,
+                        ),
+                      ),
+                    ] else if (reservedCount > 0) ...[
+                      SizedBox(height: 16),
+                      Text(
+                        'Uspješno ste rezervisali $reservedCount termina.',
+                        style: TextStyle(
+                          fontSize: 17.5,
+                        ),
+                      ),
+                      SizedBox(height: 8),
+                      Text(
+                        'Članarina za trenutno rezervisane termine iznosi',
+                        style: TextStyle(
+                          fontSize: 17.5,
+                        ),
+                      ),
+                      SizedBox(height: 8),
+                      Text(
+                        '$reservedPrice KM',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 20.0, top: 10),
+                        child: ElevatedButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    PayScreen(amountToPay: reservedPrice),
+                              ),
+                            );
+                          },
+                          child: Text('Plati članarinu'),
+                          style: ElevatedButton.styleFrom(
+                            minimumSize: Size(
+                              150,
+                              50,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ],
+                );
+              },
+            );
+          },
+        );
+      },
+    );
+  }
 
   List<Widget> _buildReservedRasporedCell(int dan, String satnica) {
     final reservedRasporedi = getReservedRasporedi(dan, satnica);

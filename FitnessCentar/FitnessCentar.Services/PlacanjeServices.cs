@@ -21,12 +21,14 @@ namespace FitnessCentar.Services
         public async override Task<Model.Placanja> Insert(PlacanjaInsertRequest insert)
         {
             string? transactionId = null;
+            long iznosPlacanja=0;
             var charges = await getChargesByIntent(insert.PaymentIntentId!);
             foreach(var charge in charges.Data)
             {
                 if (charge.Captured)
                 {
                     transactionId = charge.BalanceTransactionId;
+                    iznosPlacanja = charge.AmountCaptured/100;
                     break;
                 }
             }
@@ -37,32 +39,15 @@ namespace FitnessCentar.Services
             Database.Placanja entity = _mapper.Map<Database.Placanja>(insert);
             entity.TxnId = transactionId;
             set.Add(entity);
-          
-            //foreach (var rezervacijaId in insert.RezervacijeId)
-            //{
-            //    var rezervacija = _context.Rezervacijes.Find(rezervacijaId);
-            //    if (rezervacija != null)
-            //    {
-            //        var amountCaptured = insert.Iznos/15;
-                    
-
-            //    }
-
-            //}
-            //ubaciti uzimanje rezervacija iz baze za korisnika koji je logovan napravio placanje
-            //i dodati take funckiju na queri koji je za rezervacije
-            //i amout  captured iz chargea i podjeliti sa cijenom rezervacije (int)
-            //petlja prolaska koriz rezervacija i status staviti na placena
-            foreach (var rezervacijaId in insert.RezervacijeId)
+            List<Rezervacije> mojerezervacijes = _context.Rezervacijes
+                .Where(x => x.KorisnikId == insert.KorisnikId && x.Status=="Aktivna").Take((int)iznosPlacanja/15)
+                .ToList();
+            foreach(var mojerezervacije in mojerezervacijes)
             {
-                var rezervacija = _context.Rezervacijes.Find(rezervacijaId);// ovo vise nece trebat
-                if(rezervacija != null)
-                {
-                    rezervacija.Placanje = entity;
-                    rezervacija.Status = "Plaćena";
-                }
-
+                mojerezervacije.Status = "Plaćena";
+                mojerezervacije.Placanje = entity;
             }
+         
 
             await _context.SaveChangesAsync();
 
@@ -79,6 +64,18 @@ namespace FitnessCentar.Services
             var list = await service.ListAsync(options);
             return list;
         }
+        public override IQueryable<Placanja> AddFilter(IQueryable<Placanja> query, PlacanjaSearchObject? search = null)
+        {
+            var filteredQuery = base.AddFilter(query, search);
 
+            if (search.korisnikId != null)
+            {
+
+
+                filteredQuery = filteredQuery.Where(x => x.KorisnikId ==search.korisnikId);
+            }
+
+            return filteredQuery;
+        }
     }
 }

@@ -18,9 +18,7 @@ namespace FitnessCentar.Model
 
         public DateTime? DatumRezervacija { get; set; }
 
+        public int? PlacanjeId { get; set; }
 
-        //public virtual Korisnici? Korisnik { get; set; }
-
-        //public virtual Raspored? Raspored { get; set; }
     }
 }

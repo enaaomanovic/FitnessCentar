@@ -3,9 +3,13 @@ import 'dart:convert';
 import 'package:fitness_mobile/models/komentari.dart';
 import 'package:fitness_mobile/models/korisnici.dart';
 import 'package:fitness_mobile/models/paymentIntent.dart' as model_payment_intent;
+import 'package:fitness_mobile/models/placanja.dart';
+import 'package:fitness_mobile/models/search_result.dart';
 import 'package:fitness_mobile/providers/pay_provider.dart';
+import 'package:fitness_mobile/providers/progress_provider.dart';
 import 'package:fitness_mobile/providers/user_provider.dart';
 import 'package:fitness_mobile/providers/paymentIntent_provider.dart';
+import 'package:fitness_mobile/screens/home_authenticated.dart';
 import 'package:fitness_mobile/utils/utils.dart';
 import 'package:fitness_mobile/widgets/master_screens.dart';
 import 'package:flutter/material.dart';
@@ -27,13 +31,13 @@ class PayScreen extends StatefulWidget {
 class _PayScreen extends State<PayScreen> {
   late PayProvider _payProvider;
   late PaymentIntentProvider _paymentIntentProvider;
+  late ProgressProvider _progressProvider;
 
   model_payment_intent.PaymentIntent? paymentIntent;
   calculateAmount(double amount) {
     final calculatedAmount = amount.toInt() * 100;
     return calculatedAmount.toString();
   }
-
 
 
   createPaymentIntent(double amount) async {
@@ -81,6 +85,7 @@ class _PayScreen extends State<PayScreen> {
     }
   }
 
+
   displayPaymentSheet() async {
     var userProvider = Provider.of<UserProvider>(context, listen: false);
     int? trenutniKorisnikId = userProvider.currentUserId;
@@ -102,10 +107,8 @@ class _PayScreen extends State<PayScreen> {
                     ],
                   ),
                 ));
-
-        if (trenutniKorisnikId != null) {
-          
-          
+if (trenutniKorisnikId != null) {
+  
               var request = <String, dynamic>{
                 'korisnikId': trenutniKorisnikId,
                 'datumPlacanja': DateTime.now().toIso8601String(),
@@ -113,10 +116,22 @@ class _PayScreen extends State<PayScreen> {
                 'paymentIntentId': paymentIntent!.id,
                 
               };
-            
-              await _payProvider.insert(request);
+           
+
           
+          
+              await _payProvider.insert(request);
+               Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => HomeAuthenticated(
+                    userId: trenutniKorisnikId,
+                    userProvider: userProvider,
+                    progressProvider: _progressProvider,
+                  ),
+                ),
+              );
         }
+        
         paymentIntent = null;
       }).onError((error, stackTrace) {
         throw Exception(error);
@@ -149,6 +164,7 @@ class _PayScreen extends State<PayScreen> {
     super.initState();
     _payProvider = context.read<PayProvider>();
     _paymentIntentProvider=context.read<PaymentIntentProvider>();
+    _progressProvider=context.read<ProgressProvider>();
   }
 
   @override

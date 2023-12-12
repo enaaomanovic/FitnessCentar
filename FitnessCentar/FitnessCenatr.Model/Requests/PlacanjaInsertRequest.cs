@@ -17,7 +17,7 @@ namespace FitnessCentar.Model.Requests
     
         public string? PaymentIntentId { get; set; }
 
-        public List<int> RezervacijeId { get; set; } = new();
+     
 
 
 

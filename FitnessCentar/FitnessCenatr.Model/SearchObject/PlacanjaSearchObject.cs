@@ -8,6 +8,7 @@ namespace FitnessCentar.Model.SearchObject
 {
     public class PlacanjaSearchObject:BaseSearchObject
     {
+        public int? korisnikId { get; set; }
 
     }
 }

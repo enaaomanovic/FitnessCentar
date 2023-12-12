@@ -15,7 +15,10 @@ namespace FitnessCentar.Model
         public DateTime? DatumPlacanja { get; set; }
 
         public decimal? Iznos { get; set; }
+    public string? TxnId { get; set; }
 
-    
+
+
+
     }
 }

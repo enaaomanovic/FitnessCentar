@@ -102,8 +102,6 @@ namespace FitnessCentar.Services
 
             if (search?.Page is not null && search?.PageSize is not null)
             {
-                //query = query.Take(search.PageSize.Value).Skip(search.Page.Value * search.PageSize.Value);
-             
 
 
                 var list = await query
@@ -113,10 +111,10 @@ namespace FitnessCentar.Services
 
                 respons.Result = _mapper.Map<List<Model.Korisnici>>(list);
 
-                
+
             }
-          
-            respons.Count =query.Count();
+
+            respons.Count = query.Count();
 
             return respons;
         }
