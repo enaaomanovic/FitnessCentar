@@ -152,24 +152,9 @@ class HomeAuthenticated extends StatelessWidget {
                   children: [
                    ElevatedButton(
   onPressed: () {
-    var newKorisniciReport = KorisniciReport(
-        ime:"Ena",
-       prezime:"Omanovic",
-       email:"enadkd",
-       datumRegistracije:DateTime.now(),
-       datumRodjenja :DateTime.now(),
-korisnickoIme: "ena",
-      lozinka: "me",
-      pol: "md",
-      slika: "kdl",
-      telefon: "34",
-      tezina: 23,
-      visina: 2344,
-    );
-
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (context) =>  AddUser(report: newKorisniciReport),
+        builder: (context) =>  AddUser(),
       ),
     );
   },

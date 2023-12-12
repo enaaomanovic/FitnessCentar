@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 
+import 'package:fitness_admin/models/korisnici.dart';
 import 'package:fitness_admin/models/report.dart';
 
 import 'package:pdf/pdf.dart';
@@ -9,7 +10,7 @@ import 'package:flutter/services.dart' show rootBundle;
 
 Future<Uint8List> makePdf(KorisniciReport report) async {
   final pdf = Document();
- 
+ final imageLogo = MemoryImage((await rootBundle.load('assets/images/FitnessLogo.jpg')).buffer.asUint8List());
   pdf.addPage(
     Page(
       build: (context) {
@@ -20,15 +21,19 @@ Future<Uint8List> makePdf(KorisniciReport report) async {
               children: [
                 Column(
                   children: [
-                    Text("Ime ${report.ime}"),
-                    Text(report.prezime),
+                    Text("FITNES CENTAR"),
+                     SizedBox(
+                  height: 100,
+                  width: 100,
+                  child: Image(imageLogo)
+                     ),
                   ],
                   crossAxisAlignment: CrossAxisAlignment.start,
                 ),
                
               ],
             ),
-            Container(height: 50),
+            Container(height: 20),
             Table(
               border: TableBorder.all(color: PdfColors.black),
               children: [
@@ -36,7 +41,7 @@ Future<Uint8List> makePdf(KorisniciReport report) async {
                   children: [
                     Padding(
                       child: Text(
-                        'INVOICE FOR PAYMENT',
+                        'PODACI O KORISNIKU',
                         style: Theme.of(context).header4,
                         textAlign: TextAlign.center,
                       ),
@@ -51,12 +56,12 @@ Future<Uint8List> makePdf(KorisniciReport report) async {
             ),
             Padding(
               child: Text(
-                "THANK YOU FOR YOUR CUSTOM!",
+                "Zelimo Vam ugodno koristenje naseg Fitness centra",
                 style: Theme.of(context).header2,
               ),
               padding: EdgeInsets.all(20),
             ),
-            Text("Please forward the below slip to your accounts payable department."),
+            
             Divider(
               height: 1,
               borderStyle: BorderStyle.dashed,
@@ -67,35 +72,73 @@ Future<Uint8List> makePdf(KorisniciReport report) async {
               children: [
                 TableRow(
                   children: [
-                    PaddedText('Account Number'),
+                    PaddedText('Ime'),
                     PaddedText(
-                      '1234 1234',
+                      "${report.ime}",
                     )
                   ],
                 ),
                 TableRow(
-                  children: [
+                   children: [
+                    PaddedText('Prezime'),
                     PaddedText(
-                      'Account Name',
-                    ),
-                    PaddedText(
-                      'ADAM FAMILY TRUST',
+                      "${report.prezime}",
                     )
                   ],
                 ),
-               
+                 TableRow(
+                   children: [
+                    PaddedText('Korisnicko ime'),
+                    PaddedText(
+                      "${report.korisnickoIme}",
+                    )
+                  ],
+                ),
+                  TableRow(
+                   children: [
+                    PaddedText('Lozinka'),
+                    PaddedText(
+                      "${report.lozinka}",
+                    )
+                  ],
+                ),
+                  
+                  TableRow(
+                   children: [
+                    PaddedText('E-mail'),
+                    PaddedText(
+                      "${report.email}",
+                    )
+                  ],
+                ),
+                  TableRow(
+                   children: [
+                    PaddedText('Telefon'),
+                    PaddedText(
+                      "${report.telefon}",
+                    )
+                  ],
+                ),
+                  
+                  TableRow(
+                   children: [
+                    PaddedText('Tezina'),
+                    PaddedText(
+                      "${report.tezina}kg",
+                    )
+                  ],
+                ),
+                TableRow(
+                   children: [
+                    PaddedText('Visina'),
+                    PaddedText(
+                      "${report.visina}cm",
+                    )
+                  ],
+                ),
               ],
             ),
-            Padding(
-              padding: EdgeInsets.all(30),
-              child: Text(
-                'Please ensure all cheques are payable to the ADAM FAMILY TRUST.',
-                style: Theme.of(context).header3.copyWith(
-                      fontStyle: FontStyle.italic,
-                    ),
-                textAlign: TextAlign.center,
-              ),
-            )
+            
           ],
         );
       },

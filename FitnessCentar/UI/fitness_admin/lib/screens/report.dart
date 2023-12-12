@@ -10,22 +10,7 @@ class InvoicePage extends StatelessWidget {
   InvoicePage({Key? key}) : super(key: key);
 
   final invoices = <KorisniciReport>[
-    KorisniciReport(
-       ime:"Ena",
-       prezime:"Omanovic",
-       email:"enadkd",
-       datumRegistracije:DateTime.now(),
-       datumRodjenja :DateTime.now(),
-korisnickoIme: "ena",
-      lozinka: "me",
-      pol: "md",
-      slika: "kdl",
-      telefon: "34",
-      tezina: 23,
-      visina: 2344,
-
-
-    )
+   
    
   ];
 
@@ -42,11 +27,11 @@ korisnickoIme: "ena",
               title: Text(e.ime),
               subtitle: Text(e.prezime),
               onTap: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (builder) => AddUser(report: e),
-                  ),
-                );
+                // Navigator.of(context).push(
+                //   MaterialPageRoute(
+                //     builder: (builder) => AddUser(report: e),
+                //   ),
+                // );
               },
             ),
           )
