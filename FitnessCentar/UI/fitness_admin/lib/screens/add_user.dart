@@ -104,12 +104,13 @@ final TextEditingController polController = TextEditingController();
             Padding(
               padding: const EdgeInsets.only(top: 10.0),
               child: Text(
-                "Dodaj novog korisnika",
+                "Prije dodavanja novog korisnika obavezno isprintati korisniku izvještaj",
                 style: TextStyle(
-                  fontSize: 18,
+                  fontSize: 14,
                   fontWeight: FontWeight.bold,
                 ),
               ),
+              
             ),
             isLoading ? Container() : _addForm(),
             _submitbtn(),
@@ -127,7 +128,7 @@ final TextEditingController polController = TextEditingController();
   Widget _addForm() {
     return FormBuilder(
       key: _formKey,
-       autovalidateMode: AutovalidateMode.onUserInteraction,
+       autovalidateMode: AutovalidateMode.always,
       child: Padding(
         padding: const EdgeInsets.all(20.0),
         child: Row(
@@ -383,17 +384,68 @@ controller: visinaController,
   }
 
 
+  bool _areAllFieldsFilled(FormBuilderState? formState) {
+  if (formState == null) {
+    return false;
+  }
+
+  // Liste imena obaveznih polja
+  List<String> requiredFields = ['ime', 'prezime', 'korisnickoIme', 'email', 'lozinka', 'telefon', 'pol', 'tezina', 'visina', 'datumRodjenja'];
+
+    // Provera da li su sva obavezna polja popunjena
+    for (String fieldName in requiredFields) {
+      if (formState.fields[fieldName]?.value == null ||
+          formState.fields[fieldName]!.value.toString().isEmpty) {
+        return false;
+      }
+  }
+
+  return true;
+}
+
+
+
+void _showAlertDialog(String message) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) => AlertDialog(
+      title: Text("Upozorenje"),
+      content: Text(message),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: Text("OK"),
+        ),
+      ],
+    ),
+  );
+}
 
 Widget _submitbtn() {
-
   return Row(
     mainAxisAlignment: MainAxisAlignment.center,
     children: [
       SizedBox(
-        width: 250,
+  width: 250,
+
         child: ElevatedButton(
            onPressed: () async {
     final currentFormState = _formKey.currentState;
+
+
+ if (!_areAllFieldsFilled(currentFormState)) {
+              // Nisu sva polja popunjena, prikažite poruku upozorenja
+              _showAlertDialog("Popunite sva obavezna polja.");
+              return;
+            }
+          if (currentFormState != null) {
+              // Validirajte formu
+              if (!currentFormState.validate()) {
+                // Forma nije ispravna, prikažite poruku upozorenja
+                _showAlertDialog("Molimo vas da ispravno popunite sva obavezna polja.");
+                return;
+              }
+          }
     
     if (currentFormState != null && currentFormState.saveAndValidate()) {
       // Svi podaci su ispravno uneseni, možete dodati ili ažurirati korisnika
