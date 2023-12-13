@@ -62,16 +62,7 @@ Widget build(BuildContext context) {
                           ),
                         ),
                       ),
-                      // ClipOval(
-                      //   child: Container(
-                      //     height: 100,
-                      //     width: 100,
-                      //     child: Image.asset(
-                      //       "assets/images/FitnessLogo.jpg",
-                      //       fit: BoxFit.cover,
-                      //     ),
-                      //   ),
-                      // ),
+                    
                       SizedBox(height: 20), 
                       TextField(
                         decoration: InputDecoration(
@@ -82,6 +73,7 @@ Widget build(BuildContext context) {
                       ),
                       SizedBox(height: 10), 
                       TextField(
+                        obscureText: true,
                         decoration: InputDecoration(
                           labelText: "Password",
                           prefixIcon: Icon(Icons.lock),
