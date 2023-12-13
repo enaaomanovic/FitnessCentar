@@ -35,6 +35,9 @@ class _NewsListScreen extends State<NewsListScreen> {
   
    Map<int?, bool> _isExpandedMap = {};
 
+var page = 1;
+  var totalcount = 0;
+  var numberOfnews=3;
 
   List<Novosti> _novosti = [];
 
@@ -53,9 +56,13 @@ class _NewsListScreen extends State<NewsListScreen> {
   }
 
   void _loadData() async {
-    var data = await _newsProvider.get(filter: {});
+    var data = await _newsProvider.getPaged(filter: {
+       'page':page,
+    'pageSize':numberOfnews
+    });
     if (data != null) {
       setState(() {
+         totalcount=data.count!;
         _novosti = data.result ?? [];
         _isExpandedMap = Map.fromIterable(
           _novosti.map((novost) => novost.id),
@@ -65,6 +72,11 @@ class _NewsListScreen extends State<NewsListScreen> {
       });
     }
   }
+
+
+ 
+
+
 
   Future<Korisnici?> getUserFromUserId(int userId) async {
     final user = await _userProvider.getById(userId);
@@ -125,6 +137,7 @@ Widget build(BuildContext context) {
             },
           ),
         ),
+        _buildPageNumbers(),
         _buildBottomNavigationBar(context),
       ],
     ),
@@ -437,92 +450,7 @@ Widget _buildCommentsSection(Novosti novost) {
   );
 }
 
-// List<Widget> _buildCommentsList(List<Komentari> komentari) {
-//   return komentari.map((komentar) => FutureBuilder<Korisnici?>(
-//     future: getUserFromUserId(komentar.korisnikId ?? 0),
-//     builder: (context, userSnapshot) {
-//       if (userSnapshot.connectionState == ConnectionState.done) {
-//         final autor = userSnapshot.data;
-//         final base64Image = autor?.slika;
 
-//         Widget userAvatar;
-//         if (base64Image != null && base64Image.isNotEmpty) {
-//           userAvatar = ClipOval(
-//             child: Image.memory(
-//               base64Decode(base64Image),
-//               width: 40,
-//               height: 40,
-//               fit: BoxFit.cover,
-//             ),
-//           );
-//         } else {
-//           userAvatar = ClipOval(
-//             child: Image.asset(
-//               "assets/images/male_icon.jpg",
-//               width: 40,
-//               height: 40,
-//               fit: BoxFit.cover,
-//             ),
-//           );
-//         }
-
-//         return Container(
-//           margin: EdgeInsets.symmetric(vertical: 8),
-//           child: Column(
-//             crossAxisAlignment: CrossAxisAlignment.start,
-//             children: [
-//               Row(
-//                 crossAxisAlignment: CrossAxisAlignment.start,
-//                 children: [
-//                   userAvatar,
-//                   SizedBox(width: 8),
-//                   Expanded(
-//                     child: Column(
-//                       crossAxisAlignment: CrossAxisAlignment.start,
-//                       children: [
-//                         Text(
-//                           '${autor?.ime ?? 'Nepoznat'} ${autor?.prezime ?? 'Nepoznat'}:',
-//                           style: TextStyle(
-//                             fontWeight: FontWeight.bold,
-//                           ),
-//                         ),
-//                         Container(
-//                           decoration: BoxDecoration(
-//                             border: Border.all(
-//                               color: Colors.purple,
-//                               width: 2.0,
-//                             ),
-//                             borderRadius: BorderRadius.circular(5.0),
-//                           ),
-//                           margin: EdgeInsets.only(top: 4),
-//                           padding: EdgeInsets.all(8),
-//                           child: Text(
-//                             komentar.tekst ?? '',
-//                             style: TextStyle(fontSize: 16),
-//                           ),
-//                         ),
-//                       ],
-//                     ),
-//                   ),
-//                 ],
-//               ),
-//               SizedBox(height: 8),
-//               TextButton(
-//                 onPressed: () async {
-//                  var odgovori =   await getOdgovoriFromNovostiId(komentar.id ?? 0);
-//                  print("odgov $odgovori");
-//                 },
-//                 child: Text('Pogledaj odgovore'),
-//               ),
-//             ],
-//           ),
-//         );
-//       } else {
-//         return CircularProgressIndicator();
-//       }
-//     },
-//   )).toList();
-// }
 
 
 
@@ -723,7 +651,33 @@ Widget _buildOdgovoriDialog(List<OdgovoriNaKomentare>? odgovori) {
 }
 
 
+ Widget _buildPageNumbers() {
+  int totalPages = (totalcount / numberOfnews).ceil();
+  List<Widget> pageButtons = [];
 
+  for (int i = 1; i <= totalPages; i++) {
+    pageButtons.add(
+      Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+        child: ElevatedButton(
+          onPressed: () {
+            // Update the page variable and load data for the selected page
+            setState(() {
+              page = i;
+              _loadData();
+            });
+          },
+          child: Text('$i'),
+        ),
+      ),
+    );
+  }
+
+  return Row(
+    mainAxisAlignment: MainAxisAlignment.center,
+    children: pageButtons,
+  );
+}
 
   Widget _buildBottomNavigationBar(BuildContext context) {
       var userProvider = Provider.of<UserProvider>(context, listen: false);
