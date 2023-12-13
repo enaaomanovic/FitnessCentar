@@ -2,19 +2,21 @@ import 'dart:ffi';
 
 import 'package:fitness_admin/models/aktivnosti.dart';
 import 'package:fitness_admin/models/korisnici.dart';
+import 'package:fitness_admin/models/placanja.dart';
 import 'package:fitness_admin/models/raspored.dart';
 import 'package:fitness_admin/models/rezervacija.dart';
 import 'package:fitness_admin/models/search_result.dart';
 import 'package:fitness_admin/models/trening.dart';
 import 'package:fitness_admin/providers/active_provider.dart';
+import 'package:fitness_admin/providers/pay_provider.dart';
 import 'package:fitness_admin/providers/reservation_provider.dart';
 import 'package:fitness_admin/providers/user_provider.dart';
 import 'package:fitness_admin/screens/user_details_screens.dart';
-import 'package:fitness_admin/utils/util.dart';
+
 import 'package:fitness_admin/widgets/master_screens.dart';
-import 'package:flutter/foundation.dart';
+
 import 'package:flutter/material.dart';
-import 'package:flutter_form_builder/flutter_form_builder.dart';
+
 import 'package:intl/intl.dart';
 import 'dart:convert';
 
@@ -35,6 +37,7 @@ class _WorkoutDetails extends State<WorkoutDetails> {
   late ActiveProvider _activeProvider;
   late UserProvider _userProvider;
   late ReservationProvider _reservationProvider;
+  
   SearchResult<Rezervacija>? result;
   bool isLoading = true;
 
@@ -45,6 +48,7 @@ class _WorkoutDetails extends State<WorkoutDetails> {
     _activeProvider = context.read<ActiveProvider>();
     _userProvider = context.read<UserProvider>();
     _reservationProvider = context.read<ReservationProvider>();
+   
     initForm();
 
     _loadData();
@@ -66,17 +70,24 @@ class _WorkoutDetails extends State<WorkoutDetails> {
     return user;
   }
 
-  void _loadData() async {
-    final rasporedId = widget.raspored.id;
-    var data = await _reservationProvider.get(filter: {
-      'rasporedId': rasporedId.toString(),
-      'status':"Aktivna",
-    });
 
-    setState(() {
-      result = data;
-    });
-  }
+
+
+
+void _loadData() async {
+  final rasporedId = widget.raspored.id;
+
+  var data = await _reservationProvider.get(filter: {
+    'rasporedId': rasporedId.toString(),
+    'status': "Plaćena",
+  });
+
+  setState(() {
+    result = data;
+  });
+}
+
+
 
   Rezervacija? selectedReservation;
 

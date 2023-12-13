@@ -16,7 +16,6 @@ OdgovoriNaKomentare _$OdgovoriNaKomentareFromJson(Map<String, dynamic> json) =>
           ? null
           : DateTime.parse(json['datumOdgovora'] as String),
     );
-    
 
 Map<String, dynamic> _$OdgovoriNaKomentareToJson(
         OdgovoriNaKomentare instance) =>

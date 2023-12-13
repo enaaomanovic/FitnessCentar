@@ -95,7 +95,7 @@ class _UserDetalScreenState extends State<UserDetalScreen> {
     final korisnikid = widget.korisnik!.id;
     var data = await _reservationProvider.get(filter: {
       'korisnikId': korisnikid.toString(),
-      'status':"Aktivna",
+      'status':"Placena",
     });
 
     setState(() {
@@ -202,35 +202,37 @@ Future<void> _showReservationPopup(BuildContext context) async {
           width: 400,
           height: 400,
           color: Colors.white,
-          child: Column(
-            children: <Widget>[
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  Text(
-                    'Korisnik je rezervisao sljedeće termine',
-                    style: TextStyle(color: Colors.black, fontSize: 18),
-                  ),
-                  IconButton(
-                    icon: Icon(Icons.close, color: Colors.purple),
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                  ),
-                ],
-              ),
-              // Provjerite da li lista rezervacija nije prazna
-              if (listTiles.isNotEmpty) ...listTiles,
-              // Dodajte poruku kada korisnik nema rezervacija
-              if (userReservations == null || userReservations!.isEmpty)
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Text(
-                    'Korisnik još uvijek nema rezervacija.',
-                    style: TextStyle(fontSize: 16),
-                  ),
+          child: SingleChildScrollView(
+            child: Column(
+              children: <Widget>[
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    Text(
+                      'Korisnik je rezervisao sljedeće termine',
+                      style: TextStyle(color: Colors.black, fontSize: 18),
+                    ),
+                    IconButton(
+                      icon: Icon(Icons.close, color: Colors.purple),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                    ),
+                  ],
                 ),
-            ],
+                // Provjerite da li lista rezervacija nije prazna
+                if (listTiles.isNotEmpty) ...listTiles,
+                // Dodajte poruku kada korisnik nema rezervacija
+                if (userReservations == null || userReservations!.isEmpty)
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Text(
+                      'Korisnik još uvijek nema rezervacija.',
+                      style: TextStyle(fontSize: 16),
+                    ),
+                  ),
+              ],
+            ),
           ),
         ),
       );

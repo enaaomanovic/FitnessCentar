@@ -32,7 +32,9 @@ class _NewsListScrean extends State<NewsListScrean> {
   late CommentProvider _commentProvider;
   late ReplyToCommentProvider _replyToCommentProvider;
 
-
+var page = 1;
+  var totalcount = 0;
+  var numberOfnews=3;
   
 
   List<Novosti> _novosti = [];
@@ -51,9 +53,13 @@ class _NewsListScrean extends State<NewsListScrean> {
   }
 
   void _loadData() async {
-    var data = await _newsProvider.get(filter: {});
+    var data = await _newsProvider.getPaged(filter: {
+      'page':page,
+    'pageSize':numberOfnews
+    });
     if (data != null) {
       setState(() {
+         totalcount=data.count!;
         _novosti = data.result ?? [];
       });
     }
@@ -69,6 +75,35 @@ class _NewsListScrean extends State<NewsListScrean> {
 
     return user;
   }
+
+  Widget _buildPageNumbers() {
+  int totalPages = (totalcount / numberOfnews).ceil();
+  List<Widget> pageButtons = [];
+
+  for (int i = 1; i <= totalPages; i++) {
+    pageButtons.add(
+      Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+        child: ElevatedButton(
+          onPressed: () {
+            // Update the page variable and load data for the selected page
+            setState(() {
+              page = i;
+              _loadData();
+            });
+          },
+          child: Text('$i'),
+        ),
+      ),
+    );
+  }
+
+  return Row(
+    mainAxisAlignment: MainAxisAlignment.center,
+    children: pageButtons,
+  );
+}
+
 
   Future<List<Komentari>> _loadComment(int novostiId) async {
     var data = await _commentProvider.get(filter: {
@@ -101,7 +136,9 @@ class _NewsListScrean extends State<NewsListScrean> {
       child: SingleChildScrollView(
         child: Container(
           child: Column(
-            children: [_buildDataListView(_novosti)],
+            children: [_buildDataListView(_novosti),
+                         _buildPageNumbers(),
+            ]
           ),
         ),
       ),
@@ -207,17 +244,29 @@ class _NewsListScrean extends State<NewsListScrean> {
                             },
                           ),
                           Divider(),
+                          
                         ],
                       ),
+                      
+                      
                     ),
+       
+
                   );
                 }).toList(),
+                
               ),
+              
             ),
+            
           ),
+          
         ),
+        
       ),
+      
     );
+
   }
 
   Widget _buildComments(int novostiId) {
