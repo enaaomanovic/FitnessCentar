@@ -1,4 +1,3 @@
-
 import 'package:fitness_mobile/screens/login.dart';
 import 'package:flutter/material.dart';
 
@@ -36,9 +35,7 @@ class HomeUnauthenticated extends StatelessWidget {
                       ),
                     ),
                   ),
-                  actions: [
-                    
-                  ],
+                  actions: [],
                 ),
                 Padding(
                   padding: const EdgeInsets.all(16.0),
@@ -49,7 +46,7 @@ class HomeUnauthenticated extends StatelessWidget {
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           border: Border.all(
-                           color: const Color.fromARGB(100, 155, 39, 176),
+                            color: const Color.fromARGB(100, 155, 39, 176),
                             width: 6.0,
                           ),
                         ),

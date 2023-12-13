@@ -1,23 +1,18 @@
-import 'package:collection/collection.dart';
 import 'package:fitness_mobile/models/korisnici.dart';
 import 'package:fitness_mobile/models/placanja.dart';
 import 'package:fitness_mobile/models/raspored.dart';
 import 'package:fitness_mobile/models/rezervacija.dart';
-
 import 'package:fitness_mobile/models/search_result.dart';
-
 import 'package:fitness_mobile/models/trening.dart';
 import 'package:fitness_mobile/providers/reservation_provider.dart';
 import 'package:fitness_mobile/providers/schedule_provider.dart';
 import 'package:fitness_mobile/providers/pay_provider.dart';
-
 import 'package:fitness_mobile/providers/user_provider.dart';
 import 'package:fitness_mobile/providers/workout_provider.dart';
 import 'package:fitness_mobile/screens/pay.dart';
 import 'package:fitness_mobile/screens/workout_details.dart';
 import 'package:fitness_mobile/widgets/master_screens.dart';
 import 'package:flutter/material.dart';
-
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
@@ -39,6 +34,7 @@ class _ScheduleListScreenState extends State<ScheduleListScreen> {
   Map<int, bool> reservedMap = {};
   SearchResult<Raspored>? result;
   int? _selectedDay;
+  bool isLoading = true;
 
   @override
   void initState() {
@@ -49,7 +45,63 @@ class _ScheduleListScreenState extends State<ScheduleListScreen> {
     _reservationProvider = context.read<ReservationProvider>();
     _userProvider = context.read<UserProvider>();
     _payProvider = context.read<PayProvider>();
+    initForm();
     _loadData();
+  }
+
+  Future initForm() async {
+    setState(() {
+      isLoading = false;
+    });
+  }
+
+
+
+  Future<List<Placanja?>> GetPlacanja(int korisnikId) async {
+    var searchResult =
+        await _payProvider.get(filter: {"korisnikId": korisnikId});
+
+    if (searchResult != null && searchResult.result.isNotEmpty) {
+      List<Placanja> data = searchResult.result;
+
+      return data;
+    }
+    return [];
+  }
+
+  Future<List<Rezervacija?>> GetRezervacije(int korisnikId) async {
+    var searchResult = await _reservationProvider
+        .get(filter: {"korisnikId": korisnikId, "status": "Plaćena"});
+    if (searchResult != null && searchResult.result.isNotEmpty) {
+      List<Rezervacija> data = searchResult.result;
+      return data;
+    }
+    return [];
+  }
+
+  Future<List<Rezervacija>> RealRezervacije(int korisnikId) async {
+    var placanja = await GetPlacanja(korisnikId);
+    var rezervacije = await GetRezervacije(korisnikId);
+
+    List<Rezervacija> validneRezervacije = [];
+
+    if (placanja != null && rezervacije != null) {
+      for (var placanje in placanja) {
+        for (var rezervacija in rezervacije) {
+          if (rezervacija?.placanjeId == placanje?.id) {
+            DateTime? datumPlacanja = placanje?.datumPlacanja;
+            DateTime trenutniDatum = DateTime.now();
+            Duration razlika = trenutniDatum.difference(datumPlacanja!);
+
+            if (razlika.inDays <= 30) {
+              validneRezervacije.add(rezervacija!);
+            }
+          }
+        }
+      }
+    }
+
+    return validneRezervacije;
   }
 
   Future<Placanja?> GetPlacanje(int korisnikId) async {
@@ -117,7 +169,6 @@ class _ScheduleListScreenState extends State<ScheduleListScreen> {
   Future<void> updateStatus(
       int trenutniKorisnikId, int rasporedId, String status) async {
     try {
-      // Dobavite sve rezervacije sa određenim korisnikom, rasporedom i statusom "Aktivna"
       var searchResult = await _reservationProvider.get(
         filter: {
           "korisnikId": trenutniKorisnikId,
@@ -127,14 +178,11 @@ class _ScheduleListScreenState extends State<ScheduleListScreen> {
       );
 
       if (searchResult.result != null && searchResult.result.isNotEmpty) {
-        // Sortirajte rezultate po datumu rezervacije silazno
         searchResult.result
             .sort((a, b) => b.datumRezervacija!.compareTo(a.datumRezervacija!));
 
-        // Dohvatite prvi rezultat (poslednju rezervaciju)
         var poslednjaRezervacija = searchResult.result.first;
 
-        // Postoji rezervacija, dohvatite njen ID
         int rezervacijaId = poslednjaRezervacija.id ?? 0;
 
         var request = {
@@ -144,15 +192,8 @@ class _ScheduleListScreenState extends State<ScheduleListScreen> {
           "status": status,
         };
 
-        // Koristite dohvaćeni ID rezervacije za ažuriranje statusa
         await _reservationProvider.update(rezervacijaId, request);
-
-        print('Successfully updated reservation status.');
-      } else {
-        // Rezervacija nije pronađena
-        print(
-            'No active reservation found for user $trenutniKorisnikId and schedule $rasporedId');
-      }
+      } else {}
     } catch (error) {
       print('Error updating reservation status: $error');
       rethrow;
@@ -187,7 +228,6 @@ class _ScheduleListScreenState extends State<ScheduleListScreen> {
       );
 
       if (isReservationActive) {
-        // Povećajte broj rezervisanih termina
         reservedCount++;
       }
     }
@@ -206,12 +246,11 @@ class _ScheduleListScreenState extends State<ScheduleListScreen> {
 
     for (var raspored in result!.result) {
       bool isReservationActive = await _isReservationActive(
-        trenutniKorisnikId!, // Postavite trenutni korisnički ID
+        trenutniKorisnikId!,
         raspored.id!,
       );
 
       if (isReservationActive) {
-        // Dodajte cenu termina na ukupnu cenu
         totalPrice += 15.0;
       }
     }
@@ -220,75 +259,94 @@ class _ScheduleListScreenState extends State<ScheduleListScreen> {
   }
 
   String _formatTime(DateTime dateTime) {
-    return DateFormat.Hm().format(dateTime); // Formatiranje u "hh:mm"
+    return DateFormat.Hm().format(dateTime);
+  }
+
+  Future<Raspored?> getRasporedFromId(int rasporedId) async {
+    final raspored = await _scheduleProvider.getById(rasporedId);
+    return raspored;
   }
 
   Future<void> _showReservationDialog() async {
     var userProvider = Provider.of<UserProvider>(context, listen: false);
     int? trenutniKorisnikId = userProvider.currentUserId;
 
-    List<Raspored> activeReservations = [];
-
-    for (var raspored in result!.result) {
-      bool isReservationPlacena = await _isReservationPlacena(
-        trenutniKorisnikId!,
-        raspored.id!,
-      );
-      if (isReservationPlacena) {
-        activeReservations.add(raspored);
-      }
-    }
+    List<Rezervacija> activeReservations =
+        await RealRezervacije(trenutniKorisnikId!);
 
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Aktivne rezervacije'),
+          title: Text('Plaćene rezervacije'),
           content: SingleChildScrollView(
             child: Column(
               children: [
-                for (var raspored in activeReservations)
+                for (var rezervacija in activeReservations)
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Dan: ${_dayOfWeekToString(raspored.dan!)}'),
-                      Text(
-                          'Trajanje: ${_formatTime(raspored.datumPocetka!)} - ${_formatTime(raspored.datumZavrsetka!)}'),
-                      SizedBox(height: 8),
-                      // Dodajte malu prazninu između rezervacija
+                      FutureBuilder<Raspored?>(
+                        future: getRasporedFromId(rezervacija.rasporedId ?? 0),
+                        builder: (context, rasporedSnapshot) {
+                          if (rasporedSnapshot.connectionState ==
+                                  ConnectionState.done &&
+                              rasporedSnapshot.hasData) {
+                            Raspored? raspored = rasporedSnapshot.data;
 
-                      FutureBuilder<Korisnici?>(
-                        future: getTrenerFromId(raspored.trenerId),
-                        builder: (context, trenerSnapshot) {
-                          if (trenerSnapshot.connectionState ==
-                                  ConnectionState.done &&
-                              trenerSnapshot.hasData) {
-                            Korisnici? trener = trenerSnapshot.data;
-                            return Text(
-                                'Trener: ${trener?.ime ?? 'N/A'} ${trener?.prezime ?? 'N/A'}');
+                            var trenerFuture =
+                                getTrenerFromId(raspored?.trenerId ?? 0);
+                            var treningFuture =
+                                getTreningFromId(raspored?.treningId ?? 0);
+
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                    'Dan: ${_dayOfWeekToString(raspored!.dan!)}'),
+                                Text(
+                                  'Trajanje: ${_formatTime(raspored.datumPocetka!)} - ${_formatTime(raspored.datumZavrsetka!)}',
+                                ),
+                                SizedBox(height: 8),
+                                FutureBuilder<Korisnici?>(
+                                  future: trenerFuture,
+                                  builder: (context, trenerSnapshot) {
+                                    if (trenerSnapshot.connectionState ==
+                                            ConnectionState.done &&
+                                        trenerSnapshot.hasData) {
+                                      Korisnici? trener = trenerSnapshot.data;
+                                      return Text(
+                                          'Trener: ${trener?.ime ?? 'N/A'} ${trener?.prezime ?? 'N/A'}');
+                                    } else {
+                                      return Text('Trener: N/A');
+                                    }
+                                  },
+                                ),
+                                FutureBuilder<Trening?>(
+                                  future: treningFuture,
+                                  builder: (context, treningSnapshot) {
+                                    if (treningSnapshot.connectionState ==
+                                            ConnectionState.done &&
+                                        treningSnapshot.hasData) {
+                                      Trening? trening = treningSnapshot.data;
+                                      return Text(
+                                          'Trening: ${trening?.naziv ?? 'N/A'}');
+                                    } else {
+                                      return Text('Trening: N/A');
+                                    }
+                                  },
+                                ),
+                                Divider(
+                                  thickness: 2,
+                                  color: Colors.grey,
+                                ),
+                              ],
+                            );
                           } else {
-                            return Text('Trener: N/A');
+                            return Text('N/A');
                           }
                         },
                       ),
-                      FutureBuilder<Trening?>(
-                        future: getTreningFromId(raspored.treningId),
-                        builder: (context, treningSnapshot) {
-                          if (treningSnapshot.connectionState ==
-                                  ConnectionState.done &&
-                              treningSnapshot.hasData) {
-                            Trening? trening = treningSnapshot.data;
-                            return Text('Trening: ${trening?.naziv ?? 'N/A'}');
-                          } else {
-                            return Text('Trening: N/A');
-                          }
-                        },
-                      ),
-                      Divider(
-                        thickness: 2,
-                        color: Colors.grey,
-                      ),
-                      // Dodajte Divider između rezervacija
                     ],
                   ),
               ],
@@ -297,7 +355,7 @@ class _ScheduleListScreenState extends State<ScheduleListScreen> {
           actions: [
             ElevatedButton(
               onPressed: () {
-                Navigator.of(context).pop(); // Zatvori dijalog
+                Navigator.of(context).pop();
               },
               child: Text('Zatvori'),
             ),
@@ -345,9 +403,10 @@ class _ScheduleListScreenState extends State<ScheduleListScreen> {
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 24,
-                color: Colors.black, // Boja naslova
+                color: Colors.black,
               ),
             ),
+            isLoading? Container():
             _buildWeeklySchedule(),
             _buildReservationInfo(),
           ],
@@ -405,8 +464,8 @@ class _ScheduleListScreenState extends State<ScheduleListScreen> {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(10.0),
             border: Border.all(
-              color: Colors.purple, // Boja granice
-              width: 3.0, // Debljina granice
+              color: Colors.purple,
+              width: 3.0,
             ),
           ),
           child: Column(
@@ -440,14 +499,13 @@ class _ScheduleListScreenState extends State<ScheduleListScreen> {
           });
         },
         child: Container(
-          width: double
-              .infinity, // Povećava širinu carda na širinu dostupnu u roditeljskom widgetu
+          width: double.infinity,
           padding: EdgeInsets.all(16.0),
           decoration: BoxDecoration(
             color: isOpen ? Colors.grey[300] : Colors.white,
             borderRadius: BorderRadius.circular(10.0),
             border: Border.all(
-              color: Colors.grey[400]!, // Boja bordera
+              color: Colors.grey[400]!,
               width: 1.0,
             ),
           ),
@@ -458,7 +516,7 @@ class _ScheduleListScreenState extends State<ScheduleListScreen> {
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 18,
-                  color: Colors.black, // Boja dana
+                  color: Colors.black,
                 ),
               ),
               if (isOpen) ...[
@@ -701,7 +759,6 @@ class _ScheduleListScreenState extends State<ScheduleListScreen> {
                                   backgroundColor: Colors.red,
                                 ),
                               );
-                              print('Korisnik nije prijavljen.');
                             }
                           },
                           style: ElevatedButton.styleFrom(
@@ -725,7 +782,6 @@ class _ScheduleListScreenState extends State<ScheduleListScreen> {
           );
         } else {
           return SizedBox.shrink();
-          // Ne prikazujte ništa ako trening nije dostupan
         }
       },
     );

@@ -1,23 +1,15 @@
 import 'dart:convert';
-
-import 'package:fitness_mobile/models/komentari.dart';
-import 'package:fitness_mobile/models/korisnici.dart';
-import 'package:fitness_mobile/models/paymentIntent.dart' as model_payment_intent;
-import 'package:fitness_mobile/models/placanja.dart';
-import 'package:fitness_mobile/models/search_result.dart';
+import 'package:fitness_mobile/models/paymentIntent.dart'
+    as model_payment_intent;
 import 'package:fitness_mobile/providers/pay_provider.dart';
 import 'package:fitness_mobile/providers/progress_provider.dart';
 import 'package:fitness_mobile/providers/user_provider.dart';
 import 'package:fitness_mobile/providers/paymentIntent_provider.dart';
 import 'package:fitness_mobile/screens/home_authenticated.dart';
-import 'package:fitness_mobile/utils/utils.dart';
 import 'package:fitness_mobile/widgets/master_screens.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import 'package:http/http.dart' as http;
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter/material.dart' as FlutterMaterial;
 
 class PayScreen extends StatefulWidget {
@@ -39,52 +31,49 @@ class _PayScreen extends State<PayScreen> {
     return calculatedAmount.toString();
   }
 
-
   createPaymentIntent(double amount) async {
     try {
-      var request={
-        "amount":calculateAmount(amount),
+      var request = {
+        "amount": calculateAmount(amount),
       };
-      
+
       return await _paymentIntentProvider.createPaymentIntent(request);
-    
     } catch (err) {
       throw Exception(err.toString());
     }
   }
 
   Future<void> makePayment(double Amount) async {
-    print("uslo");
+ 
     try {
-      //STEP 1: Create Payment Intent
       paymentIntent = await createPaymentIntent(Amount);
-  print("Ovdje $paymentIntent");
-      //STEP 2: Initialize Payment Sheet
+ 
+
       await Stripe.instance
           .initPaymentSheet(
               paymentSheetParameters: SetupPaymentSheetParameters(
-                  paymentIntentClientSecret: paymentIntent!.clientSecret, //Gotten from payment intent
-                  style: ThemeMode.light,
-                  merchantDisplayName: 'FitnessCentar', billingDetails: const BillingDetails(
-          address: Address(
-            country: 'BA',
-            city: '',
-            line1: '',
-            line2: '',
-            state: '',
-            postalCode: '',
-          ),
-        ),))
+            paymentIntentClientSecret: paymentIntent!.clientSecret,
+            style: ThemeMode.light,
+            merchantDisplayName: 'FitnessCentar',
+            billingDetails: const BillingDetails(
+              address: Address(
+                country: 'BA',
+                city: '',
+                line1: '',
+                line2: '',
+                state: '',
+                postalCode: '',
+              ),
+            ),
+          ))
           .then((value) {});
-      print("printalo $paymentIntent");
+   
 
-      //STEP 3: Display Payment sheet
       displayPaymentSheet();
     } catch (err) {
       throw Exception(err);
     }
   }
-
 
   displayPaymentSheet() async {
     var userProvider = Provider.of<UserProvider>(context, listen: false);
@@ -107,31 +96,26 @@ class _PayScreen extends State<PayScreen> {
                     ],
                   ),
                 ));
-if (trenutniKorisnikId != null) {
-  
-              var request = <String, dynamic>{
-                'korisnikId': trenutniKorisnikId,
-                'datumPlacanja': DateTime.now().toIso8601String(),
-                'iznos': widget.amountToPay,
-                'paymentIntentId': paymentIntent!.id,
-                
-              };
-           
+        if (trenutniKorisnikId != null) {
+          var request = <String, dynamic>{
+            'korisnikId': trenutniKorisnikId,
+            'datumPlacanja': DateTime.now().toIso8601String(),
+            'iznos': widget.amountToPay,
+            'paymentIntentId': paymentIntent!.id,
+          };
 
-          
-          
-              await _payProvider.insert(request);
-               Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => HomeAuthenticated(
-                    userId: trenutniKorisnikId,
-                    userProvider: userProvider,
-                    progressProvider: _progressProvider,
-                  ),
-                ),
-              );
+          await _payProvider.insert(request);
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => HomeAuthenticated(
+                userId: trenutniKorisnikId,
+                userProvider: userProvider,
+                progressProvider: _progressProvider,
+              ),
+            ),
+          );
         }
-        
+
         paymentIntent = null;
       }).onError((error, stackTrace) {
         throw Exception(error);
@@ -163,8 +147,8 @@ if (trenutniKorisnikId != null) {
   void initState() {
     super.initState();
     _payProvider = context.read<PayProvider>();
-    _paymentIntentProvider=context.read<PaymentIntentProvider>();
-    _progressProvider=context.read<ProgressProvider>();
+    _paymentIntentProvider = context.read<PaymentIntentProvider>();
+    _progressProvider = context.read<ProgressProvider>();
   }
 
   @override
@@ -217,22 +201,15 @@ if (trenutniKorisnikId != null) {
                       SizedBox(height: 20),
                       ElevatedButton(
                         onPressed: () async {
-                          // Dodajte logiku koja se izvršava kada se pritisne dugme "Plati"
-                          // Na primjer, možete dodati navigaciju na stranicu za plaćanje
                           await makePayment(widget.amountToPay);
-                          // ili izvršiti odgovarajuće akcije vezane za plaćanje.
                         },
                         style: ElevatedButton.styleFrom(
                           padding: EdgeInsets.symmetric(
-                              horizontal: 30,
-                              vertical:
-                                  15), // Prilagodite veličinu dugmeta prema potrebi
+                              horizontal: 30, vertical: 15),
                         ),
                         child: Text(
                           "Plati",
-                          style: TextStyle(
-                              fontSize:
-                                  18), // Prilagodite veličinu teksta dugmeta prema potrebi
+                          style: TextStyle(fontSize: 18),
                         ),
                       ),
                       SizedBox(height: 10),
@@ -242,15 +219,11 @@ if (trenutniKorisnikId != null) {
                         },
                         style: TextButton.styleFrom(
                           padding: EdgeInsets.symmetric(
-                              horizontal: 30,
-                              vertical:
-                                  15), // Prilagodite veličinu dugmeta prema potrebi
+                              horizontal: 30, vertical: 15),
                         ),
                         child: Text(
                           "Nazad",
-                          style: TextStyle(
-                              fontSize:
-                                  18), // Prilagodite veličinu teksta dugmeta prema potrebi
+                          style: TextStyle(fontSize: 18),
                         ),
                       ),
                     ],

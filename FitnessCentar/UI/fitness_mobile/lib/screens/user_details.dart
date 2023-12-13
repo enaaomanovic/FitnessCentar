@@ -24,7 +24,7 @@ class _MobileUserDetailScreenState extends State<MobileUserDetailScreen> {
   Map<String, dynamic> _initialValue = {};
   Image? userImage;
   SearchResult<Korisnici>? result;
-    bool isLoading = true;
+  bool isLoading = true;
 
   late UserProvider _userProvider;
   late ProgressProvider _progressProvider;
@@ -38,36 +38,30 @@ class _MobileUserDetailScreenState extends State<MobileUserDetailScreen> {
   void initState() {
     super.initState();
     _userProvider = context.read<UserProvider>();
-    _progressProvider=context.read<ProgressProvider>();
+    _progressProvider = context.read<ProgressProvider>();
     _loadUserData();
-   
   }
-  
+
   void _loadUserData() async {
     try {
-      // Dobavi korisnika na osnovu userId-a
       Korisnici? korisnik = await getKorisnikFromId(widget.userId ?? 0);
-         
 
       if (korisnik != null) {
-        // Ako korisnik ima sliku, postavi userImage
         if (korisnik.slika != null && korisnik.slika!.isNotEmpty) {
           userImage = imageFromBase64String(korisnik.slika!);
         } else {
-          // Ako korisnik nema sliku, postavi zamensku sliku
           userImage = Image.asset('assets/images/male_icon.jpg');
         }
-DateFormat dateFormat = DateFormat('yyyy-MM-dd');
-        // Postavi vrednosti u _initialValue
+        DateFormat dateFormat = DateFormat('yyyy-MM-dd');
+
         setState(() {
-           isLoading = false;
+          isLoading = false;
           _initialValue = {
             'ime': korisnik.ime,
             'prezime': korisnik.prezime,
             'korisnickoIme': korisnik.korisnickoIme,
             'datumRegistracije': dateFormat.format(korisnik.datumRegistracije!),
             'datumRodjenja': dateFormat.format(korisnik.datumRodjenja!),
-
             'pol': korisnik.pol,
             'telefon': korisnik.telefon,
             'tezina': '${korisnik.tezina} kg',
@@ -75,11 +69,9 @@ DateFormat dateFormat = DateFormat('yyyy-MM-dd');
             'email': korisnik.email,
             'slika': korisnik.slika,
           };
-          
         });
       }
     } catch (e) {
-      // Handluj greške, na primer, prikaži dijalog sa porukom o grešci
       showDialog(
         context: context,
         builder: (BuildContext context) => AlertDialog(
@@ -95,46 +87,43 @@ DateFormat dateFormat = DateFormat('yyyy-MM-dd');
       );
     }
   }
-  
- @override
-Widget build(BuildContext context) {
-  return MasterScreanWidget(
-    child: Stack(
-      children: [
-        SingleChildScrollView(
-          scrollDirection: Axis.vertical,
-          child: SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Center(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Container(
-                  child: Column(
-                    children: [
-                      // ... Ostatak koda ...
-                      Center(
-                        child: isLoading
-                            ? Container()
-                            : _addForm(),
-                      ),
-                    ],
+
+  @override
+  Widget build(BuildContext context) {
+    return MasterScreanWidget(
+      child: Stack(
+        children: [
+          SingleChildScrollView(
+            scrollDirection: Axis.vertical,
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Container(
+                    child: Column(
+                      children: [
+                        Center(
+                          child: isLoading ? Container() : _addForm(),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
             ),
           ),
-        ),
-        Positioned(
-          left: 0,
-          right: 0,
-          bottom: 0,
-          child: _buildBottomNavigationBar(context),
-        ),
-      ],
-    ),
-    title: "Profil",
-  );
-}
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: _buildBottomNavigationBar(context),
+          ),
+        ],
+      ),
+      title: "Profil",
+    );
+  }
 
   Widget _addForm() {
     return FormBuilder(
@@ -143,49 +132,47 @@ Widget build(BuildContext context) {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-       Padding(
-  padding: EdgeInsets.all(5.0),
-  child: Container(
-    decoration: BoxDecoration(
-      shape: BoxShape.circle, // Da biste postavili oblik na krug
-      border: Border.all(
-        color: Colors.purpleAccent, // Boja granice
-        width: 4.0, // Debljina granice
-      ),
-    ),
-    child: Align(
-      alignment: Alignment.topLeft,
-      child: ConstrainedBox(
-        constraints: BoxConstraints(
-          maxWidth: 130.0, // Maksimalna širina
-          maxHeight: 130.0, // Maksimalna visina
-        ),
-        child: ClipOval(
-          child: userImage != null
-              ? Container(
-                  width: 130,
-                  height: 130.0,
-                  decoration: BoxDecoration(),
-                  child: Image(
-                    image: userImage!.image,
-                    width: 130.0,
-                    height: 130.0,
-                    fit: BoxFit.cover,
-                  ),
-                )
-              : Container(
-                  width: 130.0,
-                  height: 130.0,
-                  decoration: BoxDecoration(),
-                  child: Image.asset('assets/images/male_icon.jpg'),
+          Padding(
+            padding: EdgeInsets.all(5.0),
+            child: Container(
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: Colors.purpleAccent,
+                  width: 4.0,
                 ),
-        ),
-      ),
-    ),
-  ),
-),
-
-          
+              ),
+              child: Align(
+                alignment: Alignment.topLeft,
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxWidth: 130.0,
+                    maxHeight: 130.0,
+                  ),
+                  child: ClipOval(
+                    child: userImage != null
+                        ? Container(
+                            width: 130,
+                            height: 130.0,
+                            decoration: BoxDecoration(),
+                            child: Image(
+                              image: userImage!.image,
+                              width: 130.0,
+                              height: 130.0,
+                              fit: BoxFit.cover,
+                            ),
+                          )
+                        : Container(
+                            width: 130.0,
+                            height: 130.0,
+                            decoration: BoxDecoration(),
+                            child: Image.asset('assets/images/male_icon.jpg'),
+                          ),
+                  ),
+                ),
+              ),
+            ),
+          ),
           Card(
             elevation: 6,
             shape: RoundedRectangleBorder(
@@ -200,10 +187,9 @@ Widget build(BuildContext context) {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                  
                     Row(
                       children: [
-                         Expanded(
+                        Expanded(
                           child: FormBuilderTextField(
                             style: TextStyle(
                               fontSize: 15,
@@ -219,8 +205,6 @@ Widget build(BuildContext context) {
                                   width: 2.0,
                                 ),
                               ),
-
-
                               labelStyle: TextStyle(
                                 color: Colors.black,
                                 fontSize: 20,
@@ -229,15 +213,12 @@ Widget build(BuildContext context) {
                             name: "ime",
                             enabled: false,
                           ),
-
                         ),
                         SizedBox(height: 80),
                       ],
                     ),
-                    
                     Row(
                       children: [
-                        
                         Expanded(
                           child: FormBuilderTextField(
                             style: TextStyle(
@@ -262,10 +243,8 @@ Widget build(BuildContext context) {
                           ),
                         ),
                         SizedBox(height: 80),
-
                       ],
                     ),
-
                     Row(
                       children: [
                         Expanded(
@@ -292,7 +271,6 @@ Widget build(BuildContext context) {
                           ),
                         ),
                         SizedBox(height: 80),
-
                       ],
                     ),
                     Row(
@@ -321,10 +299,8 @@ Widget build(BuildContext context) {
                           ),
                         ),
                         SizedBox(height: 80),
-
                       ],
                     ),
-                  
                     Row(
                       children: [
                         Expanded(
@@ -351,7 +327,6 @@ Widget build(BuildContext context) {
                           ),
                         ),
                         SizedBox(height: 80),
-
                       ],
                     ),
                     Row(
@@ -380,11 +355,8 @@ Widget build(BuildContext context) {
                           ),
                         ),
                         SizedBox(height: 80),
-
                       ],
                     ),
-
-                    
                     Row(
                       children: [
                         Expanded(
@@ -411,7 +383,6 @@ Widget build(BuildContext context) {
                           ),
                         ),
                         SizedBox(height: 80),
-
                       ],
                     ),
                     Row(
@@ -440,7 +411,6 @@ Widget build(BuildContext context) {
                           ),
                         ),
                         SizedBox(height: 80),
-
                       ],
                     ),
                     Row(
@@ -469,7 +439,6 @@ Widget build(BuildContext context) {
                           ),
                         ),
                         SizedBox(height: 80),
-
                       ],
                     ),
                     Row(
@@ -498,7 +467,6 @@ Widget build(BuildContext context) {
                           ),
                         ),
                         SizedBox(height: 80),
-
                       ],
                     ),
                   ],
@@ -508,49 +476,44 @@ Widget build(BuildContext context) {
           ),
         ],
       ),
-      
     );
   }
 
-
-
-
-Widget _buildBottomNavigationBar(BuildContext context) {
-  var userProvider = Provider.of<UserProvider>(context, listen: false);
+  Widget _buildBottomNavigationBar(BuildContext context) {
+    var userProvider = Provider.of<UserProvider>(context, listen: false);
     int? trenutniKorisnikId = _userProvider.currentUserId;
-  return Container(
-    decoration: BoxDecoration(
-      border: Border(
-        top: BorderSide(
-          color: Colors.purpleAccent, // Boja gornje granice
-          width: 2.0, // Debljina gornje granice
+    return Container(
+      decoration: BoxDecoration(
+        border: Border(
+          top: BorderSide(
+            color: Colors.purpleAccent,
+            width: 2.0,
+          ),
         ),
       ),
-    ),
-    child: BottomNavigationBar(
-      items: [
-        BottomNavigationBarItem(
-          icon: Icon(Icons.home, color: Colors.purple, size: 35),
-          label: 'Početna',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.schedule, color: Colors.purple, size: 35),
-          label: 'Pretraga',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.newspaper_sharp, color: Colors.purple, size: 35),
-          label: 'Favoriti',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.person, color: Colors.purple, size: 35),
-          label: 'Profil',
-        ),
-      ],
-      onTap: (index) {
-        // Ovde postavite šta želite da se dešava kada se pritisne dugme na donjoj navigaciji
-        switch (index) {
-          case 0:
-            Navigator.of(context).push(
+      child: BottomNavigationBar(
+        items: [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home, color: Colors.purple, size: 35),
+            label: 'Početna',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.schedule, color: Colors.purple, size: 35),
+            label: 'Pretraga',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.newspaper_sharp, color: Colors.purple, size: 35),
+            label: 'Favoriti',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person, color: Colors.purple, size: 35),
+            label: 'Profil',
+          ),
+        ],
+        onTap: (index) {
+          switch (index) {
+            case 0:
+              Navigator.of(context).push(
                 MaterialPageRoute(
                   builder: (context) => HomeAuthenticated(
                     userId: trenutniKorisnikId,
@@ -559,41 +522,36 @@ Widget _buildBottomNavigationBar(BuildContext context) {
                   ),
                 ),
               );
-            break;
-          case 1:
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (context) => TreneriScreen(),
-            ),
-          );
-            // Navigacija na Pretraga stranicu
-            break;
-          case 2:
-           Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (context) => NewsListScreen(),
-            ),
-          );
-            // Navigacija na Favoriti stranicu
-            break;
-          case 3:
-           Navigator.of(context).push(
+              break;
+            case 1:
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => TreneriScreen(),
+                ),
+              );
+
+              break;
+            case 2:
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => NewsListScreen(),
+                ),
+              );
+
+              break;
+            case 3:
+              Navigator.of(context).push(
                 MaterialPageRoute(
                   builder: (context) => MobileUserDetailScreen(
                     userId: trenutniKorisnikId,
                   ),
                 ),
               );
-            // Navigacija na Profil stranicu
-           
-            break;
-        }
-      },
-    ),
-  );
-}
 
-
-
-
+              break;
+          }
+        },
+      ),
+    );
+  }
 }
