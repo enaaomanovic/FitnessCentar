@@ -2,10 +2,12 @@ import 'dart:ffi';
 
 import 'package:fitness_admin/models/korisnici.dart';
 import 'package:fitness_admin/models/napredak.dart';
+import 'package:fitness_admin/models/placanja.dart';
 import 'package:fitness_admin/models/raspored.dart';
 import 'package:fitness_admin/models/rezervacija.dart';
 import 'package:fitness_admin/models/search_result.dart';
 import 'package:fitness_admin/models/trening.dart';
+import 'package:fitness_admin/providers/pay_provider.dart';
 import 'package:fitness_admin/providers/progress_provider.dart';
 import 'package:fitness_admin/providers/reservation_provider.dart';
 import 'package:fitness_admin/providers/schedule_provider.dart';
@@ -36,9 +38,11 @@ class _UserDetalScreenState extends State<UserDetalScreen> {
   late ScheduleProvider _scheduleProvider;
   late WorkoutProvider _workoutProvider;
   late ProgressProvider _progressProvider;
+  late PayProvider _payProvider;
   SearchResult<Rezervacija>? result;
   List<Rezervacija>? userReservations;
   List<Napredak>? userProgress;
+  
 
   @override
   void initState() {
@@ -82,6 +86,7 @@ class _UserDetalScreenState extends State<UserDetalScreen> {
     _reservationProvider = context.read<ReservationProvider>();
     _scheduleProvider = context.read<ScheduleProvider>();
     _progressProvider=context.read<ProgressProvider>();
+    _payProvider=context.read<PayProvider>();
     _loadData();
   }
 
@@ -91,6 +96,60 @@ class _UserDetalScreenState extends State<UserDetalScreen> {
     super.didChangeDependencies();
   }
 
+
+
+  Future<List<Placanja?>> GetPlacanja(int korisnikId) async {
+    var searchResult =
+        await _payProvider.get(filter: {"korisnikId": korisnikId});
+
+    if (searchResult != null && searchResult.result.isNotEmpty) {
+      List<Placanja> data = searchResult.result;
+    
+
+      return data;
+    }
+    return [];
+  }
+
+  Future<List<Rezervacija?>> GetRezervacije(int korisnikId) async {
+    var searchResult =
+        await _reservationProvider.get(filter: {"korisnikId": korisnikId,"status":"Plaćena"});
+    if (searchResult != null && searchResult.result.isNotEmpty){
+      List<Rezervacija> data = searchResult.result;
+      return data;
+    }
+    return [];
+  }
+
+Future<List<Rezervacija>> RealRezervacije(int korisnikId) async {
+  var placanja = await GetPlacanja(korisnikId);
+  var rezervacije = await GetRezervacije(korisnikId);
+
+  List<Rezervacija> validneRezervacije = [];
+
+  if (placanja != null && rezervacije != null) {
+    for (var placanje in placanja) {
+      for (var rezervacija in rezervacije) {
+        
+        if (rezervacija?.placanjeId == placanje?.id) {
+         
+          DateTime? datumPlacanja = placanje?.datumPlacanja; 
+          DateTime trenutniDatum = DateTime.now();
+          Duration razlika = trenutniDatum.difference(datumPlacanja!);
+
+          if (razlika.inDays <= 30) {
+            validneRezervacije.add(rezervacija!);
+          }
+        }
+      }
+    }
+  }
+
+
+  return validneRezervacije;
+}
+
+
   void _loadData() async {
     final korisnikid = widget.korisnik!.id;
     var data = await _reservationProvider.get(filter: {
@@ -98,9 +157,6 @@ class _UserDetalScreenState extends State<UserDetalScreen> {
       'status':"Placena",
     });
 
-    setState(() {
-      userReservations = data.result;
-    });
   }
 
 Future<void> _loadProgress() async {
@@ -169,12 +225,13 @@ Future<void> _loadProgress() async {
     return trening;
   }
 
-
 Future<void> _showReservationPopup(BuildContext context) async {
+  List<Rezervacija> userReservations = await RealRezervacije(widget.korisnik?.id ?? 0);
+
   final List<Widget> listTiles = [];
 
-  if (userReservations != null && userReservations!.isNotEmpty) {
-    await Future.forEach(userReservations!, (userReservation) async {
+  if (userReservations != null && userReservations.isNotEmpty) {
+    await Future.forEach(userReservations, (userReservation) async {
       final raspored = await getRasporedFromId(userReservation.rasporedId ?? 0);
       final trening = await getTreningFromId(raspored?.treningId ?? 0);
 
@@ -223,7 +280,7 @@ Future<void> _showReservationPopup(BuildContext context) async {
                 // Provjerite da li lista rezervacija nije prazna
                 if (listTiles.isNotEmpty) ...listTiles,
                 // Dodajte poruku kada korisnik nema rezervacija
-                if (userReservations == null || userReservations!.isEmpty)
+                if (userReservations == null || userReservations.isEmpty)
                   Padding(
                     padding: const EdgeInsets.all(16.0),
                     child: Text(
@@ -239,6 +296,7 @@ Future<void> _showReservationPopup(BuildContext context) async {
     },
   );
 }
+
 
 Future<void> _showNapredakPopup(BuildContext context) async {
    await  _loadProgress();

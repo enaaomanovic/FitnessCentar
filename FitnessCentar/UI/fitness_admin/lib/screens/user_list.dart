@@ -23,16 +23,26 @@ class _UserListScrean extends State<UserListScrean> {
   var page = 1;
   var totalcount = 0;
   var numberOfPpl=4;
+    bool isLoading = true;
   @override
   void initState() {
     super.initState();
     _userProvider = context.read<UserProvider>(); 
+      initForm();
     _loadData();
     
     _ftsController.addListener(() {
       _loadData();
     });
   }
+
+
+  Future initForm() async {
+    setState(() {
+      isLoading = false;
+    });
+  }
+
 
  void _loadData() async {
   var data = await _userProvider.getPaged(filter: {
@@ -48,15 +58,26 @@ class _UserListScrean extends State<UserListScrean> {
 }
 
 
-  @override
-  Widget build(BuildContext context) {
-    return MasterScreanWidget(
-      title_widget: Text("Prikaz korisnika"),
-      child: Container(
-        child: Column(children: [_buildSearch(), _buildDataListView()]),
+@override
+Widget build(BuildContext context) {
+  return MasterScreanWidget(
+    title_widget: Text("Prikaz korisnika"),
+    child: Container(
+      child: Column(
+        children: [
+          _buildSearch(),
+          isLoading
+              ? Container(
+                  // Ovdje možete postaviti prazan kontejner ili prikazati neki loading widget
+                  child: CircularProgressIndicator(),
+                )
+              : _buildDataListView(),
+        ],
       ),
-    );
-  }
+    ),
+  );
+}
+
 
 
   Widget _buildSearch() {

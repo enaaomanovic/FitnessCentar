@@ -1,11 +1,8 @@
-import 'dart:ffi';
-
 import 'package:fitness_admin/models/aktivnosti.dart';
 import 'package:fitness_admin/models/korisnici.dart';
 import 'package:fitness_admin/models/placanja.dart';
 import 'package:fitness_admin/models/raspored.dart';
 import 'package:fitness_admin/models/rezervacija.dart';
-import 'package:fitness_admin/models/search_result.dart';
 import 'package:fitness_admin/models/trening.dart';
 import 'package:fitness_admin/providers/active_provider.dart';
 import 'package:fitness_admin/providers/pay_provider.dart';
@@ -37,8 +34,8 @@ class _WorkoutDetails extends State<WorkoutDetails> {
   late ActiveProvider _activeProvider;
   late UserProvider _userProvider;
   late ReservationProvider _reservationProvider;
-  
-  SearchResult<Rezervacija>? result;
+  late PayProvider _payProvider;
+  List<Rezervacija> validneRezervacije = [];
   bool isLoading = true;
 
   @override
@@ -48,16 +45,19 @@ class _WorkoutDetails extends State<WorkoutDetails> {
     _activeProvider = context.read<ActiveProvider>();
     _userProvider = context.read<UserProvider>();
     _reservationProvider = context.read<ReservationProvider>();
-   
+    _payProvider = context.read<PayProvider>();
+
     initForm();
 
-    _loadData();
+    RealRezervacije();
   }
+
   Future initForm() async {
     setState(() {
       isLoading = false;
     });
   }
+
   Future<Aktivnosti?> getAktivnostFromUserId(int aktivnostId) async {
     final aktivnost = await _activeProvider.getById(aktivnostId);
 
@@ -70,24 +70,53 @@ class _WorkoutDetails extends State<WorkoutDetails> {
     return user;
   }
 
+  Future<List<Placanja?>> GetPlacanja() async {
+    var searchResult = await _payProvider.get();
 
+    if (searchResult != null && searchResult.result.isNotEmpty) {
+      List<Placanja> data = searchResult.result;
 
+      return data;
+    }
+    return [];
+  }
 
+  Future<List<Rezervacija?>> GetRezervacije() async {
+    final rasporedId = widget.raspored.id;
+    var searchResult = await _reservationProvider.get(filter: {
+      "status": "Plaćena",
+      'rasporedId': rasporedId.toString(),
+    });
+    if (searchResult != null && searchResult.result.isNotEmpty) {
+      List<Rezervacija> data = searchResult.result;
+      return data;
+    }
+    return [];
+  }
 
-void _loadData() async {
-  final rasporedId = widget.raspored.id;
+  Future<List<Rezervacija>> RealRezervacije() async {
+    var placanja = await GetPlacanja();
+    var rezervacije = await GetRezervacije();
+    if (placanja != null && rezervacije != null) {
+      for (var placanje in placanja) {
+        for (var rezervacija in rezervacije) {
+          if (rezervacija?.placanjeId == placanje?.id) {
+            DateTime? datumPlacanja = placanje?.datumPlacanja;
+            DateTime trenutniDatum = DateTime.now();
+            Duration razlika = trenutniDatum.difference(datumPlacanja!);
 
-  var data = await _reservationProvider.get(filter: {
-    'rasporedId': rasporedId.toString(),
-    'status': "Plaćena",
-  });
+            if (razlika.inDays <= 30) {
+              setState(() {
+                validneRezervacije.add(rezervacija!);
+              });
+            }
+          }
+        }
+      }
+    }
 
-  setState(() {
-    result = data;
-  });
-}
-
-
+    return validneRezervacije;
+  }
 
   Rezervacija? selectedReservation;
 
@@ -97,37 +126,32 @@ void _loadData() async {
     });
   }
 
- @override
+  @override
   Widget build(BuildContext context) {
     return MasterScreanWidget(
       title_widget: Text("Detalji treninga"),
-   child: Center(
-  child: SingleChildScrollView(
-    scrollDirection: Axis.horizontal, // Omogućava horizontalno skroliranje
-    child: Row(
-      mainAxisAlignment: MainAxisAlignment.center, // Centrira horizontalno
-      children: [
-        Center(
-          child: isLoading
-              ? Container()
-              : _buildWorkout(),
+      child: Center(
+        child: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Center(
+                child: isLoading ? Container() : _buildWorkout(),
+              ),
+              SizedBox(width: 20),
+              Center(
+                child: isLoading
+                    ? Container()
+                    : _buildDataListView(validneRezervacije),
+              ),
+            ],
+          ),
         ),
-        SizedBox(width: 20), // Dodajte razmak između Card-ova ako je potrebno
-        Center(
-          child: isLoading
-              ? Container()
-              : _buildDataListView(),
-        ),
-      ],
-    ),
-  ),
-),
-
-
+      ),
     );
   }
 
-  
   Widget _buildWorkout() {
     final trening = widget.trening;
     final raspored = widget.raspored;
@@ -248,63 +272,63 @@ void _loadData() async {
     );
   }
 
-Widget _buildDataListView() {
-  return Center(
-    child: Card(
-      elevation: 6,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20.0),
-      ),
-      child: Container(
-        width: 700,
-        height: 650,
-        padding: const EdgeInsets.all(40.0),
-        child: ListView(
-          shrinkWrap: true,
-          children: [
-            Text(
-              "Korisnici koji su rezervirali ovaj termin",
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            if (result == null || result!.result.isEmpty)
+  Widget _buildDataListView(List<Rezervacija> validneRezervacije) {
+    return Center(
+      child: Card(
+        elevation: 6,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20.0),
+        ),
+        child: Container(
+          width: 700,
+          height: 650,
+          padding: const EdgeInsets.all(40.0),
+          child: ListView(
+            shrinkWrap: true,
+            children: [
               Text(
-                "Ovaj termin nije rezervisao nijedan korisnik",
+                "Korisnici koji su rezervirali ovaj termin",
                 style: TextStyle(
                   fontSize: 24,
+                  fontWeight: FontWeight.bold,
                 ),
                 textAlign: TextAlign.center,
-              )
-            else
-              Center(
-                child: Card(
-                  child: DataTable(
-                    columnSpacing: 200,
-                    dataRowMinHeight: 80,
-                    dataRowMaxHeight: 80,
-                    columns: [
-                      DataColumn(
-                        label: Text(
-                          '',
-                          style: TextStyle(
-                            fontStyle: FontStyle.italic,
-                            fontSize: 19,
+              ),
+              if (validneRezervacije == null || validneRezervacije.isEmpty)
+                Text(
+                  "Ovaj termin nije rezervisao nijedan korisnik",
+                  style: TextStyle(
+                    fontSize: 24,
+                  ),
+                  textAlign: TextAlign.center,
+                )
+              else
+                Center(
+                  child: Card(
+                    child: DataTable(
+                      columnSpacing: 200,
+                      dataRowMinHeight: 80,
+                      dataRowMaxHeight: 80,
+                      columns: [
+                        DataColumn(
+                          label: Text(
+                            '',
+                            style: TextStyle(
+                              fontStyle: FontStyle.italic,
+                              fontSize: 19,
+                            ),
                           ),
                         ),
-                      ),
-                    ],
-                    rows: result?.result
-                            .map((Rezervacija e) => DataRow(
+                      ],
+                      rows: validneRezervacije
+                              .map((Rezervacija e) => DataRow(
                                     onSelectChanged: (selected) async {
                                       if (selected == true) {
                                         if (e.korisnikId != null &&
                                             e.korisnikId != 0) {
                                           final korisnik =
                                               await getKorisnikFromUserId(
-                                                  e.korisnikId?? 0);
+                                                  e.korisnikId ?? 0);
                                           if (korisnik != null) {
                                             Navigator.of(context).push(
                                               MaterialPageRoute(
@@ -318,98 +342,91 @@ Widget _buildDataListView() {
                                         }
                                       }
                                     },
-
-                                  cells: [
-                                    DataCell(
-                                      FutureBuilder<Korisnici?>(
-                                        future: getKorisnikFromUserId(
-                                            e.korisnikId ?? 0),
-                                        builder: (context, snapshot) {
-                                          if (snapshot.connectionState ==
-                                              ConnectionState.waiting) {
-                                            return CircularProgressIndicator();
-                                          } else if (snapshot.hasError) {
-                                            return Text(
-                                                'Greška: ${snapshot.error}');
-                                          } else if (snapshot.hasData) {
-                                            final korisnik = snapshot.data!;
-                                            final imageWidget = korisnik
-                                                            .slika !=
-                                                        null &&
-                                                    korisnik.slika!.isNotEmpty
-                                                ? Container(
-                                                    width: 70,
-                                                    height: 70,
-                                                    decoration: BoxDecoration(
-                                                      shape: BoxShape
-                                                          .circle, // Možete promeniti oblik ovde
-                                                    ),
-                                                    child: ClipRRect(
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              40), // Polovina visine/širine za krug
-                                                      child: Image.memory(
-                                                        base64Decode(
-                                                            korisnik.slika!),
-                                                        width: 70,
-                                                        height: 70,
-                                                        fit: BoxFit.cover,
+                                    cells: [
+                                      DataCell(
+                                        FutureBuilder<Korisnici?>(
+                                          future: getKorisnikFromUserId(
+                                              e.korisnikId ?? 0),
+                                          builder: (context, snapshot) {
+                                            if (snapshot.connectionState ==
+                                                ConnectionState.waiting) {
+                                              return CircularProgressIndicator();
+                                            } else if (snapshot.hasError) {
+                                              return Text(
+                                                  'Greška: ${snapshot.error}');
+                                            } else if (snapshot.hasData) {
+                                              final korisnik = snapshot.data!;
+                                              final imageWidget = korisnik
+                                                              .slika !=
+                                                          null &&
+                                                      korisnik.slika!.isNotEmpty
+                                                  ? Container(
+                                                      width: 70,
+                                                      height: 70,
+                                                      decoration: BoxDecoration(
+                                                        shape: BoxShape.circle,
                                                       ),
-                                                    ),
-                                                  )
-                                                : Container(
-                                                    width: 70,
-                                                    height: 70,
-                                                    decoration: BoxDecoration(
-                                                      shape: BoxShape
-                                                          .circle, // Možete promeniti oblik ovde
-                                                    ),
-                                                    child: ClipRRect(
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              40), // Polovina visine/širine za krug
-                                                      child: Image.asset(
-                                                        'assets/images/male_icon.jpg',
-                                                        width: 80,
-                                                        height: 80,
-                                                        fit: BoxFit.cover,
+                                                      child: ClipRRect(
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(40),
+                                                        child: Image.memory(
+                                                          base64Decode(
+                                                              korisnik.slika!),
+                                                          width: 70,
+                                                          height: 70,
+                                                          fit: BoxFit.cover,
+                                                        ),
                                                       ),
-                                                    ),
-                                                  );
+                                                    )
+                                                  : Container(
+                                                      width: 70,
+                                                      height: 70,
+                                                      decoration: BoxDecoration(
+                                                        shape: BoxShape.circle,
+                                                      ),
+                                                      child: ClipRRect(
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(40),
+                                                        child: Image.asset(
+                                                          'assets/images/male_icon.jpg',
+                                                          width: 80,
+                                                          height: 80,
+                                                          fit: BoxFit.cover,
+                                                        ),
+                                                      ),
+                                                    );
 
-                                            return Row(
-                                              children: [
-                                                imageWidget,
-                                                SizedBox(
-                                                    width:
-                                                        10), // Dodajte razmak između slike i teksta ako je potrebno
-                                                Text(
-                                                  "${korisnik.ime} ${korisnik.prezime}",
-                                                  style:
-                                                      TextStyle(fontSize: 20),
-                                                ),
-                                              ],
-                                            );
-                                          } else {
-                                            return Text(
-                                                'Nema dostupnih podataka');
-                                          }
-                                        },
+                                              return Row(
+                                                children: [
+                                                  imageWidget,
+                                                  SizedBox(width: 10),
+                                                  Text(
+                                                    "${korisnik.ime} ${korisnik.prezime}",
+                                                    style:
+                                                        TextStyle(fontSize: 20),
+                                                  ),
+                                                ],
+                                              );
+                                            } else {
+                                              return Text(
+                                                  'Nema dostupnih podataka');
+                                            }
+                                          },
+                                        ),
                                       ),
-                                    ),
-                                  ],
-                                ))
-                            .toList() ??
-                        [],
+                                    ],
+                                  ))
+                              .toList() ??
+                          [],
+                    ),
                   ),
                 ),
-              ),
-          ],
+            ],
+          ),
         ),
       ),
-    ),
-  );
-}
-
-
+    );
+  }
 }

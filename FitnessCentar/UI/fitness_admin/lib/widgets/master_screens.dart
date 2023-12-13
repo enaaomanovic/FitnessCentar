@@ -1,14 +1,7 @@
 import 'package:fitness_admin/screens/home_unauthenticated.dart';
-import 'package:fitness_admin/screens/user_details_screens.dart';
 import 'package:fitness_admin/utils/util.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-
 import 'package:fitness_admin/providers/user_provider.dart';
-
-import 'package:fitness_admin/screens/login.dart';
-
-
 import 'package:provider/provider.dart';
 
 class MasterScreanWidget extends StatefulWidget {
@@ -30,7 +23,7 @@ class _MasterScreanWidgetState extends State<MasterScreanWidget> {
         title: widget.title_widget ?? Text(widget.title ?? "FITNESS CENTAR"),
 actions: [
          Padding(
-    padding: const EdgeInsets.only(right: 25.0), // Prilagođava desni razmak
+    padding: const EdgeInsets.only(right: 25.0),
     child: IconButton(
       onPressed: () {
         Authorization.username = null;
@@ -46,7 +39,7 @@ actions: [
         );
       },
       icon: Icon(Icons.logout),
-      iconSize: 30.0, // Prilagođava veličinu ikone
+      iconSize: 30.0, 
     ),
   ),
         ],
