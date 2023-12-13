@@ -21,13 +21,11 @@ import 'package:provider/provider.dart';
 class HomeAuthenticated extends StatelessWidget {
   final int? userId;
   final UserProvider userProvider;
- 
 
   const HomeAuthenticated({
     Key? key,
     required this.userId,
     required this.userProvider,
-       
   }) : super(key: key);
 
   Future<Korisnici?> getUserFromUserId(int userId) async {
@@ -35,39 +33,37 @@ class HomeAuthenticated extends StatelessWidget {
     return user;
   }
 
-   @override
+  @override
   Widget build(BuildContext context) {
     return _buildHomepage(context);
   }
 
-
-
-  Widget _buildHomepage(BuildContext context) {  
+  Widget _buildHomepage(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text("Fitness Centar"),
         automaticallyImplyLeading: false,
         actions: [
           Padding(
-    padding: const EdgeInsets.only(right: 25.0), // Prilagođava desni razmak
-    child: IconButton(
-      onPressed: () {
-        Authorization.username = null;
-        Authorization.password = null;
+            padding: const EdgeInsets.only(right: 25.0),
+            child: IconButton(
+              onPressed: () {
+                Authorization.username = null;
+                Authorization.password = null;
 
-        Provider.of<UserProvider>(context, listen: false)
-            .setCurrentUserId(null);
+                Provider.of<UserProvider>(context, listen: false)
+                    .setCurrentUserId(null);
 
-        Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (_) => HomeUnauthenticated()),
-          (route) => false,
-        );
-      },
-      icon: Icon(Icons.logout),
-      iconSize: 30.0, // Prilagođava veličinu ikone
-    ),
-  ),
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(builder: (_) => HomeUnauthenticated()),
+                  (route) => false,
+                );
+              },
+              icon: Icon(Icons.logout),
+              iconSize: 30.0,
+            ),
+          ),
         ],
       ),
       body: Stack(
@@ -84,104 +80,102 @@ class HomeAuthenticated extends StatelessWidget {
             color: Color.fromRGBO(0, 0, 0, 0.6),
           ),
           Padding(
-            padding: const EdgeInsets.all(15.0),
-            child: Row(
-  children: [
-    Container(
-      width: 150,
-      height: 150,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        image: DecorationImage(
-          image: AssetImage("assets/images/FitnessLogo.jpg"),
-          fit: BoxFit.cover,
-        ),
-      ),
-    ),
-    SizedBox(width: 20),
-    FutureBuilder<Korisnici?>(
-      future: getUserFromUserId(userId ?? 0),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return CircularProgressIndicator();
-        } else if (snapshot.hasError) {
-          return Text('Greška: ${snapshot.error}');
-        } else if (snapshot.hasData) {
-          final user = snapshot.data!;
-          return Text(
-            "Dobro došli, ${user.ime} ${user.prezime}",
-            style: TextStyle(
-              fontSize: 24,
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-            ),
-          );
-        } else {
-          return Text('Nema dostupnih podataka');
-        }
-      },
-    ),
-    // Dodajte korisnikovu sliku sa desne strane
-    SizedBox(width: 10), // Dodajte odgovarajući razmak
- FutureBuilder<Korisnici?>(
-  future: getUserFromUserId(userId ?? 0),
-  builder: (context, snapshot) {
-    if (snapshot.connectionState == ConnectionState.waiting) {
-      return CircularProgressIndicator();
-    } else if (snapshot.hasError) {
-      return Text('Greška: ${snapshot.error}');
-    } else if (snapshot.hasData) {
-      final user = snapshot.data!;
-      final userImageBytes = user.slika != null ? Uint8List.fromList(base64Decode(user.slika!)) : null;
+              padding: const EdgeInsets.all(15.0),
+              child: Row(
+                children: [
+                  Container(
+                    width: 150,
+                    height: 150,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      image: DecorationImage(
+                        image: AssetImage("assets/images/FitnessLogo.jpg"),
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: 20),
+                  FutureBuilder<Korisnici?>(
+                    future: getUserFromUserId(userId ?? 0),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return CircularProgressIndicator();
+                      } else if (snapshot.hasError) {
+                        return Text('Greška: ${snapshot.error}');
+                      } else if (snapshot.hasData) {
+                        final user = snapshot.data!;
+                        return Text(
+                          "Dobro došli, ${user.ime} ${user.prezime}",
+                          style: TextStyle(
+                            fontSize: 24,
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        );
+                      } else {
+                        return Text('Nema dostupnih podataka');
+                      }
+                    },
+                  ),
+                  SizedBox(width: 10),
+                  FutureBuilder<Korisnici?>(
+                    future: getUserFromUserId(userId ?? 0),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return CircularProgressIndicator();
+                      } else if (snapshot.hasError) {
+                        return Text('Greška: ${snapshot.error}');
+                      } else if (snapshot.hasData) {
+                        final user = snapshot.data!;
+                        final userImageBytes = user.slika != null
+                            ? Uint8List.fromList(base64Decode(user.slika!))
+                            : null;
 
-      if (userImageBytes != null && userImageBytes.isNotEmpty) {
-        return CircleAvatar(
-          backgroundImage: Image.memory(Uint8List.fromList(userImageBytes)).image,
-          radius: 50,
-        );
-      } else {
-        // Ako nema slike korisnika, koristi sliku iz assets foldera
-        return CircleAvatar(
-          backgroundImage: AssetImage('assets/images/male_icon.jpg'),
-          radius: 50,
-        );
-      }
-    } else {
-      return Text('Nema dostupnih podataka');
-    }
-  },
-)
-
-
-
-  ],
-)
-          ),
+                        if (userImageBytes != null &&
+                            userImageBytes.isNotEmpty) {
+                          return CircleAvatar(
+                            backgroundImage:
+                                Image.memory(Uint8List.fromList(userImageBytes))
+                                    .image,
+                            radius: 50,
+                          );
+                        } else {
+                          return CircleAvatar(
+                            backgroundImage:
+                                AssetImage('assets/images/male_icon.jpg'),
+                            radius: 50,
+                          );
+                        }
+                      } else {
+                        return Text('Nema dostupnih podataka');
+                      }
+                    },
+                  )
+                ],
+              )),
           Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // Prvi red sa tri dugmeta
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                   ElevatedButton(
-  onPressed: () {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) =>  AddUser(),
-      ),
-    );
-  },
-  child: Padding(
-    padding: const EdgeInsets.all(20.0),
-    child: Text(
-      "Dodaj novog člana",
-      style: TextStyle(fontSize: 18),
-    ),
-  ),
-),
-
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => AddUser(),
+                          ),
+                        );
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.all(20.0),
+                        child: Text(
+                          "Dodaj novog člana",
+                          style: TextStyle(fontSize: 18),
+                        ),
+                      ),
+                    ),
                     SizedBox(width: 100),
                     ElevatedButton(
                       onPressed: () {
@@ -219,7 +213,6 @@ class HomeAuthenticated extends StatelessWidget {
                   ],
                 ),
                 SizedBox(height: 100),
-                // Drugi red sa tri dugmeta
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -257,7 +250,6 @@ class HomeAuthenticated extends StatelessWidget {
                       ),
                     ),
                     SizedBox(width: 100),
-                   
                   ],
                 ),
               ],
@@ -267,6 +259,4 @@ class HomeAuthenticated extends StatelessWidget {
       ),
     );
   }
-
- 
 }

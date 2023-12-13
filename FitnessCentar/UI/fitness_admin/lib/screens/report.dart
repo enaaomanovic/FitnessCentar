@@ -1,18 +1,12 @@
-
-
 import 'package:fitness_admin/models/report.dart';
-import 'package:fitness_admin/screens/add_user.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-
 
 class InvoicePage extends StatelessWidget {
   InvoicePage({Key? key}) : super(key: key);
 
-  final invoices = <KorisniciReport>[
-   
-   
-  ];
+  final invoices = <KorisniciReport>[];
 
   @override
   Widget build(BuildContext context) {
@@ -26,13 +20,7 @@ class InvoicePage extends StatelessWidget {
             (e) => ListTile(
               title: Text(e.ime),
               subtitle: Text(e.prezime),
-              onTap: () {
-                // Navigator.of(context).push(
-                //   MaterialPageRoute(
-                //     builder: (builder) => AddUser(report: e),
-                //   ),
-                // );
-              },
+              onTap: () {},
             ),
           )
         ],

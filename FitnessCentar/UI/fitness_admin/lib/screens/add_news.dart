@@ -1,4 +1,3 @@
-
 import 'package:fitness_admin/models/novosti.dart';
 import 'package:fitness_admin/providers/news_provider.dart';
 import 'package:flutter/material.dart';
@@ -19,39 +18,39 @@ class AddNews extends StatefulWidget {
 class _AddNewsState extends State<AddNews> {
   final _formKey = GlobalKey<FormBuilderState>();
   late NewsProvider _newsProvider;
-  int? userId; 
-
- 
-
-
+  int? userId;
+  bool isLoading = true;
   @override
-void initState() {
-  super.initState();
-  _newsProvider = context.read<NewsProvider>();
-  
-  final userProvider = context.read<UserProvider>();
+  void initState() {
+    super.initState();
+    _newsProvider = context.read<NewsProvider>();
 
-  userId = userProvider.currentUserId;
+    final userProvider = context.read<UserProvider>();
 
+    userId = userProvider.currentUserId;
+      initForm();
+  }
 
- 
-}
+    Future initForm() async {
+    setState(() {
+      isLoading = false;
+    });
+  }
 
 
   @override
   Widget build(BuildContext context) {
     return MasterScreanWidget(
-       child: Center(
-      child: SingleChildScrollView(
-        scrollDirection: Axis.vertical,
+      child: Center(
         child: SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-         
+          scrollDirection: Axis.vertical,
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center, // Centriranje sadržaja
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Padding(
-                  padding: const EdgeInsets.all( 10.0),
+                  padding: const EdgeInsets.all(10.0),
                   child: Text(
                     "Dodaj novost",
                     style: TextStyle(
@@ -60,7 +59,7 @@ void initState() {
                     ),
                   ),
                 ),
-                _addForm(userId),
+                isLoading? Container(): _addForm(userId),
                 _submitButton(userId),
               ],
             ),
@@ -70,7 +69,6 @@ void initState() {
       title: "Dodaj novost",
     );
   }
-
 
   Widget _addForm(int? userId) {
     return FormBuilder(
@@ -101,7 +99,8 @@ void initState() {
                           border: OutlineInputBorder(),
                         ),
                         validator: (value) {
-                          if (_formKey.currentState?.fields['naslov']?.isDirty ==
+                          if (_formKey
+                                  .currentState?.fields['naslov']?.isDirty ==
                               true) {
                             if (value == null || value.isEmpty) {
                               return 'Ovo polje je obavezno!';
@@ -144,39 +143,38 @@ void initState() {
     );
   }
 
- bool _areAllFieldsFilled(FormBuilderState? formState) {
-  if (formState == null) {
-    return false;
-  }
+  bool _areAllFieldsFilled(FormBuilderState? formState) {
+    if (formState == null) {
+      return false;
+    }
 
-  // Liste imena obaveznih polja
-  List<String> requiredFields = ['naslov', 'tekst'];
+    List<String> requiredFields = ['naslov', 'tekst'];
 
-    // Provera da li su sva obavezna polja popunjena
     for (String fieldName in requiredFields) {
       if (formState.fields[fieldName]?.value == null ||
           formState.fields[fieldName]!.value.toString().isEmpty) {
         return false;
       }
+    }
+
+    return true;
   }
 
-  return true;
-}
-void _showAlertDialog(String message) {
-  showDialog(
-    context: context,
-    builder: (BuildContext context) => AlertDialog(
-      title: Text("Upozorenje"),
-      content: Text(message),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: Text("OK"),
-        ),
-      ],
-    ),
-  );
-}
+  void _showAlertDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) => AlertDialog(
+        title: Text("Upozorenje"),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text("OK"),
+          ),
+        ],
+      ),
+    );
+  }
 
   Widget _submitButton(int? userId) {
     return Center(
@@ -190,26 +188,24 @@ void _showAlertDialog(String message) {
                 onPressed: () async {
                   final currentFormState = _formKey.currentState;
 
-                    
-                if (!_areAllFieldsFilled(currentFormState)) {
-              // Nisu sva polja popunjena, prikažite poruku upozorenja
-              _showAlertDialog("Popunite sva obavezna polja.");
-              return;
-            }
-          if (currentFormState != null) {
-              // Validirajte formu
-              if (!currentFormState.validate()) {
-                // Forma nije ispravna, prikažite poruku upozorenja
-                _showAlertDialog("Molimo vas da ispravno popunite sva obavezna polja.");
-                return;
-              }
-          }
+                  if (!_areAllFieldsFilled(currentFormState)) {
+                    _showAlertDialog("Popunite sva obavezna polja.");
+                    return;
+                  }
+                  if (currentFormState != null) {
+                    if (!currentFormState.validate()) {
+                      _showAlertDialog(
+                          "Molimo vas da ispravno popunite sva obavezna polja.");
+                      return;
+                    }
+                  }
 
                   if (currentFormState != null &&
                       currentFormState.saveAndValidate()) {
-                    var request = Map<String, dynamic>.from(currentFormState.value);
-               
-                    request['autorId'] = userId; 
+                    var request =
+                        Map<String, dynamic>.from(currentFormState.value);
+
+                    request['autorId'] = userId;
 
                     try {
                       if (widget.novosti == null) {
@@ -232,7 +228,8 @@ void _showAlertDialog(String message) {
                           ),
                         );
                       } else {
-                        await _newsProvider.update(widget.novosti!.id!, request);
+                        await _newsProvider.update(
+                            widget.novosti!.id!, request);
                       }
                     } on Exception catch (e) {
                       showDialog(

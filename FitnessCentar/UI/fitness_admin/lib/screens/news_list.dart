@@ -1,25 +1,18 @@
 import 'dart:convert';
-
 import 'package:fitness_admin/models/komentari.dart';
 import 'package:fitness_admin/models/korisnici.dart';
 import 'package:fitness_admin/models/novosti.dart';
 import 'package:fitness_admin/models/odgovoriNaKomentare.dart';
-import 'package:fitness_admin/models/search_result.dart';
-import 'package:fitness_admin/models/trening.dart';
 import 'package:fitness_admin/providers/comment_provider.dart';
 import 'package:fitness_admin/providers/news_provider.dart';
 import 'package:fitness_admin/providers/replyToComment_provider.dart';
 import 'package:fitness_admin/providers/user_provider.dart';
 import 'package:fitness_admin/widgets/master_screens.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/date_symbols.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
-import '../utils/util.dart';
-
 class NewsListScrean extends StatefulWidget {
-   
   const NewsListScrean({Key? key}) : super(key: key);
 
   @override
@@ -31,11 +24,11 @@ class _NewsListScrean extends State<NewsListScrean> {
   late UserProvider _userProvider;
   late CommentProvider _commentProvider;
   late ReplyToCommentProvider _replyToCommentProvider;
+  bool isLoading = true;
 
-var page = 1;
+  var page = 1;
   var totalcount = 0;
-  var numberOfnews=3;
-  
+  var numberOfnews = 3;
 
   List<Novosti> _novosti = [];
   bool showComments = false;
@@ -48,18 +41,22 @@ var page = 1;
     _userProvider = context.read<UserProvider>();
     _commentProvider = context.read<CommentProvider>();
     _replyToCommentProvider = context.read<ReplyToCommentProvider>();
-
+    initForm();
     _loadData();
   }
 
-  void _loadData() async {
-    var data = await _newsProvider.getPaged(filter: {
-      'page':page,
-    'pageSize':numberOfnews
+  Future initForm() async {
+    setState(() {
+      isLoading = false;
     });
+  }
+
+  void _loadData() async {
+    var data = await _newsProvider
+        .getPaged(filter: {'page': page, 'pageSize': numberOfnews});
     if (data != null) {
       setState(() {
-         totalcount=data.count!;
+        totalcount = data.count!;
         _novosti = data.result ?? [];
       });
     }
@@ -67,7 +64,7 @@ var page = 1;
 
   void refreshComments(int novostiId) async {
     await _loadComment(novostiId);
-    setState(() {}); 
+    setState(() {});
   }
 
   Future<Korisnici?> getUserFromUserId(int userId) async {
@@ -77,33 +74,31 @@ var page = 1;
   }
 
   Widget _buildPageNumbers() {
-  int totalPages = (totalcount / numberOfnews).ceil();
-  List<Widget> pageButtons = [];
+    int totalPages = (totalcount / numberOfnews).ceil();
+    List<Widget> pageButtons = [];
 
-  for (int i = 1; i <= totalPages; i++) {
-    pageButtons.add(
-      Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8.0),
-        child: ElevatedButton(
-          onPressed: () {
-            // Update the page variable and load data for the selected page
-            setState(() {
-              page = i;
-              _loadData();
-            });
-          },
-          child: Text('$i'),
+    for (int i = 1; i <= totalPages; i++) {
+      pageButtons.add(
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+          child: ElevatedButton(
+            onPressed: () {
+              setState(() {
+                page = i;
+                _loadData();
+              });
+            },
+            child: Text('$i'),
+          ),
         ),
-      ),
+      );
+    }
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: pageButtons,
     );
   }
-
-  return Row(
-    mainAxisAlignment: MainAxisAlignment.center,
-    children: pageButtons,
-  );
-}
-
 
   Future<List<Komentari>> _loadComment(int novostiId) async {
     var data = await _commentProvider.get(filter: {
@@ -117,7 +112,7 @@ var page = 1;
     }
   }
 
- Future<List<OdgovoriNaKomentare>> _loadReply(int komentarId) async {
+  Future<List<OdgovoriNaKomentare>> _loadReply(int komentarId) async {
     var data = await _replyToCommentProvider.get(filter: {
       "komentarId": komentarId,
     });
@@ -128,18 +123,23 @@ var page = 1;
       return [];
     }
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return MasterScreanWidget(
       title_widget: Text("Prikaz novosti"),
       child: SingleChildScrollView(
         child: Container(
-          child: Column(
-            children: [_buildDataListView(_novosti),
-                         _buildPageNumbers(),
-            ]
-          ),
+          child: Column(children: [
+            isLoading
+                ? Container()
+                : Column(
+                    children: [
+                      _buildDataListView(_novosti),
+                      _buildPageNumbers(),
+                    ],
+                  ),
+          ]),
         ),
       ),
     );
@@ -234,49 +234,33 @@ var page = 1;
                                   },
                                   child: Text('Komentari'),
                                 ),
-                                // Dodajte widget za prikaz komentara ispod dugmeta
                                 if (openedComments[novost.id ?? 0] ?? false)
                                   _buildComments(novost.id ?? 0),
                               ],
                             ),
-                            onTap: () {
-                              // Dodajte funkcionalnost za prikaz celokupne vesti
-                            },
+                            onTap: () {},
                           ),
                           Divider(),
-                          
                         ],
                       ),
-                      
-                      
                     ),
-       
-
                   );
                 }).toList(),
-                
               ),
-              
             ),
-            
           ),
-          
         ),
-        
       ),
-      
     );
-
   }
 
   Widget _buildComments(int novostiId) {
     return FutureBuilder<List<Komentari>>(
-        
       future: _loadComment(novostiId),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.done) {
           final comments = snapshot.data;
-         
+
           if (comments != null && comments.isNotEmpty) {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -294,7 +278,6 @@ var page = 1;
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        
                         FutureBuilder<Korisnici?>(
                           future: getUserFromUserId(comment.korisnikId ?? 0),
                           builder: (context, userSnapshot) {
@@ -305,7 +288,6 @@ var page = 1;
 
                               if (base64Image != null &&
                                   base64Image.isNotEmpty) {
-                                // Provjeri ispravnost base64 podataka
                                 try {
                                   final decodedImage =
                                       base64.decode(base64Image);
@@ -339,12 +321,9 @@ var page = 1;
                                       ),
                                     ],
                                   );
-                                } catch (e) {
-                                  print("Greška pri dekodiranju slike: $e");
-                                }
+                                } catch (e) {}
                               }
 
-                              // Koristi sliku iz assets ako nema ispravne korisničke slike
                               return Row(
                                 children: [
                                   CircleAvatar(
@@ -380,7 +359,6 @@ var page = 1;
                             }
                           },
                         ),
-                          
                         SizedBox(height: 8),
                         Text(
                           comment.tekst ?? "",
@@ -389,9 +367,7 @@ var page = 1;
                           ),
                         ),
                         SizedBox(height: 8),
-                        // Dodajte polje za unos odgovora i gumb za slanje
-                         _buildReplies(comment.id ?? 0),
-                     
+                        _buildReplies(comment.id ?? 0),
                         Row(
                           children: [
                             Expanded(
@@ -413,11 +389,8 @@ var page = 1;
                                     userProvider.currentUserId;
 
                                 if (trenutniKorisnikId != null) {
-                                  // Ovdje trebate dohvatiti komentarId na koji odgovarate
                                   int? komentarId = comment.id;
-                                  // Postavite odgovarajući komentarId
 
-                                  // Provjerite da li je tekst odgovora prazan prije slanja zahtjeva
                                   String tekstOdgovora =
                                       replyController.text.trim();
                                   if (tekstOdgovora.isNotEmpty) {
@@ -429,14 +402,11 @@ var page = 1;
                                           DateTime.now().toIso8601String(),
                                     };
 
-                                    // Provjerite ponovno prije slanja da li je tekstOdgovora prazan
                                     if (request['tekst'].trim().isNotEmpty) {
-                                      // Zamijenite _replyToCommentProvider sa odgovarajućim providera za unos odgovora na komentar
                                       await _replyToCommentProvider
                                           .insert(request);
-                                             refreshComments(comment.novostId?? 0);
+                                      refreshComments(comment.novostId ?? 0);
 
-                                      // Prikaz poruke o uspjehu
                                       ScaffoldMessenger.of(context)
                                           .showSnackBar(
                                         SnackBar(
@@ -445,11 +415,7 @@ var page = 1;
                                           duration: Duration(seconds: 2),
                                         ),
                                       );
-
-                                      // Implementirajte logiku za slanje odgovora na komentar
-                                      // Možete koristiti tekstOdgovora za dohvaćanje teksta odgovora
                                     } else {
-                                      // Ako je tekst odgovora prazan, prikažite poruku o grešci
                                       ScaffoldMessenger.of(context)
                                           .showSnackBar(
                                         SnackBar(
@@ -460,7 +426,6 @@ var page = 1;
                                       );
                                     }
                                   } else {
-                                    // Ako je tekst odgovora prazan, prikažite poruku o grešci
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
                                         content: Text('Niste unijeli odgovor.'),
@@ -474,7 +439,6 @@ var page = 1;
                             ),
                           ],
                         ),
-
                         SizedBox(height: 8),
                       ],
                     ),
@@ -483,150 +447,138 @@ var page = 1;
               }).toList(),
             );
           } else {
-            
-
-             return Text("Nema komentara za ovu novost.");
+            return Text("Nema komentara za ovu novost.");
           }
         } else {
-          
-
           return Text("Učitavanje komentara...");
         }
       },
     );
   }
 
-Widget _buildReplies(int komentarId) {
-  return FutureBuilder<List<OdgovoriNaKomentare>>(
-    future: _loadReply(komentarId),  // Koristi funkciju _loadReply umjesto _replyToCommentProvider.get
-    builder: (context, snapshot) {
-      if (snapshot.connectionState == ConnectionState.done) {
-        final replies = snapshot.data;
-        if (replies != null) {
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: replies.map((reply) {
-              return Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Container(
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.grey),
-                    borderRadius: BorderRadius.circular(8.0),
-                  ),
-                  padding: EdgeInsets.all(8.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      FutureBuilder<Korisnici?>(
-                        future: getUserFromUserId(reply.trenerId ?? 0),
-                        builder: (context, userSnapshot) {
-                          if (userSnapshot.connectionState ==
-                              ConnectionState.done) {
-                            final trener = userSnapshot.data;
-                            final base64Image = trener?.slika;
+  Widget _buildReplies(int komentarId) {
+    return FutureBuilder<List<OdgovoriNaKomentare>>(
+      future: _loadReply(komentarId),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.done) {
+          final replies = snapshot.data;
+          if (replies != null) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: replies.map((reply) {
+                return Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.grey),
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                    padding: EdgeInsets.all(8.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        FutureBuilder<Korisnici?>(
+                          future: getUserFromUserId(reply.trenerId ?? 0),
+                          builder: (context, userSnapshot) {
+                            if (userSnapshot.connectionState ==
+                                ConnectionState.done) {
+                              final trener = userSnapshot.data;
+                              final base64Image = trener?.slika;
 
-                            if (base64Image != null &&
-                                base64Image.isNotEmpty) {
-                              // Provjeri ispravnost base64 podataka
-                              try {
-                             
-
-                                final decodedImage = base64.decode(base64Image);
-                                return Row(
-                                  children: [
-                                    CircleAvatar(
-                                      radius: 20,
-                                      backgroundImage: MemoryImage(decodedImage),
-                                    ),
-                                    SizedBox(width: 8),
-                                    Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          "${trener?.ime ?? 'Nepoznat'} ${trener?.prezime ?? 'Nepoznat'}",
-                                          style: TextStyle(
-                                            fontSize: 14.0,
-                                            fontWeight: FontWeight.bold,
+                              if (base64Image != null &&
+                                  base64Image.isNotEmpty) {
+                                try {
+                                  final decodedImage =
+                                      base64.decode(base64Image);
+                                  return Row(
+                                    children: [
+                                      CircleAvatar(
+                                        radius: 20,
+                                        backgroundImage:
+                                            MemoryImage(decodedImage),
+                                      ),
+                                      SizedBox(width: 8),
+                                      Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            "${trener?.ime ?? 'Nepoznat'} ${trener?.prezime ?? 'Nepoznat'}",
+                                            style: TextStyle(
+                                              fontSize: 14.0,
+                                              fontWeight: FontWeight.bold,
+                                            ),
                                           ),
-                                        ),
-                                        Text(
-                                          "Datum: ${DateFormat('dd.MM.yyyy HH:mm').format(reply.datumOdgovora ?? DateTime.now())}",
-                                          style: TextStyle(
-                                            fontSize: 12.0,
-                                            color: Colors.grey,
+                                          Text(
+                                            "Datum: ${DateFormat('dd.MM.yyyy HH:mm').format(reply.datumOdgovora ?? DateTime.now())}",
+                                            style: TextStyle(
+                                              fontSize: 12.0,
+                                              color: Colors.grey,
+                                            ),
                                           ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                  
-                                );
-                              } catch (e) {
-                                print("Greška pri dekodiranju slike: $e");
+                                        ],
+                                      ),
+                                    ],
+                                  );
+                                } catch (e) {}
                               }
+
+                              return Row(
+                                children: [
+                                  CircleAvatar(
+                                    radius: 20,
+                                    backgroundImage: AssetImage(
+                                        'assets/images/male_icon.jpg'),
+                                  ),
+                                  SizedBox(width: 8),
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        "${trener?.ime ?? 'Nepoznat'} ${trener?.prezime ?? 'Nepoznat'}",
+                                        style: TextStyle(
+                                          fontSize: 14.0,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      Text(
+                                        "Datum: ${DateFormat('dd.MM.yyyy HH:mm').format(reply.datumOdgovora ?? DateTime.now())}",
+                                        style: TextStyle(
+                                          fontSize: 12.0,
+                                          color: Colors.grey,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              );
+                            } else {
+                              return CircularProgressIndicator();
                             }
-
-                            // Koristi sliku iz assets ako nema ispravne korisničke slike
-                            return Row(
-                              children: [
-                                CircleAvatar(
-                                  radius: 20,
-                                  backgroundImage: AssetImage('assets/images/male_icon.jpg'),
-                                ),
-                                SizedBox(width: 8),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      "${trener?.ime ?? 'Nepoznat'} ${trener?.prezime ?? 'Nepoznat'}",
-                                      style: TextStyle(
-                                        fontSize: 14.0,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    Text(
-                                      "Datum: ${DateFormat('dd.MM.yyyy HH:mm').format(reply.datumOdgovora ?? DateTime.now())}",
-                                      style: TextStyle(
-                                        fontSize: 12.0,
-                                        color: Colors.grey,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            );
-                          } else {
-                            return CircularProgressIndicator();
-                          }
-                        },
-                      ),
-                      SizedBox(height: 8),
-                      Text(
-                        reply.tekst ?? "",
-                        style: TextStyle(
-                          fontSize: 16.0,
+                          },
                         ),
-                      ),
-                      SizedBox(height: 8),
-                    ],
+                        SizedBox(height: 8),
+                        Text(
+                          reply.tekst ?? "",
+                          style: TextStyle(
+                            fontSize: 16.0,
+                          ),
+                        ),
+                        SizedBox(height: 8),
+                      ],
+                    ),
                   ),
-                ),
-              );
-            }).toList(),
-          );
-          
+                );
+              }).toList(),
+            );
+          } else {
+            return Text("Greška pri dohvatanju odgovora");
+          }
         } else {
-          print("Greška pri dohvatanju odgovora");
-
-          return Text("Greška pri dohvatanju odgovora");
+          return Text("Učitavanje odgovora...");
         }
-      } else {
-        print("Učitavanje odgovora...");
-
-        return Text("Učitavanje odgovora...");
-      }
-    },
-  );
-}
-
+      },
+    );
+  }
 }

@@ -1,5 +1,3 @@
-import 'dart:ffi';
-
 import 'package:fitness_admin/models/korisnici.dart';
 import 'package:fitness_admin/models/napredak.dart';
 import 'package:fitness_admin/models/placanja.dart';
@@ -18,7 +16,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:intl/intl.dart';
-import 'dart:convert';
 
 import 'package:provider/provider.dart';
 
@@ -39,10 +36,8 @@ class _UserDetalScreenState extends State<UserDetalScreen> {
   late WorkoutProvider _workoutProvider;
   late ProgressProvider _progressProvider;
   late PayProvider _payProvider;
-  SearchResult<Rezervacija>? result;
-  List<Rezervacija>? userReservations;
   List<Napredak>? userProgress;
-  
+  bool isLoading = true;
 
   @override
   void initState() {
@@ -65,8 +60,6 @@ class _UserDetalScreenState extends State<UserDetalScreen> {
         "slika": widget.korisnik?.slika
       };
     } else {
-      
-
       userImage = Image.asset('assets/images/male_icon.jpg');
       _initialValue = {
         'ime': widget.korisnik?.ime,
@@ -85,18 +78,16 @@ class _UserDetalScreenState extends State<UserDetalScreen> {
     _workoutProvider = context.read<WorkoutProvider>();
     _reservationProvider = context.read<ReservationProvider>();
     _scheduleProvider = context.read<ScheduleProvider>();
-    _progressProvider=context.read<ProgressProvider>();
-    _payProvider=context.read<PayProvider>();
+    _progressProvider = context.read<ProgressProvider>();
+    _payProvider = context.read<PayProvider>();
+    initForm();
     _loadData();
   }
 
   @override
   void didChangeDependencies() {
-    
     super.didChangeDependencies();
   }
-
-
 
   Future<List<Placanja?>> GetPlacanja(int korisnikId) async {
     var searchResult =
@@ -104,102 +95,102 @@ class _UserDetalScreenState extends State<UserDetalScreen> {
 
     if (searchResult != null && searchResult.result.isNotEmpty) {
       List<Placanja> data = searchResult.result;
-    
 
       return data;
     }
     return [];
   }
 
+  Future initForm() async {
+    setState(() {
+      isLoading = false;
+    });
+  }
+
   Future<List<Rezervacija?>> GetRezervacije(int korisnikId) async {
-    var searchResult =
-        await _reservationProvider.get(filter: {"korisnikId": korisnikId,"status":"Plaćena"});
-    if (searchResult != null && searchResult.result.isNotEmpty){
+    var searchResult = await _reservationProvider
+        .get(filter: {"korisnikId": korisnikId, "status": "Plaćena"});
+    if (searchResult != null && searchResult.result.isNotEmpty) {
       List<Rezervacija> data = searchResult.result;
       return data;
     }
     return [];
   }
 
-Future<List<Rezervacija>> RealRezervacije(int korisnikId) async {
-  var placanja = await GetPlacanja(korisnikId);
-  var rezervacije = await GetRezervacije(korisnikId);
+  Future<List<Rezervacija>> RealRezervacije(int korisnikId) async {
+    var placanja = await GetPlacanja(korisnikId);
+    var rezervacije = await GetRezervacije(korisnikId);
 
-  List<Rezervacija> validneRezervacije = [];
+    List<Rezervacija> validneRezervacije = [];
 
-  if (placanja != null && rezervacije != null) {
-    for (var placanje in placanja) {
-      for (var rezervacija in rezervacije) {
-        
-        if (rezervacija?.placanjeId == placanje?.id) {
-         
-          DateTime? datumPlacanja = placanje?.datumPlacanja; 
-          DateTime trenutniDatum = DateTime.now();
-          Duration razlika = trenutniDatum.difference(datumPlacanja!);
+    if (placanja != null && rezervacije != null) {
+      for (var placanje in placanja) {
+        for (var rezervacija in rezervacije) {
+          if (rezervacija?.placanjeId == placanje?.id) {
+            DateTime? datumPlacanja = placanje?.datumPlacanja;
+            DateTime trenutniDatum = DateTime.now();
+            Duration razlika = trenutniDatum.difference(datumPlacanja!);
 
-          if (razlika.inDays <= 30) {
-            validneRezervacije.add(rezervacija!);
+            if (razlika.inDays <= 30) {
+              validneRezervacije.add(rezervacija!);
+            }
           }
         }
       }
     }
+
+    return validneRezervacije;
   }
-
-
-  return validneRezervacije;
-}
-
 
   void _loadData() async {
     final korisnikid = widget.korisnik!.id;
     var data = await _reservationProvider.get(filter: {
       'korisnikId': korisnikid.toString(),
-      'status':"Placena",
+      'status': "Placena",
+    });
+  }
+
+  Future<void> _loadProgress() async {
+    final korisnikid = widget.korisnik!.id;
+    var data = await _progressProvider.get(filter: {
+      'korisnikId': korisnikid.toString(),
     });
 
+    setState(() {
+      userProgress = data.result;
+    });
   }
-
-Future<void> _loadProgress() async {
-  final korisnikid = widget.korisnik!.id;
-  var data = await _progressProvider.get(filter: {
-    'korisnikId': korisnikid.toString(),
-  });
-
-  setState(() {
-    userProgress = data.result;
-  });
-}
 
   Widget _buildResultMessage(double currentWeight, double initialWeight) {
-  String resultMessage = '';
-  if (userProgress == null || userProgress!.isEmpty) {
-    resultMessage = 'Nije došlo do promjene u težini.';
-  } else {
-    double result = currentWeight - initialWeight;
+    String resultMessage = '';
+    if (userProgress == null || userProgress!.isEmpty) {
+      resultMessage = 'Nije došlo do promjene u težini.';
+    } else {
+      double result = currentWeight - initialWeight;
 
-    if (result > 0) {
-      resultMessage = 'Korisnik se udebljao za ${result.abs()} kg!';
-    } else if (result < 0) {
-      resultMessage = 'Korisnik je smršao za  ${result.abs()} kg!';
+      if (result > 0) {
+        resultMessage = 'Korisnik se udebljao za ${result.abs()} kg!';
+      } else if (result < 0) {
+        resultMessage = 'Korisnik je smršao za  ${result.abs()} kg!';
+      }
     }
-  }
 
-  return Text(
-    'Rezultat: $resultMessage',
-    style: TextStyle(
-      fontSize: 18,
-      color: Colors.black,
-      fontWeight: FontWeight.bold,
-    ),
-  );
-}
+    return Text(
+      'Rezultat: $resultMessage',
+      style: TextStyle(
+        fontSize: 18,
+        color: Colors.black,
+        fontWeight: FontWeight.bold,
+      ),
+    );
+  }
 
   Future<Raspored?> getRasporedFromId(int rasporedId) async {
     final raspored = await _scheduleProvider.getById(rasporedId);
     return raspored;
   }
 
-    String _dayOfWeekToString(int dan) {
+  String _dayOfWeekToString(int dan) {
     switch (dan) {
       case 0:
         return 'Ned';
@@ -221,188 +212,177 @@ Future<void> _loadProgress() async {
 
   Future<Trening?> getTreningFromId(int treningId) async {
     final trening = await _workoutProvider.getById(treningId);
-   
+
     return trening;
   }
 
-Future<void> _showReservationPopup(BuildContext context) async {
-  List<Rezervacija> userReservations = await RealRezervacije(widget.korisnik?.id ?? 0);
+  Future<void> _showReservationPopup(BuildContext context) async {
+    List<Rezervacija> userReservations =
+        await RealRezervacije(widget.korisnik?.id ?? 0);
 
-  final List<Widget> listTiles = [];
+    final List<Widget> listTiles = [];
 
-  if (userReservations != null && userReservations.isNotEmpty) {
-    await Future.forEach(userReservations, (userReservation) async {
-      final raspored = await getRasporedFromId(userReservation.rasporedId ?? 0);
-      final trening = await getTreningFromId(raspored?.treningId ?? 0);
+    if (userReservations != null && userReservations.isNotEmpty) {
+      await Future.forEach(userReservations, (userReservation) async {
+        final raspored =
+            await getRasporedFromId(userReservation.rasporedId ?? 0);
+        final trening = await getTreningFromId(raspored?.treningId ?? 0);
 
-      final satnicaOd = DateFormat.Hm().format(raspored?.datumPocetka ?? DateTime.now());
-      final satnicaDo = DateFormat.Hm().format(raspored?.datumZavrsetka ?? DateTime.now());
+        final satnicaOd =
+            DateFormat.Hm().format(raspored?.datumPocetka ?? DateTime.now());
+        final satnicaDo =
+            DateFormat.Hm().format(raspored?.datumZavrsetka ?? DateTime.now());
 
-      final dan = _dayOfWeekToString(raspored?.dan ?? 0);
+        final dan = _dayOfWeekToString(raspored?.dan ?? 0);
 
-      listTiles.add(
-        ListTile(
-          title: Text('Trening: ${trening?.naziv}'),
-          subtitle: Text('Dan: $dan, Satnica: $satnicaOd - $satnicaDo'),
-        ),
-      );
-
-      listTiles.add(Divider());
-    });
-  }
-
-  await showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return Dialog(
-        child: Container(
-          width: 400,
-          height: 400,
-          color: Colors.white,
-          child: SingleChildScrollView(
-            child: Column(
-              children: <Widget>[
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: <Widget>[
-                    Text(
-                      'Korisnik je rezervisao sljedeće termine',
-                      style: TextStyle(color: Colors.black, fontSize: 18),
-                    ),
-                    IconButton(
-                      icon: Icon(Icons.close, color: Colors.purple),
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                    ),
-                  ],
-                ),
-                // Provjerite da li lista rezervacija nije prazna
-                if (listTiles.isNotEmpty) ...listTiles,
-                // Dodajte poruku kada korisnik nema rezervacija
-                if (userReservations == null || userReservations.isEmpty)
-                  Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Text(
-                      'Korisnik još uvijek nema rezervacija.',
-                      style: TextStyle(fontSize: 16),
-                    ),
-                  ),
-              ],
-            ),
+        listTiles.add(
+          ListTile(
+            title: Text('Trening: ${trening?.naziv}'),
+            subtitle: Text('Dan: $dan, Satnica: $satnicaOd - $satnicaDo'),
           ),
-        ),
-      );
-    },
-  );
-}
+        );
 
+        listTiles.add(Divider());
+      });
+    }
 
-Future<void> _showNapredakPopup(BuildContext context) async {
-   await  _loadProgress();
-  
-  await showDialog(
-  context: context,
-  builder: (BuildContext context) {
-    return Dialog(
-      child: Container(
-        width: 400,
-        height: 400,
-        color: Colors.white,
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          child: Container(
+            width: 400,
+            height: 400,
+            color: Colors.white,
+            child: SingleChildScrollView(
+              child: Column(
                 children: <Widget>[
-                  Text(
-                    'Napredak korisnika',
-                    style: TextStyle(color: Colors.black, fontSize: 18),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      Text(
+                        'Korisnik je rezervisao sljedeće termine',
+                        style: TextStyle(color: Colors.black, fontSize: 18),
+                      ),
+                      IconButton(
+                        icon: Icon(Icons.close, color: Colors.purple),
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                      ),
+                    ],
                   ),
-                  IconButton(
-                    icon: Icon(Icons.close, color: Colors.purple),
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                  ),
+                  if (listTiles.isNotEmpty) ...listTiles,
+                  if (userReservations == null || userReservations.isEmpty)
+                    Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Text(
+                        'Korisnik još uvijek nema rezervacija.',
+                        style: TextStyle(fontSize: 16),
+                      ),
+                    ),
                 ],
               ),
-              SizedBox(height: 16),
-
-              // Težina korisnika pri registraciji
-              if (widget.korisnik?.tezina != null)
-                Container(
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.purple, width: 2.0),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  padding: EdgeInsets.all(8),
-                  margin: EdgeInsets.only(bottom: 16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Text(
-                        'Težina pri registraciji',
-                        style: TextStyle(fontSize: 16),
-                      ),
-                      Text(
-                        '${widget.korisnik!.tezina} kg',
-                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                      ),
-                    ],
-                  ),
-                ),
-
-              // Zadnja težina korisnika
-              if (userProgress != null && userProgress!.isNotEmpty)
-                Container(
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.purple, width: 2.0),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  padding: EdgeInsets.all(8),
-                  margin: EdgeInsets.only(bottom: 16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Text(
-                        'Trenutna težina',
-                        style: TextStyle(fontSize: 16),
-                      ),
-                      Text(
-                        '${userProgress!.last.tezina} kg',
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                      ),
-                    ],
-                  ),
-                ),
-
-              // Dodatne informacije iz userProgress
-              if (userProgress != null && userProgress!.isNotEmpty) ...[
-                // Razdvajanje od prethodnog dijela
-                SizedBox(height: 16),
-                // Rezultat napretka
-                _buildResultMessage(
-                  userProgress!.last.tezina ?? 0,
-                  widget.korisnik?.tezina ?? 0,
-                ),
-                // Dodatne informacije o svim napretcima
-            
-              ],
-            ],
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
-  },
-);
-
-
   }
 
+  Future<void> _showNapredakPopup(BuildContext context) async {
+    await _loadProgress();
 
+    await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          child: Container(
+            width: 400,
+            height: 400,
+            color: Colors.white,
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      Text(
+                        'Napredak korisnika',
+                        style: TextStyle(color: Colors.black, fontSize: 18),
+                      ),
+                      IconButton(
+                        icon: Icon(Icons.close, color: Colors.purple),
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 16),
+                  if (widget.korisnik?.tezina != null)
+                    Container(
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.purple, width: 2.0),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      padding: EdgeInsets.all(8),
+                      margin: EdgeInsets.only(bottom: 16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Text(
+                            'Težina pri registraciji',
+                            style: TextStyle(fontSize: 16),
+                          ),
+                          Text(
+                            '${widget.korisnik!.tezina} kg',
+                            style: TextStyle(
+                                fontSize: 20, fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
+                    ),
+                  if (userProgress != null && userProgress!.isNotEmpty)
+                    Container(
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.purple, width: 2.0),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      padding: EdgeInsets.all(8),
+                      margin: EdgeInsets.only(bottom: 16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Text(
+                            'Trenutna težina',
+                            style: TextStyle(fontSize: 16),
+                          ),
+                          Text(
+                            '${userProgress!.last.tezina} kg',
+                            style: TextStyle(
+                                fontSize: 18, fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
+                    ),
+                  if (userProgress != null && userProgress!.isNotEmpty) ...[
+                    SizedBox(height: 16),
+                    _buildResultMessage(
+                      userProgress!.last.tezina ?? 0,
+                      widget.korisnik?.tezina ?? 0,
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -413,7 +393,10 @@ Future<void> _showNapredakPopup(BuildContext context) async {
           scrollDirection: Axis.horizontal,
           child: Container(
             child: Column(
-              children: [_buildForm(), _buildButton()],
+              children: [
+                isLoading ? Container() : _buildForm(),
+                _buildButton()
+              ],
             ),
           ),
         ),
@@ -439,7 +422,7 @@ Future<void> _showNapredakPopup(BuildContext context) async {
                 child: ConstrainedBox(
                     constraints: BoxConstraints(
                       maxWidth: 400.0,
-                      maxHeight: 500.0, 
+                      maxHeight: 500.0,
                     ),
                     child: ClipRect(
                       child: userImage != null
@@ -448,7 +431,7 @@ Future<void> _showNapredakPopup(BuildContext context) async {
                               height: 500.0,
                               decoration: BoxDecoration(
                                 border: Border.all(
-                                  color: Colors.purple, 
+                                  color: Colors.purple,
                                   width: 4.0,
                                 ),
                               ),
@@ -464,8 +447,8 @@ Future<void> _showNapredakPopup(BuildContext context) async {
                               height: 400.0,
                               decoration: BoxDecoration(
                                 border: Border.all(
-                                  color: Colors.purple, 
-                                  width: 2.0, 
+                                  color: Colors.purple,
+                                  width: 2.0,
                                 ),
                               ),
                               child: Image.asset('assets/images/male_icon.jpg'),
@@ -487,7 +470,6 @@ Future<void> _showNapredakPopup(BuildContext context) async {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                  
                     Row(
                       children: [
                         Expanded(
@@ -540,8 +522,6 @@ Future<void> _showNapredakPopup(BuildContext context) async {
                       ],
                     ),
                     SizedBox(height: 30),
-
-                   
                     Row(
                       children: [
                         Expanded(
@@ -594,8 +574,6 @@ Future<void> _showNapredakPopup(BuildContext context) async {
                       ],
                     ),
                     SizedBox(height: 30),
-
-                
                     Row(
                       children: [
                         Expanded(
@@ -648,8 +626,6 @@ Future<void> _showNapredakPopup(BuildContext context) async {
                       ],
                     ),
                     SizedBox(height: 30),
-
-                   
                     Row(
                       children: [
                         Expanded(
@@ -702,7 +678,6 @@ Future<void> _showNapredakPopup(BuildContext context) async {
                       ],
                     ),
                     SizedBox(height: 30),
-
                     Row(
                       children: [
                         Expanded(
@@ -768,18 +743,14 @@ Future<void> _showNapredakPopup(BuildContext context) async {
     return Column(
       children: [
         Row(
-          mainAxisAlignment:
-              MainAxisAlignment.center, 
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             ElevatedButton(
               onPressed: () {
-                 _showNapredakPopup(context);
-              
+                _showNapredakPopup(context);
               },
               style: ElevatedButton.styleFrom(
-                padding: EdgeInsets.symmetric(
-                    horizontal: 30,
-                    vertical: 15),
+                padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
               ),
               child: Text(
                 "Napredak korisnika",
@@ -790,19 +761,16 @@ Future<void> _showNapredakPopup(BuildContext context) async {
             ElevatedButton(
               onPressed: () {
                 _showReservationPopup(context);
-              
               },
               style: ElevatedButton.styleFrom(
-                padding: EdgeInsets.symmetric(
-                    horizontal: 30,
-                    vertical: 15), 
+                padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
               ),
               child: Text(
                 "Rezervacije korisnika",
-                style: TextStyle(fontSize: 18), 
+                style: TextStyle(fontSize: 18),
               ),
             ),
-            SizedBox(width: 20), 
+            SizedBox(width: 20),
           ],
         ),
       ],

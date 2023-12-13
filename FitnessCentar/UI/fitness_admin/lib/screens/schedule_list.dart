@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:fitness_admin/models/raspored.dart';
 import 'package:fitness_admin/models/search_result.dart';
 import 'package:fitness_admin/models/trening.dart';
@@ -10,7 +8,6 @@ import 'package:fitness_admin/screens/workout_details.dart';
 import 'package:fitness_admin/widgets/master_screens.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:table_calendar/table_calendar.dart';
 
 class ScheduleListScreen extends StatefulWidget {
   const ScheduleListScreen({Key? key}) : super(key: key);
@@ -23,13 +20,21 @@ class _ScheduleListScreenState extends State<ScheduleListScreen> {
   late ScheduleProvider _scheduleProvider;
   late WorkoutProvider _workoutProvider;
   SearchResult<Raspored>? result;
+  bool isLoading = true;
 
   @override
   void initState() {
     super.initState();
     _scheduleProvider = context.read<ScheduleProvider>();
     _workoutProvider = context.read<WorkoutProvider>();
+    initForm();
     _loadData();
+  }
+
+  Future initForm() async {
+    setState(() {
+      isLoading = false;
+    });
   }
 
   void _loadData() async {
@@ -41,7 +46,7 @@ class _ScheduleListScreenState extends State<ScheduleListScreen> {
   }
 
   void openTreningDetailsPage(Trening? trening, Raspored? raspored) {
-    if (trening != null && raspored!=null) {
+    if (trening != null && raspored != null) {
       Navigator.of(context).push(
         MaterialPageRoute(
           builder: (context) {
@@ -73,7 +78,7 @@ class _ScheduleListScreenState extends State<ScheduleListScreen> {
   Widget build(BuildContext context) {
     return MasterScreanWidget(
       title_widget: Text("Sedmični raspored"),
-      child: _buildWeeklySchedule(),
+      child: isLoading ? Container() : _buildWeeklySchedule(),
     );
   }
 
@@ -110,7 +115,7 @@ class _ScheduleListScreenState extends State<ScheduleListScreen> {
 
   Widget _buildWeeklySchedule() {
     if (result == null) {
-      return CircularProgressIndicator(); // Prikažite loader dok se podaci učitavaju
+      return CircularProgressIndicator();
     }
 
     final List<int> dani = [1, 2, 3, 4, 5];
@@ -139,16 +144,14 @@ class _ScheduleListScreenState extends State<ScheduleListScreen> {
             ),
             margin: EdgeInsets.all(16.0),
             child: DataTable(
-              dataRowMinHeight: 50.0, // Minimalna visina ćelija
-              dataRowMaxHeight: 50.0, // Maksimalna visina ćelija
+              dataRowMinHeight: 50.0,
+              dataRowMaxHeight: 50.0,
               columnSpacing: 110,
               headingRowHeight: 50.0,
-              // border: TableBorder.all(), // Dodajte okvir za tablicu
-
               columns: [
                 DataColumn(
                   label: SizedBox(
-                    width: 150, // Podesite širinu prema potrebi
+                    width: 150,
                     child: Text(
                       'Raspored',
                       style:
@@ -176,15 +179,12 @@ class _ScheduleListScreenState extends State<ScheduleListScreen> {
                     cells: [
                       DataCell(
                         Padding(
-                          padding: EdgeInsets.only(
-                              left: 10.0), // Povećajte levu marginu za satnicu
+                          padding: EdgeInsets.only(left: 10.0),
                           child: Text(
                             satnica,
                             style: TextStyle(
-                              fontWeight: FontWeight
-                                  .bold, // Dodajte boldiranje za satnicu
-                              fontSize:
-                                  16, // Podesite veličinu fonta prema potrebi
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
                             ),
                           ),
                         ),
@@ -198,9 +198,9 @@ class _ScheduleListScreenState extends State<ScheduleListScreen> {
                 if (satnice.length < dani.length)
                   DataRow(
                     cells: [
-                      DataCell(Text('')), // Prazna ćelija za dane bez termina
+                      DataCell(Text('')),
                       for (var dan in dani.skip(satnice.length))
-                        DataCell(Text('')), // Prazne ćelije za dane bez termina
+                        DataCell(Text('')),
                     ],
                   ),
               ],
@@ -213,7 +213,7 @@ class _ScheduleListScreenState extends State<ScheduleListScreen> {
 
   Widget _buildRasporedCell(int dan, String satnica) {
     final rasporedi = getRasporediZaSatnicu(dan, satnica);
-    final cellHeight = 100.0; // Visina ćelije
+    final cellHeight = 100.0;
 
     if (rasporedi.isEmpty) {
       return Card(
@@ -257,8 +257,10 @@ class _ScheduleListScreenState extends State<ScheduleListScreen> {
                   color: bojaTreninga,
                   child: InkWell(
                     onTap: () {
-                      // Ovde otvorite stranicu sa detaljima o treningu na osnovu treninga u ovoj ćeliji
-                      openTreningDetailsPage(snapshot.data,rasporedi.firstWhere((r) => r.treningId == snapshot.data?.id));
+                      openTreningDetailsPage(
+                          snapshot.data,
+                          rasporedi.firstWhere(
+                              (r) => r.treningId == snapshot.data?.id));
                     },
                     child: Container(
                       alignment: Alignment.center,

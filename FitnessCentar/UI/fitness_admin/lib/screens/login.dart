@@ -13,7 +13,6 @@ class LoginPage extends StatelessWidget {
   TextEditingController _usernameController = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
   late UserProvider _userProvider;
-
   @override
   Widget build(BuildContext context) {
     _userProvider = context.read<UserProvider>();
