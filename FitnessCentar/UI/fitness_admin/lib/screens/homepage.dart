@@ -6,6 +6,7 @@ import 'package:fitness_admin/models/report.dart';
 import 'package:fitness_admin/providers/user_provider.dart';
 import 'package:fitness_admin/screens/add_news.dart';
 import 'package:fitness_admin/screens/add_user.dart';
+import 'package:fitness_admin/screens/home_unauthenticated.dart';
 import 'package:fitness_admin/screens/news_list.dart';
 import 'package:fitness_admin/screens/report.dart';
 import 'package:fitness_admin/screens/schedule_list.dart';
@@ -47,12 +48,26 @@ class HomeAuthenticated extends StatelessWidget {
         title: Text("Fitness Centar"),
         automaticallyImplyLeading: false,
         actions: [
-          IconButton(
-            onPressed: () {
-              // Dodajte funkcionalnost za logout
-            },
-            icon: Icon(Icons.logout),
-          ),
+          Padding(
+    padding: const EdgeInsets.only(right: 25.0), // Prilagođava desni razmak
+    child: IconButton(
+      onPressed: () {
+        Authorization.username = null;
+        Authorization.password = null;
+
+        Provider.of<UserProvider>(context, listen: false)
+            .setCurrentUserId(null);
+
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (_) => HomeUnauthenticated()),
+          (route) => false,
+        );
+      },
+      icon: Icon(Icons.logout),
+      iconSize: 30.0, // Prilagođava veličinu ikone
+    ),
+  ),
         ],
       ),
       body: Stack(
@@ -242,18 +257,7 @@ class HomeAuthenticated extends StatelessWidget {
                       ),
                     ),
                     SizedBox(width: 100),
-                    ElevatedButton(
-                      onPressed: () {
-                        // Dodajte funkcionalnost za pregled plaćanja
-                      },
-                      child: Padding(
-                        padding: const EdgeInsets.all(20.0),
-                        child: Text(
-                          "Pregled plaćanja",
-                          style: TextStyle(fontSize: 18),
-                        ),
-                      ),
-                    ),
+                   
                   ],
                 ),
               ],
