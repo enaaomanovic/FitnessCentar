@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace FitnessCentar.Services
+namespace FitnessCentar.Services.Mapping
 {
     public class MappingProfile : Profile
     {

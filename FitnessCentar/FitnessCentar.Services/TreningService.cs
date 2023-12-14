@@ -2,7 +2,9 @@
 using FitnessCentar.Model;
 using FitnessCentar.Model.Requests;
 using FitnessCentar.Model.SearchObject;
+using FitnessCentar.Services.Base;
 using FitnessCentar.Services.Database;
+using FitnessCentar.Services.Interface;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -12,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace FitnessCentar.Services
 {
-    public class TreningService : BasedService<Model.Trening, Database.Treningi, TreningSearchObject, TreningInsertRequest, TreningUpdateRequest>, ITreningService
+    public class TreningService : BaseService<Model.Trening, Database.Treningi, TreningSearchObject, TreningInsertRequest, TreningUpdateRequest>, ITreningService
     {
 
 

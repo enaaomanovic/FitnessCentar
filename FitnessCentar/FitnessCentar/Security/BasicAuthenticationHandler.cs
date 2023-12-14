@@ -1,4 +1,4 @@
-﻿using FitnessCentar.Services;
+﻿using FitnessCentar.Services.Interface;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Client;
@@ -8,14 +8,14 @@ using System.Security.Claims;
 using System.Text;
 using System.Text.Encodings.Web;
 
-namespace FitnessCentar
+namespace FitnessCentar.Security
 {
-  
-    public class BasicAuthenticationHandler: AuthenticationHandler<AuthenticationSchemeOptions>
+
+    public class BasicAuthenticationHandler : AuthenticationHandler<AuthenticationSchemeOptions>
     {
         private readonly IKorisniciService korisniciService;
 
-        public BasicAuthenticationHandler(IOptionsMonitor<AuthenticationSchemeOptions> options, ILoggerFactory logger, UrlEncoder encoder, ISystemClock clock,IKorisniciService korisniciService) : base(options, logger, encoder, clock)
+        public BasicAuthenticationHandler(IOptionsMonitor<AuthenticationSchemeOptions> options, ILoggerFactory logger, UrlEncoder encoder, ISystemClock clock, IKorisniciService korisniciService) : base(options, logger, encoder, clock)
         {
             this.korisniciService = korisniciService;
         }
@@ -35,9 +35,9 @@ namespace FitnessCentar
                 var credentials = Encoding.UTF8.GetString(credentialBytes).Split(':');
                 var username = credentials[0];
                 var password = credentials[1];
-                user =  korisniciService.Authenticiraj(username, password);
+                user = korisniciService.Authenticiraj(username, password);
 
-               
+
             }
             catch
             {
@@ -46,7 +46,7 @@ namespace FitnessCentar
 
             if (user == null)
                 return AuthenticateResult.Fail("Invalid Username or Password");
-            
+
             var claims = new List<Claim> {
                 new Claim(ClaimTypes.NameIdentifier, user.KorisnickoIme),
                 new Claim(ClaimTypes.Name, user.Ime),
@@ -59,15 +59,15 @@ namespace FitnessCentar
             {
                 claims.Add(new Claim(ClaimTypes.Role, "Trener"));
             }
-          
+
 
             var identity = new ClaimsIdentity(claims, Scheme.Name);
-                var principal = new ClaimsPrincipal(identity);
+            var principal = new ClaimsPrincipal(identity);
 
-                var ticket = new AuthenticationTicket(principal, Scheme.Name);
-                return AuthenticateResult.Success(ticket);
+            var ticket = new AuthenticationTicket(principal, Scheme.Name);
+            return AuthenticateResult.Success(ticket);
 
-          
+
         }
 
 

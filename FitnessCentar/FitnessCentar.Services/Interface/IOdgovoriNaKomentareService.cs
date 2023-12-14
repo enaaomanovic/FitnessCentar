@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace FitnessCentar.Services
+namespace FitnessCentar.Services.Interface
 {
     public interface IOdgovoriNaKomentareService : IService<Model.OdgovoriNaKomentare, OdgovoriNaKomentareSearchObject, OdgovoriNaKomentareInsertRequest, OdgovoriNaKomentareUpdateRequest>
     {

@@ -4,10 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace FitnessCentar.Model
+namespace FitnessCentar.Services
 {
-    public class UserException:Exception
+    public class RecommenderService
     {
-        public UserException(string message) : base(message) { }
     }
 }

@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
+using FitnessCentar.Model.Responses;
 using FitnessCentar.Model.SearchObject;
 using FitnessCentar.Services.Database;
+using FitnessCentar.Services.Interface;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -9,14 +11,14 @@ using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace FitnessCentar.Services
+namespace FitnessCentar.Services.Base
 {
-    public class BasedService<T, TDb, TSearch, TInsert, TUpdate> : IService<T, TSearch, TInsert, TUpdate> where TDb : class where T : class where TSearch : BaseSearchObject where TInsert : class where TUpdate : class
+    public class BaseService<T, TDb, TSearch, TInsert, TUpdate> : IService<T, TSearch, TInsert, TUpdate> where TDb : class where T : class where TSearch : BaseSearchObject where TInsert : class where TUpdate : class
     {
         protected Ib200005rs2Context _context;
         protected IMapper _mapper { get; set; }
 
-        public BasedService(Ib200005rs2Context context, IMapper mapper)
+        public BaseService(Ib200005rs2Context context, IMapper mapper)
         {
             _context = context;
             _mapper = mapper;
@@ -35,7 +37,7 @@ namespace FitnessCentar.Services
 
             return _mapper.Map<List<T>>(list);
         }
-        public virtual async Task<Model.PageResult<T>> GetPage(TSearch? search = null)
+        public virtual async Task<PageResult<T>> GetPage(TSearch? search = null)
         {
             var query = _context.Set<TDb>().AsQueryable();
 
@@ -119,7 +121,7 @@ namespace FitnessCentar.Services
             return query;
         }
 
-    
+
 
     }
 }

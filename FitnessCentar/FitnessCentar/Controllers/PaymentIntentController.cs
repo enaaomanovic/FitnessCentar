@@ -1,12 +1,12 @@
 ﻿using FitnessCentar.Model.Requests;
-using FitnessCentar.Model;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Stripe;
+using FitnessCentar.Model.Responses;
 
 namespace FitnessCentar.Controllers
 {
-   
+
     [ApiController]
     public class PaymentIntentController : ControllerBase
     {

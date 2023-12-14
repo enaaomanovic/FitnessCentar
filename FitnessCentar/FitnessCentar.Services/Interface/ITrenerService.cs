@@ -6,9 +6,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace FitnessCentar.Services
+namespace FitnessCentar.Services.Interface
 {
-    public interface  ITrenerService : IService<Model.Treneri, TrenerSearchObject, TrenerInsertRequest, TrenerUpdateRequest>
+    public interface ITrenerService : IService<Model.Treneri, TrenerSearchObject, TrenerInsertRequest, TrenerUpdateRequest>
     {
     }
 }

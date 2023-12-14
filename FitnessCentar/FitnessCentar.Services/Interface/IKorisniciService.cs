@@ -10,9 +10,9 @@ using System.Threading.Tasks;
 
 
 
-namespace FitnessCentar.Services
+namespace FitnessCentar.Services.Interface
 {
-    public interface IKorisniciService : IService<Model.Korisnici, KorisniciSearchObject, KorisniciInsertRequest, KorisniciUpdateRequest>
+    public interface IKorisniciService : IService<Korisnici, KorisniciSearchObject, KorisniciInsertRequest, KorisniciUpdateRequest>
     {
         Korisnici? Authenticiraj(string username, string password);
     }

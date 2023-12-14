@@ -187,6 +187,38 @@ namespace FitnessCentar.Services.Database
                                   Visina = 170,
                                 //  Slika = slika
                               }
+                               //new Korisnici()
+                               //{
+                               //    Id = 9,
+                               //    Ime = "User",
+                               //    Prezime = "User",
+                               //    KorisnickoIme = "Huso",
+                               //    LozinkaHash = hash,
+                               //    LozinkaSalt = salt,
+                               //    DatumRegistracije = new DateTime(2023, 12, 10),
+                               //    DatumRodjenja = new DateTime(2000, 2, 1),
+                               //    Email = "user.user@gmail.com",
+                               //    Telefon = "063456734",
+                               //    Pol = "Muški",
+                               //    Tezina = 90,
+                               //    Visina = 190,
+                               //},
+                               // new Korisnici()
+                               // {
+                               //     Id = 10,
+                               //     Ime = "Amna",
+                               //     Prezime = "Kazimic",
+                               //     KorisnickoIme = "Amina",
+                               //     LozinkaHash = hash,
+                               //     LozinkaSalt = salt,
+                               //     DatumRegistracije = new DateTime(2023, 12, 10),
+                               //     DatumRodjenja = new DateTime(2000, 2, 1),
+                               //     Email = "amna.kazicim@gmail.com",
+                               //     Telefon = "062545896",
+                               //     Pol = "Ženski",
+                               //     Tezina = 60,
+                               //     Visina = 170,
+                               // }
             ); ;
         }
 
@@ -209,6 +241,22 @@ namespace FitnessCentar.Services.Database
                      DatumObjave = new DateTime(2023, 10, 26, 18, 22, 34),
                      AutorId = 1
                  }
+                  //new Novosti()
+                  //{
+                  //    Id = 3,
+                  //    Naslov = "DaniSporta",
+                  //    Tekst = "Obavještavamo vas da ce se 10.12.2023 u našem centru održati dani sporta. Centar ce tog dana moci posjetiti svi clanovi fitnes centra besplatno. Takoder bice pice dobrodošlice, vrijeme cemo provoditi vježbajuci. Radujemo se da vas vidimo u velikom broju.",
+                  //    DatumObjave = new DateTime(2023, 10, 26, 18, 22, 34),
+                  //    AutorId = 3
+                  //},
+                  // new Novosti()
+                  // {
+                  //     Id = 4,
+                  //     Naslov = "Slobodan dan ",
+                  //     Tekst = "Obavještavamo sve korisnike centra da centar nece raditi 1.1.2024,2.1.2024 i 3.1.2024. Razlog zatvaranja centra su novogodišnji praznici.Zahvaljujemo se na razumjevanju",
+                  //     DatumObjave = new DateTime(2023, 10, 26, 18, 22, 34),
+                  //     AutorId = 3
+                  // }
             );
         }
         private void SeedAktivnosti(ModelBuilder modelBuilder)

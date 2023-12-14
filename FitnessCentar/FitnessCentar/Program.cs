@@ -1,7 +1,8 @@
-using FitnessCentar;
 using FitnessCentar.Filters;
+using FitnessCentar.Security;
 using FitnessCentar.Services;
 using FitnessCentar.Services.Database;
+using FitnessCentar.Services.Interface;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;

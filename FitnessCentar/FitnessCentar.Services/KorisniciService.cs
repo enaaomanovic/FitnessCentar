@@ -2,8 +2,11 @@
 using Azure.Core;
 
 using FitnessCentar.Model.Requests;
+using FitnessCentar.Model.Responses;
 using FitnessCentar.Model.SearchObject;
+using FitnessCentar.Services.Base;
 using FitnessCentar.Services.Database;
+using FitnessCentar.Services.Interface;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System;
@@ -18,7 +21,7 @@ using System.Threading.Tasks;
 
 namespace FitnessCentar.Services
 {
-    public class KorisniciService : BasedService<Model.Korisnici, Database.Korisnici, KorisniciSearchObject, KorisniciInsertRequest, KorisniciUpdateRequest>, IKorisniciService
+    public class KorisniciService : BaseService<Model.Korisnici, Database.Korisnici, KorisniciSearchObject, KorisniciInsertRequest, KorisniciUpdateRequest>, IKorisniciService
     {
 
         public KorisniciService(Ib200005rs2Context context, IMapper mapper) : base(context, mapper)
@@ -90,7 +93,7 @@ namespace FitnessCentar.Services
 
             return true;
         }
-        public override async Task<Model.PageResult<Model.Korisnici>> GetPage(KorisniciSearchObject? search = null)
+        public override async Task<PageResult<Model.Korisnici>> GetPage(KorisniciSearchObject? search = null)
         {
 
             var query = _context.Set<Database.Korisnici>().AsQueryable();

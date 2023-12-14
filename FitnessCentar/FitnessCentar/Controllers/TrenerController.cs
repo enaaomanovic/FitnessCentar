@@ -1,8 +1,8 @@
 ﻿using FitnessCentar.Model.Requests;
 using FitnessCentar.Model.SearchObject;
 using FitnessCentar.Model;
-using FitnessCentar.Services;
 using Microsoft.AspNetCore.Mvc;
+using FitnessCentar.Services.Interface;
 
 namespace FitnessCentar.Controllers
 {
