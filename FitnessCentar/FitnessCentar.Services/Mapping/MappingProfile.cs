@@ -58,6 +58,13 @@ namespace FitnessCentar.Services.Mapping
             CreateMap<Model.Requests.RasporedUpdateRequest, Database.Raspored>();
 
 
+            CreateMap<Database.Recommender, Model.Responses.RecommenderResult>();
+            CreateMap<Database.Recommender, Model.Recommender>();
+
+            CreateMap<Model.Requests.RecommenderInsertRequest, Database.Recommender>();
+            CreateMap<Model.Requests.RecommenderUpdateRequest, Database.Recommender>();
+
+
 
         }
     }

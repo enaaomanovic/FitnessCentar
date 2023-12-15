@@ -43,7 +43,7 @@ namespace FitnessCentar.Services.Base
 
             query = AddFilter(query, search);
             query = AddInclude(query);
-            var respons = new Model.PageResult<T>();
+            var respons = new Model.Responses.PageResult<T>();
             if (search?.Page is not null && search?.PageSize is not null)
             {
                 var list = await query

@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace FitnessCentar.Services
 {
-    public class RezervacijaService : BaseService<Model.Rezervacije, Database.Rezervacije, RezervacijaSearchObject, RezervacijaInsertRequest, RezervacijUpdateRequest>, IRezervacijaServices
+    public class RezervacijaService : BaseService<Model.Rezervacije, Database.Rezervacije, RezervacijaSearchObject, RezervacijaInsertRequest, RezervacijUpdateRequest>, IRezervacijaService
     {
         public RezervacijaService(Ib200005rs2Context context, IMapper mapper) : base(context, mapper)
         {

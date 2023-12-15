@@ -22,7 +22,9 @@ builder.Services.AddTransient<IOdgovoriNaKomentareService, OdgovoriNaKomentareSe
 builder.Services.AddTransient<IKomentariService, KomentariService>();
 builder.Services.AddTransient<IPlacanjeService, PlacanjeServices>();
 builder.Services.AddTransient<IRasporedService, RasporedService>();
-builder.Services.AddTransient<IRezervacijaServices, RezervacijaService>();
+builder.Services.AddTransient<IRezervacijaService, RezervacijaService>();
+builder.Services.AddTransient<IRecommenderService, RecommenderService>();
+
 builder.Services.AddTransient<INapredakService, NapredakService>();
 
 
@@ -105,15 +107,15 @@ using (var scope = app.Services.CreateScope())
     {
         dataContext.Database.Migrate();
 
-        //var recommendResutService = scope.ServiceProvider.GetRequiredService<IRecommendResultsService>();
-        //try
-        //{
-        //    await recommendResutService.TrainBooksModelAsync();
-        //}
-        //catch (Exception E)
-        //{
+        var recommendResutService = scope.ServiceProvider.GetRequiredService<IRecommenderService>();
+        try
+        {
+            await recommendResutService.TrainNovostiModelAsync();
+        }
+        catch (Exception)
+        {
 
-        //}
+        }
     }
 }
 StripeConfiguration.ApiKey = "sk_test_51OKr40BH5DqSsJZplYyDKDiAxawWPMWYG0JGrg5ZnVutsPQFRGD14YdbuwKkKQPsWa3ULdlRe05JvcY2yndIsbc400BT4GyLwo";

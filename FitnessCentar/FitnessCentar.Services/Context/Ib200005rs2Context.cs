@@ -32,6 +32,9 @@ public partial class Ib200005rs2Context : DbContext
     public virtual DbSet<Treneri> Treneris { get; set; }
 
     public virtual DbSet<Treningi> Treningis { get; set; }
+    public virtual DbSet<PregledaneNovosti> PregledaneNovostis { get; set; }
+    public virtual DbSet<Recommender> Recommender { get; set; }
+
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

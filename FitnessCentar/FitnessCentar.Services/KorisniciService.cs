@@ -98,7 +98,7 @@ namespace FitnessCentar.Services
 
             var query = _context.Set<Database.Korisnici>().AsQueryable();
 
-            var respons = new Model.PageResult<Model.Korisnici>();
+            var respons = new Model.Responses.PageResult<Model.Korisnici>();
             query = AddFilter(query, search);
             query = AddInclude(query);
             query = IncludeUserDetails(query);

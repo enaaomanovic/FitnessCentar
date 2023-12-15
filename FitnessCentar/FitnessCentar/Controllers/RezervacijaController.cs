@@ -10,7 +10,7 @@ namespace FitnessCentar.Controllers
 
     public class RezervacijaController : BaseController<Model.Rezervacije, RezervacijaSearchObject, RezervacijaInsertRequest, RezervacijUpdateRequest>
     {
-        public RezervacijaController(ILogger<BaseController<Rezervacije, RezervacijaSearchObject, RezervacijaInsertRequest, RezervacijUpdateRequest>> logger, IRezervacijaServices service) : base(logger, service)
+        public RezervacijaController(ILogger<BaseController<Rezervacije, RezervacijaSearchObject, RezervacijaInsertRequest, RezervacijUpdateRequest>> logger, IRezervacijaService service) : base(logger, service)
         {
 
         }

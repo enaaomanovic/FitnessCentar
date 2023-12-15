@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace FitnessCentar.Services.Interface
 {
-    public interface IRezervacijaServices : IService<Model.Rezervacije, RezervacijaSearchObject, RezervacijaInsertRequest, RezervacijUpdateRequest>
+    public interface IPregledaneNovosti : IService<Model.PregledaneNovosti, PregledaneNovostiSearchObject, PregledaneNovostiInsertRequest, PregledaneNovostiUpdate>
     {
     }
 }
