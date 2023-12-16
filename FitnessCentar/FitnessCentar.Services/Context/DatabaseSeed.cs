@@ -25,6 +25,7 @@ namespace FitnessCentar.Services.Database
             SeedRaspored(modelBuilder);
             SeedRezervacije(modelBuilder);
             //SeedPlacanje(modelBuilder);
+            SeedPregledanaNovost(modelBuilder);
         }
 
         private void SeedTreneri(ModelBuilder modelBuilder)
@@ -185,41 +186,105 @@ namespace FitnessCentar.Services.Database
                                   Pol = "Ženski",
                                   Tezina = 60,
                                   Visina = 170,
-                                //  Slika = slika
+                                  //  Slika = slika
+                              },
+                              new Korisnici()
+                              {
+                                  Id = 9,
+                                  Ime = "User",
+                                  Prezime = "User",
+                                  KorisnickoIme = "User",
+                                  LozinkaHash = hash,
+                                  LozinkaSalt = salt,
+                                  DatumRegistracije = new DateTime(2023, 12, 10),
+                                  DatumRodjenja = new DateTime(2000, 2, 1),
+                                  Email = "user.user@gmail.com",
+                                  Telefon = "063456734",
+                                  Pol = "Muški",
+                                  Tezina = 90,
+                                  Visina = 190,
+                              },
+                              new Korisnici()
+                              {
+                                  Id = 10,
+                                  Ime = "Amna",
+                                  Prezime = "Kazimic",
+                                  KorisnickoIme = "Amina",
+                                  LozinkaHash = hash,
+                                  LozinkaSalt = salt,
+                                  DatumRegistracije = new DateTime(2023, 12, 10),
+                                  DatumRodjenja = new DateTime(2000, 2, 1),
+                                  Email = "amna.kazicim@gmail.com",
+                                  Telefon = "062545896",
+                                  Pol = "Ženski",
+                                  Tezina = 60,
+                                  Visina = 170,
+                              },
+                              new Korisnici()
+                              {
+                                  Id = 11,
+                                  Ime = "Enes",
+                                  Prezime = "Omanovic",
+                                  KorisnickoIme = "Enes",
+                                  LozinkaHash = hash,
+                                  LozinkaSalt = salt,
+                                  DatumRegistracije = new DateTime(2023, 12, 10),
+                                  DatumRodjenja = new DateTime(2000, 2, 1),
+                                  Email = "enes.omanovic@gmail.com",
+                                  Telefon = "063456734",
+                                  Pol = "Muški",
+                                  Tezina = 80,
+                                  Visina = 180,
+                              },
+                              new Korisnici()
+                              {
+                                  Id = 12,
+                                  Ime = "Sara",
+                                  Prezime = "Maric",
+                                  KorisnickoIme = "Sara",
+                                  LozinkaHash = hash,
+                                  LozinkaSalt = salt,
+                                  DatumRegistracije = new DateTime(2023, 12, 10),
+                                  DatumRodjenja = new DateTime(2000, 2, 1),
+                                  Email = "sara.maric@gmail.com",
+                                  Telefon = "062545896",
+                                  Pol = "Ženski",
+                                  Tezina = 50,
+                                  Visina = 160,
+                              },
+                              new Korisnici()
+                              {
+                                  Id = 13,
+                                  Ime = "Hana",
+                                  Prezime = "Maric",
+                                  KorisnickoIme = "Hana",
+                                  LozinkaHash = hash,
+                                  LozinkaSalt = salt,
+                                  DatumRegistracije = new DateTime(2023, 12, 10),
+                                  DatumRodjenja = new DateTime(2000, 2, 1),
+                                  Email = "hana.maric@gmail.com",
+                                  Telefon = "063456734",
+                                  Pol = "Ženski",
+                                  Tezina = 52,
+                                  Visina = 170,
+                              },
+                              new Korisnici()
+                              {
+                                  Id = 14,
+                                  Ime = "Nejra",
+                                  Prezime = "Maric",
+                                  KorisnickoIme = "Nejra",
+                                  LozinkaHash = hash,
+                                  LozinkaSalt = salt,
+                                  DatumRegistracije = new DateTime(2023, 12, 10),
+                                  DatumRodjenja = new DateTime(2000, 2, 1),
+                                  Email = "nejra.maric@gmail.com",
+                                  Telefon = "062545896",
+                                  Pol = "Ženski",
+                                  Tezina = 50,
+                                  Visina = 160,
                               }
-                               //new Korisnici()
-                               //{
-                               //    Id = 9,
-                               //    Ime = "User",
-                               //    Prezime = "User",
-                               //    KorisnickoIme = "Huso",
-                               //    LozinkaHash = hash,
-                               //    LozinkaSalt = salt,
-                               //    DatumRegistracije = new DateTime(2023, 12, 10),
-                               //    DatumRodjenja = new DateTime(2000, 2, 1),
-                               //    Email = "user.user@gmail.com",
-                               //    Telefon = "063456734",
-                               //    Pol = "Muški",
-                               //    Tezina = 90,
-                               //    Visina = 190,
-                               //},
-                               // new Korisnici()
-                               // {
-                               //     Id = 10,
-                               //     Ime = "Amna",
-                               //     Prezime = "Kazimic",
-                               //     KorisnickoIme = "Amina",
-                               //     LozinkaHash = hash,
-                               //     LozinkaSalt = salt,
-                               //     DatumRegistracije = new DateTime(2023, 12, 10),
-                               //     DatumRodjenja = new DateTime(2000, 2, 1),
-                               //     Email = "amna.kazicim@gmail.com",
-                               //     Telefon = "062545896",
-                               //     Pol = "Ženski",
-                               //     Tezina = 60,
-                               //     Visina = 170,
-                               // }
-            ); ;
+            );
         }
 
         private void SeedNovosti(ModelBuilder modelBuilder)
@@ -240,23 +305,47 @@ namespace FitnessCentar.Services.Database
                      Tekst = "Pozdrav svim clanovima našeg centra. Danas sam isprobala jedan zdravi i brzi recept te sam odlucila da ga podjelim i sa vama. Radi se o salati od tune, ja sam koristila dodatno zelenu salatu, krastavce, kukuruz i mrkvu. Obrok je bio proteinski obogacen niskokalorican ali ipak dovoljno zasitan. Javite mi vaše utiske.",
                      DatumObjave = new DateTime(2023, 10, 26, 18, 22, 34),
                      AutorId = 1
+                 },
+                 new Novosti()
+                 {
+                     Id = 3,
+                     Naslov = "DaniSporta",
+                     Tekst = "Obavještavamo vas da ce se 10.12.2023 u našem centru održati dani sporta. Centar ce tog dana moci posjetiti svi clanovi fitnes centra besplatno. Takoder bice pice dobrodošlice, vrijeme cemo provoditi vježbajuci. Radujemo se da vas vidimo u velikom broju.",
+                     DatumObjave = new DateTime(2023, 10, 26, 18, 22, 34),
+                     AutorId = 3
+                 },
+                 new Novosti()
+                 {
+                     Id = 4,
+                     Naslov = "Slobodan dan ",
+                     Tekst = "Obavještavamo sve korisnike centra da centar nece raditi 1.1.2024,2.1.2024 i 3.1.2024. Razlog zatvaranja centra su novogodišnji praznici.Zahvaljujemo se na razumjevanju",
+                     DatumObjave = new DateTime(2023, 10, 26, 18, 22, 34),
+                     AutorId = 3
+                 },
+                 new Novosti()
+                 {
+                     Id = 5,
+                     Naslov = "Zadravi doručak:Ovsena kaša",
+                     Tekst = "Oduševljavamo vas najnovijim receptom za zdravu ovsenu kasu- Nova Ovsena Kaša! Sada možete započeti svoj dan zdravim doručkom koji će vam pružiti potrebnu energiju za uspješan trening.Ovsena kaša obogaćena je nutritivnim sastojcima, voćem i orašastim plodovima.Isprobajte ovu ukusnu i hranjivu opciju za doručak!",
+                     DatumObjave = new DateTime(2023, 10, 26, 18, 22, 34),
+                     AutorId = 2
+                 },
+                 new Novosti()
+                 {
+                     Id = 6,
+                     Naslov = "Dan žena",
+                     Tekst = "Molimo sve članice našeg fitness centra da sa puta pokupe svoje poklone za dan žena ukoiko to već nisu uradile.",
+                     DatumObjave = new DateTime(2023, 10, 26, 18, 22, 34),
+                     AutorId = 1
+                 },
+                 new Novosti()
+                 {
+                     Id = 7,
+                     Naslov = "Otkazan kružni trening",
+                     Tekst = "Obavještavamo sve korisnike centra da se trener razbolio, te se kružni treninzi danas neće održati.Hvala na razumjevanju",
+                     DatumObjave = new DateTime(2023, 10, 26, 18, 22, 34),
+                     AutorId = 3
                  }
-                  //new Novosti()
-                  //{
-                  //    Id = 3,
-                  //    Naslov = "DaniSporta",
-                  //    Tekst = "Obavještavamo vas da ce se 10.12.2023 u našem centru održati dani sporta. Centar ce tog dana moci posjetiti svi clanovi fitnes centra besplatno. Takoder bice pice dobrodošlice, vrijeme cemo provoditi vježbajuci. Radujemo se da vas vidimo u velikom broju.",
-                  //    DatumObjave = new DateTime(2023, 10, 26, 18, 22, 34),
-                  //    AutorId = 3
-                  //},
-                  // new Novosti()
-                  // {
-                  //     Id = 4,
-                  //     Naslov = "Slobodan dan ",
-                  //     Tekst = "Obavještavamo sve korisnike centra da centar nece raditi 1.1.2024,2.1.2024 i 3.1.2024. Razlog zatvaranja centra su novogodišnji praznici.Zahvaljujemo se na razumjevanju",
-                  //     DatumObjave = new DateTime(2023, 10, 26, 18, 22, 34),
-                  //     AutorId = 3
-                  // }
             );
         }
         private void SeedAktivnosti(ModelBuilder modelBuilder)
@@ -1091,7 +1180,97 @@ namespace FitnessCentar.Services.Database
 
             );
         }
+        private void SeedPregledanaNovost(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<PregledaneNovosti>().HasData(
+                 new PregledaneNovosti()
+                 {
+                     Id = 1,
+                     NovostId = 1,
+                     KorisnikId = 8
 
+
+                 },
+                 new PregledaneNovosti()
+                 {
+                     Id = 2,
+                     NovostId = 2,
+                     KorisnikId = 4
+
+
+                 }, new PregledaneNovosti()
+                 {
+                     Id = 3,
+                     NovostId = 1,
+                     KorisnikId = 4
+
+
+                 }, new PregledaneNovosti()
+                 {
+                     Id = 4,
+                     NovostId = 1,
+                     KorisnikId = 5
+
+
+                 },
+                 new PregledaneNovosti()
+                 {
+                     Id = 5,
+                     NovostId = 3,
+                     KorisnikId = 5
+
+                 },
+                 new PregledaneNovosti()
+                 {
+                     Id = 6,
+                     NovostId = 4,
+                     KorisnikId = 5
+
+                 },
+                 new PregledaneNovosti()
+                 {
+                     Id = 7,
+                     NovostId = 3,
+                     KorisnikId = 8
+
+                 },
+                 new PregledaneNovosti()
+                 {
+                     Id = 8,
+                     NovostId = 1,
+                     KorisnikId = 7
+
+                 },
+                 new PregledaneNovosti()
+                 {
+                     Id = 9,
+                     NovostId = 5,
+                     KorisnikId = 6
+
+                 },
+                 new PregledaneNovosti()
+                 {
+                     Id = 10,
+                     NovostId = 6,
+                     KorisnikId = 6
+
+                 },
+                 new PregledaneNovosti()
+                 {
+                     Id = 11,
+                     NovostId = 6,
+                     KorisnikId = 8
+
+                 },
+                 new PregledaneNovosti()
+                 {
+                     Id = 12,
+                     NovostId = 6,
+                     KorisnikId = 7
+
+                 }
+            );
+        }
 
         //private void SeedPlacanje(ModelBuilder modelBuilder)
         //{

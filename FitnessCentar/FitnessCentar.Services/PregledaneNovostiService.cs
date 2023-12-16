@@ -12,9 +12,9 @@ using System.Threading.Tasks;
 
 namespace FitnessCentar.Services
 {
-    public class PregledaneNovosti : BaseService<Model.PregledaneNovosti, Database.PregledaneNovosti, PregledaneNovostiSearchObject, PregledaneNovostiInsertRequest, PregledaneNovostiUpdate>, IPregledaneNovosti
+    public class PregledaneNovostiService : BaseService<Model.PregledaneNovosti, Database.PregledaneNovosti, PregledaneNovostiSearchObject, PregledaneNovostiInsertRequest, PregledaneNovostiUpdate>, IPregledaneNovosti
     {
-        public PregledaneNovosti(Ib200005rs2Context context, IMapper mapper) : base(context, mapper)
+        public PregledaneNovostiService(Ib200005rs2Context context, IMapper mapper) : base(context, mapper)
         {
         }
     }

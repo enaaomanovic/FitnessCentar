@@ -9,11 +9,13 @@ import 'package:fitness_mobile/providers/comment_provider.dart';
 import 'package:fitness_mobile/providers/news_provider.dart';
 import 'package:fitness_mobile/providers/progress_provider.dart';
 import 'package:fitness_mobile/providers/replyToComment.dart';
+import 'package:fitness_mobile/providers/seenNews_provider.dart';
 import 'package:fitness_mobile/providers/user_provider.dart';
 import 'package:fitness_mobile/screens/home_authenticated.dart';
+import 'package:fitness_mobile/screens/news_details.dart';
 import 'package:fitness_mobile/screens/trainer_list.dart';
 import 'package:fitness_mobile/screens/user_details.dart';
-import 'package:fitness_mobile/utils/utils.dart';
+
 import 'package:fitness_mobile/widgets/master_screens.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -32,14 +34,15 @@ class _NewsListScreen extends State<NewsListScreen> {
   late CommentProvider _commentProvider;
   late ProgressProvider _progressProvider;
   late ReplyToCommentProvider _replyToCommentProvider;
+  late SeenNewsProvider _seenNewsProvider;
 
-  Map<int?, bool> _isExpandedMap = {};
+Map<int?, bool> _isExpandedMap = {};
 
   var page = 1;
   var totalcount = 0;
   var numberOfnews = 3;
   bool isLoading = true;
-
+ 
   List<Novosti> _novosti = [];
 
   @override
@@ -50,6 +53,7 @@ class _NewsListScreen extends State<NewsListScreen> {
     _commentProvider = context.read<CommentProvider>();
     _progressProvider = context.read<ProgressProvider>();
     _replyToCommentProvider = context.read<ReplyToCommentProvider>();
+    _seenNewsProvider=context.read<SeenNewsProvider>();
     initForm();
     _loadData();
   }
@@ -229,6 +233,7 @@ class _NewsListScreen extends State<NewsListScreen> {
                                     fontSize: 18.0,
                                   ),
                                 )
+                                
                               : Text(
                                   "Sadržaj novosti: ${novost.tekst?.substring(0, 100) ?? ''}...",
                                   style: TextStyle(
@@ -253,25 +258,34 @@ class _NewsListScreen extends State<NewsListScreen> {
                 },
               ),
               Divider(),
+              
               ElevatedButton(
-                onPressed: () {
-                  setState(() {
-                    if (novost.id != null) {
-                      _isExpandedMap[novost.id!] =
-                          _isExpandedMap[novost.id!] != null
-                              ? !_isExpandedMap[novost.id!]!
-                              : false;
-                    }
-                  });
+                onPressed: () async {
+                 
+                 var userProvider =
+                      Provider.of<UserProvider>(context, listen: false);
+                  int? trenutniKorisnikId = userProvider.currentUserId;
+try{
+                  var request = <String, dynamic>{
+                    'novostId': novost.id,
+                    'korisnikId': trenutniKorisnikId,
+                  };
+                 
+
+                  await _seenNewsProvider.insert(request);
+
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => NewsDetails(novost: novost),
+                    ),
+                  );
+}catch(e){
+ 
+}
                 },
-                child: Text(
-                  _isExpandedMap[novost.id] != null
-                      ? (_isExpandedMap[novost.id]!
-                          ? "Smanji"
-                          : "Pročitaj više")
-                      : "Pročitaj više",
-                ),
-              ),
+            child: Text("Pročitaj više"),
+          ),
               Divider(),
               _buildCommentsButton(novost),
             ],
@@ -532,7 +546,7 @@ class _NewsListScreen extends State<NewsListScreen> {
     return Dialog(
       child: Container(
         width: 100,
-        height: 350, // Postavite željenu širinu dijaloga
+        height: 350, 
         child: Column(
           children: [
             Padding(

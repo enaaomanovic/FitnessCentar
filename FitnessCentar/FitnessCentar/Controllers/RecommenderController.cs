@@ -8,6 +8,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace FitnessCentar.Controllers
 {
+ 
+   
+
     public class RecommenderController
     {
         private readonly IRecommenderService _recommendService;
@@ -18,7 +21,7 @@ namespace FitnessCentar.Controllers
         }
 
         [Authorize]
-        [HttpGet("{novostId}")]
+        [HttpGet("RecommenderGet/{novostId}")]
         public virtual async Task<Model.Recommender?> Get(int novostId, CancellationToken cancellationToken = default)
         {
 
@@ -27,9 +30,6 @@ namespace FitnessCentar.Controllers
 
         }
 
-
-
-        
 
         [Authorize]
         [HttpPost("TrainModelAsync")]

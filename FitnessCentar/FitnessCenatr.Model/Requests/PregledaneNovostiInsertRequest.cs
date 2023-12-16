@@ -8,5 +8,13 @@ namespace FitnessCentar.Model.Requests
 {
     public class PregledaneNovostiInsertRequest
     {
+
+     
+ 
+        public int NovostId { get; set; }
+
+        public int KorisnikId { get; set; }
+
+
     }
 }

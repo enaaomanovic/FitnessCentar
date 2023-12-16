@@ -14,7 +14,7 @@ Rezervacija _$RezervacijaFromJson(Map<String, dynamic> json) => Rezervacija(
       json['datumRezervacija'] == null
           ? null
           : DateTime.parse(json['datumRezervacija'] as String),
-              json['placanjeId'] as int?,
+      json['placanjeId'] as int?,
     );
 
 Map<String, dynamic> _$RezervacijaToJson(Rezervacija instance) =>
@@ -24,5 +24,5 @@ Map<String, dynamic> _$RezervacijaToJson(Rezervacija instance) =>
       'rasporedId': instance.rasporedId,
       'status': instance.status,
       'datumRezervacija': instance.datumRezervacija?.toIso8601String(),
-      'placanjeId':instance.placanjeId
+      'placanjeId': instance.placanjeId,
     };

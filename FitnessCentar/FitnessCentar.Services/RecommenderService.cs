@@ -36,11 +36,9 @@ namespace FitnessCentar.Services
             var entity = await _context.Recommender.FirstOrDefaultAsync(x=>x.NovostId==id, cancellationToken);
             if (entity is null)
                 return null;
-            return Mapper.Map<Model.Recommender>(entity);
+            return _mapper.Map<Model.Recommender>(entity);
          
         }
-
-
 
 
 
