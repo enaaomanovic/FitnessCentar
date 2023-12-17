@@ -15,7 +15,7 @@ class RecommenderProvider extends ChangeNotifier {
 
   RecommenderProvider() {
      _baseUrl = const String.fromEnvironment("baseUrl",
-        defaultValue: "http://192.168.137.1:5266/");
+        defaultValue: "http://10.0.2.2:5266/");
   }
 
   Future getById(int id) async {
