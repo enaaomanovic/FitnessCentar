@@ -26,7 +26,7 @@ builder.Services.AddTransient<IRezervacijaService, RezervacijaService>();
 builder.Services.AddTransient<IRecommenderService, RecommenderService>();
 builder.Services.AddTransient<IPregledaneNovosti, PregledaneNovostiService>();
 builder.Services.AddTransient<INapredakService, NapredakService>();
-
+builder.Services.AddScoped<IRabbitMQProducer, RabbitMQProducer>();
 
 
 

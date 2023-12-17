@@ -19,6 +19,7 @@ namespace FitnessCentar.Controllers
             _logger = logger;
             _service = service;
         }
+       
         [HttpGet("GetPage")]
         public  async Task<PageResult<T>> GetPage([FromQuery] TSearch? search = null)
         {

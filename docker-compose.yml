@@ -1,5 +1,6 @@
 version: '3'
 services:
+
   rabbitMQ:
    image: rabbitmq:3-management
    container_name: 'rabbitmq_container'
@@ -7,12 +8,14 @@ services:
     - RABBITMQ_DEFAULT_USER=guest
     - RABBITMQ_DEFAULT_PASS=guest
    ports:
-    - 8050:15672
-    - 5672:5672
+    - "5672:5672"
+    - "15672:15672"
    expose:
     - 5672
    networks: 
     - fitnesscentarnet2023
+   volumes:
+    - rabbitmq_data:/var/lib/rabbitmq
 
   fitnesscentar_sql:
     container_name: app_db
@@ -32,14 +35,14 @@ services:
   fitnesscentar_api:
     restart: unless-stopped
     build:
-      context: ./FitnessCentar
+      context: .
     environment:
       - ConnectionStrings:DefaultConnection=Server=fitnesscentar_sql,1433;Database=IB200005RS2;User=sa;Password=Enaa!2001;ConnectRetryCount=0;TrustServerCertificate=True
       - ASPNETCORE_ENVIRONMENT=Development
-      - RABBITMQ_HOST=rabbitMQ
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
       - RABBITMQ_USERNAME=guest
-      - RABBITMQ_PASSWORD=guest
-      - RABBITMQ_VIRTUALHOST=/
+      - RABBITMQ_PASSWORD=guest 
     ports:
       - 5266:80
     networks:
@@ -50,27 +53,28 @@ services:
       - fitnesscentar_sql
       - rabbitMQ
 
-
-  #auxiliary:
-  #  restart: unless-stopped
-  #  build:
-  #    context: ./Auxiliary
-  #  environment:
-  #    - ASPNETCORE_ENVIRONMENT=Development
-  #    - RABBITMQ_HOST=rabbitMQ
-  #    - RABBITMQ_USERNAME=guest
-  #    - RABBITMQ_PASSWORD=guest
-  #    - RABBITMQ_VIRTUALHOST=/
-  #  ports:
-  #    - 7138:7138
-  #  networks:
-  #    - fitnesscentarnet2023
-  #  depends_on:
-  #    - rabbitMQ
-      
-    
-    
-  
+  rabbitmq-consumer:
+    restart: unless-stopped
+    build:
+      context: ./RabbitMQConsumer
+    environment:
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
+      - RABBITMQ_USERNAME=guest
+      - RABBITMQ_PASSWORD=guest
+      - SMTP_SERVER=smtp.gmail.com
+      - SMTP_PORT=587
+      - SMTP_USERNAME=fitnesscentar25@gmail.com
+      - SMTP_PASSWORD=jwzluzdnsprwoxjy
+    depends_on:
+      - fitnesscentar_sql
+      - fitnesscentar_api
+      - rabbitMQ
+    networks:
+      - fitnesscentarnet2023
+volumes:
+  rabbitmq_data:
 networks:
   fitnesscentarnet2023:
     driver: bridge
+

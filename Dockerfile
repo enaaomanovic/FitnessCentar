@@ -7,10 +7,10 @@ EXPOSE 443
 
 FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 WORKDIR /src
-COPY ["FitnessCentar/FitnessCentar.csproj", "FitnessCentar/"]
-RUN dotnet restore "FitnessCentar/FitnessCentar.csproj"
+COPY ["FitnessCentar.Api/FitnessCentar.csproj", "FitnessCentar.Api/"]
+RUN dotnet restore "FitnessCentar.Api/FitnessCentar.csproj"
 COPY . .
-WORKDIR "/src/FitnessCentar"
+WORKDIR "/src/FitnessCentar.Api"
 RUN dotnet build "FitnessCentar.csproj" -c Release -o /app/build
 
 FROM build AS publish

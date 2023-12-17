@@ -23,14 +23,17 @@ namespace FitnessCentar.Services
 {
     public class KorisniciService : BaseService<Model.Korisnici, Database.Korisnici, KorisniciSearchObject, KorisniciInsertRequest, KorisniciUpdateRequest>, IKorisniciService
     {
+        private readonly IRabbitMQProducer _rabbitMQProducer;
 
-        public KorisniciService(Ib200005rs2Context context, IMapper mapper) : base(context, mapper)
+        public KorisniciService(Ib200005rs2Context context, IMapper mapper, IRabbitMQProducer rabbitMQProducer) : base(context, mapper)
         {
+            _rabbitMQProducer = rabbitMQProducer;
 
         }
 
         public override async Task<Model.Korisnici> Insert(KorisniciInsertRequest request)
         {
+
             var entity = _mapper.Map<Database.Korisnici>(request);
             _context.Add(entity);
 
@@ -38,6 +41,15 @@ namespace FitnessCentar.Services
             entity.LozinkaSalt = GenerateSalt();
             entity.LozinkaHash = GenerateHash(entity.LozinkaSalt, request.Lozinka);
             _context.SaveChanges();
+            Model.EmailModel emailModel = new()
+            {
+                Content = "Dobro došli u naš Fitness Centar",
+                Recipient = request.Email,
+                Sender = "fitnesscentar25@gmail.com",
+                Subject = "Poruka dobrodošlice"
+
+            };
+            _rabbitMQProducer.SendMessage(emailModel);
 
             return _mapper.Map<Model.Korisnici>(entity);
         }
@@ -148,9 +160,9 @@ namespace FitnessCentar.Services
             query = AddInclude(query);
             var entity = await query.FirstOrDefaultAsync();
 
-            return  _mapper.Map<Model.Korisnici>(entity);
+            return _mapper.Map<Model.Korisnici>(entity);
         }
-        
+
         public override IQueryable<Korisnici> AddFilter(IQueryable<Korisnici> query, KorisniciSearchObject? search = null)
         {
             var filteredQuery = base.AddFilter(query, search);
@@ -168,10 +180,10 @@ namespace FitnessCentar.Services
 
                 if (!string.IsNullOrWhiteSpace(search.FTS))
                 {
-                    var ftsFilter = search.FTS.ToLower(); 
+                    var ftsFilter = search.FTS.ToLower();
                     filteredQuery = filteredQuery.Where(x =>
-                        x.Ime.ToLower().Contains(ftsFilter) || 
-                        x.Prezime.ToLower().Contains(ftsFilter) 
+                        x.Ime.ToLower().Contains(ftsFilter) ||
+                        x.Prezime.ToLower().Contains(ftsFilter)
                     );
                 }
             }
