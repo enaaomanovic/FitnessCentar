@@ -422,7 +422,7 @@ class _UserDetalScreenState extends State<UserDetalScreen> {
                 child: ConstrainedBox(
                     constraints: BoxConstraints(
                       maxWidth: 400.0,
-                      maxHeight: 500.0,
+                      maxHeight: 520.0,
                     ),
                     child: ClipRect(
                       child: userImage != null
@@ -464,7 +464,7 @@ class _UserDetalScreenState extends State<UserDetalScreen> {
             ),
             child: SizedBox(
               width: 900,
-              height: 500,
+              height: 520,
               child: Padding(
                 padding: const EdgeInsets.all(40.0),
                 child: Column(
