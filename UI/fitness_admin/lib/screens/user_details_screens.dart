@@ -41,6 +41,7 @@ class _UserDetalScreenState extends State<UserDetalScreen> {
 
   @override
   void initState() {
+     DateFormat dateFormat = DateFormat('yyyy-MM-dd');
     // TODO: implement initState
     super.initState();
     if ((widget.korisnik?.slika != null &&
@@ -50,8 +51,8 @@ class _UserDetalScreenState extends State<UserDetalScreen> {
         'ime': widget.korisnik?.ime,
         'prezime': widget.korisnik?.prezime,
         'korisnickoIme': widget.korisnik?.korisnickoIme,
-        "datumRegistracije": widget.korisnik?.datumRegistracije.toString(),
-        "datumRodjenja": widget.korisnik?.datumRodjenja.toString(),
+      'datumRegistracije': dateFormat.format(widget.korisnik!.datumRegistracije!),
+            'datumRodjenja': dateFormat.format(widget.korisnik!.datumRodjenja!),
         "pol": widget.korisnik?.pol,
         "telefon": widget.korisnik?.telefon,
         "tezina": widget.korisnik?.tezina.toString(),
@@ -65,8 +66,8 @@ class _UserDetalScreenState extends State<UserDetalScreen> {
         'ime': widget.korisnik?.ime,
         'prezime': widget.korisnik?.prezime,
         'korisnickoIme': widget.korisnik?.korisnickoIme,
-        "datumRegistracije": widget.korisnik?.datumRegistracije.toString(),
-        "datumRodjenja": widget.korisnik?.datumRodjenja.toString(),
+        'datumRegistracije': dateFormat.format(widget.korisnik!.datumRegistracije!),
+            'datumRodjenja': dateFormat.format(widget.korisnik!.datumRodjenja!),
         "pol": widget.korisnik?.pol,
         "telefon": widget.korisnik?.telefon,
         "tezina": widget.korisnik?.tezina.toString(),
