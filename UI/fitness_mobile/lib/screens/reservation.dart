@@ -928,7 +928,7 @@ class _ScheduleListScreenState extends State<ScheduleListScreen> {
                             onPressed: () {
                               _showReservationDialog();
                             },
-                            child: Text('Pregled rezervacija'),
+                            child: Text('Rezervacija'),
                             style: ElevatedButton.styleFrom(
                               minimumSize: Size(
                                 150,
