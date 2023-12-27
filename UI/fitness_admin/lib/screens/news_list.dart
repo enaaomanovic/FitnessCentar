@@ -144,115 +144,244 @@ class _NewsListScrean extends State<NewsListScrean> {
       ),
     );
   }
+Widget _buildDataListView(List<Novosti> novosti) {
+  var userProvider = Provider.of<UserProvider>(context, listen: false);
+  int? trenutniKorisnikId = userProvider.currentUserId;
 
-  Widget _buildDataListView(List<Novosti> novosti) {
-    return Padding(
-      padding: EdgeInsets.only(top: 20.0),
-      child: Align(
-        child: Card(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10.0),
-          ),
-          child: Container(
-            width: 900,
-            padding: EdgeInsets.all(20.0),
-            child: SingleChildScrollView(
-              child: Column(
-                children: novosti.asMap().entries.map((entry) {
-                  int index = entry.key;
-                  Novosti novost = entry.value;
-                  return Padding(
-                    padding: EdgeInsets.only(bottom: 20.0),
-                    child: Card(
-                      shape: RoundedRectangleBorder(
-                        side: BorderSide(color: Colors.purple, width: 2.0),
-                        borderRadius: BorderRadius.circular(10.0),
-                      ),
-                      child: Column(
-                        children: <Widget>[
-                          Text(
-                            novost.naslov ?? "",
+  return Padding(
+    padding: EdgeInsets.only(top: 20.0),
+    child: Align(
+      child: Card(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10.0),
+        ),
+        child: Container(
+          width: 900,
+          padding: EdgeInsets.all(20.0),
+          child: SingleChildScrollView(
+            child: Column(
+              children: novosti.asMap().entries.map((entry) {
+                int index = entry.key;
+                Novosti novost = entry.value;
+                bool isAuthor = trenutniKorisnikId == novost.autorId;
+
+                return Padding(
+                  padding: EdgeInsets.only(bottom: 20.0),
+                  child: Card(
+                    shape: RoundedRectangleBorder(
+                      side: BorderSide(color: Colors.purple, width: 2.0),
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
+                    child: Column(
+                      children: <Widget>[
+                        Align(
+                          alignment: Alignment.topRight,
+                          child: Padding(
+                            padding: const EdgeInsets.only(top: 8.0, right: 8.0),
+                            child: isAuthor
+                                ? ElevatedButton(
+                                    onPressed: () {
+                                      // Logika za uređivanje novosti
+                                      print('Uredi novost');
+                                    },
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Text('Uredi novost'),
+                                    ),
+                                  )
+                                : Container(),
+                          ),
+                        ),
+                        Text(
+                          novost.naslov ?? "",
+                          style: TextStyle(
+                            fontSize: 24.0,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        ListTile(
+                          title: Text(
+                            "Datum objave: ${DateFormat('dd.MM.yyyy').format(novost.datumObjave ?? DateTime.now())}",
                             style: TextStyle(
-                              fontSize: 24.0,
+                              fontSize: 16.0,
                               fontWeight: FontWeight.bold,
                             ),
+                            textAlign: TextAlign.left,
                           ),
-                          ListTile(
-                            title: Text(
-                              "Datum objave: ${DateFormat('dd.MM.yyyy').format(novost.datumObjave ?? DateTime.now())}",
-                              style: TextStyle(
-                                fontSize: 16.0,
-                                fontWeight: FontWeight.bold,
-                              ),
-                              textAlign: TextAlign.left,
-                            ),
-                            subtitle: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                FutureBuilder<Korisnici?>(
-                                  future:
-                                      getUserFromUserId(novost.autorId ?? 0),
-                                  builder: (context, snapshot) {
-                                    if (snapshot.connectionState ==
-                                        ConnectionState.done) {
-                                      final author = snapshot.data;
-                                      if (author != null) {
-                                        return ListTile(
-                                          title: Text(
-                                            "Objavio: ${author.ime} ${author.prezime}",
-                                            style: TextStyle(
-                                              fontSize: 16.0,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                            textAlign: TextAlign.right,
+                          subtitle: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              FutureBuilder<Korisnici?>(
+                                future: getUserFromUserId(novost.autorId ?? 0),
+                                builder: (context, snapshot) {
+                                  if (snapshot.connectionState == ConnectionState.done) {
+                                    final author = snapshot.data;
+                                    if (author != null) {
+                                      return ListTile(
+                                        title: Text(
+                                          "Objavio: ${author.ime} ${author.prezime}",
+                                          style: TextStyle(
+                                            fontSize: 16.0,
+                                            fontWeight: FontWeight.bold,
                                           ),
-                                          subtitle: Text(
-                                            "Sadržaj novosti: ${novost.tekst ?? ''}",
-                                            style: TextStyle(
-                                              fontSize: 18.0,
-                                            ),
+                                          textAlign: TextAlign.right,
+                                        ),
+                                        subtitle: Text(
+                                          "Sadržaj novosti: ${novost.tekst ?? ''}",
+                                          style: TextStyle(
+                                            fontSize: 18.0,
                                           ),
-                                        );
-                                      } else {
-                                        return Text("Objavio: Nepoznat autor");
-                                      }
+                                        ),
+                                      );
                                     } else {
-                                      return Text("Objavio: Učitavanje...");
+                                      return Text("Objavio: Nepoznat autor");
                                     }
-                                  },
-                                ),
-                                ElevatedButton(
-                                  onPressed: () {
-                                    setState(() {
-                                      openedComments[novost.id ?? 0] =
-                                          !(openedComments[novost.id ?? 0] ??
-                                              false);
-                                    });
-                                    if (showComments) {
-                                      _buildComments(novost.id ?? 0);
-                                    }
-                                  },
-                                  child: Text('Komentari'),
-                                ),
-                                if (openedComments[novost.id ?? 0] ?? false)
-                                  _buildComments(novost.id ?? 0),
-                              ],
-                            ),
-                            onTap: () {},
+                                  } else {
+                                    return Text("Objavio: Učitavanje...");
+                                  }
+                                },
+                              ),
+                              ElevatedButton(
+                                onPressed: () {
+                                  setState(() {
+                                    openedComments[novost.id ?? 0] =
+                                        !(openedComments[novost.id ?? 0] ?? false);
+                                  });
+                                  if (showComments) {
+                                    _buildComments(novost.id ?? 0);
+                                  }
+                                },
+                                child: Text('Komentari'),
+                              ),
+                              if (openedComments[novost.id ?? 0] ?? false)
+                                _buildComments(novost.id ?? 0),
+                            ],
                           ),
-                          Divider(),
-                        ],
-                      ),
+                          onTap: () {},
+                        ),
+                        Divider(),
+                      ],
                     ),
-                  );
-                }).toList(),
-              ),
+                  ),
+                );
+              }).toList(),
             ),
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
+
+
+  // Widget _buildDataListView(List<Novosti> novosti) {
+  //   return Padding(
+  //     padding: EdgeInsets.only(top: 20.0),
+  //     child: Align(
+  //       child: Card(
+  //         shape: RoundedRectangleBorder(
+  //           borderRadius: BorderRadius.circular(10.0),
+  //         ),
+  //         child: Container(
+  //           width: 900,
+  //           padding: EdgeInsets.all(20.0),
+  //           child: SingleChildScrollView(
+  //             child: Column(
+  //               children: novosti.asMap().entries.map((entry) {
+  //                 int index = entry.key;
+  //                 Novosti novost = entry.value;
+  //                 return Padding(
+  //                   padding: EdgeInsets.only(bottom: 20.0),
+  //                   child: Card(
+  //                     shape: RoundedRectangleBorder(
+  //                       side: BorderSide(color: Colors.purple, width: 2.0),
+  //                       borderRadius: BorderRadius.circular(10.0),
+  //                     ),
+  //                     child: Column(
+  //                       children: <Widget>[
+  //                         Text(
+  //                           novost.naslov ?? "",
+  //                           style: TextStyle(
+  //                             fontSize: 24.0,
+  //                             fontWeight: FontWeight.bold,
+  //                           ),
+  //                         ),
+  //                         ListTile(
+  //                           title: Text(
+  //                             "Datum objave: ${DateFormat('dd.MM.yyyy').format(novost.datumObjave ?? DateTime.now())}",
+  //                             style: TextStyle(
+  //                               fontSize: 16.0,
+  //                               fontWeight: FontWeight.bold,
+  //                             ),
+  //                             textAlign: TextAlign.left,
+  //                           ),
+  //                           subtitle: Column(
+  //                             crossAxisAlignment: CrossAxisAlignment.start,
+  //                             children: [
+  //                               FutureBuilder<Korisnici?>(
+  //                                 future:
+  //                                     getUserFromUserId(novost.autorId ?? 0),
+  //                                 builder: (context, snapshot) {
+  //                                   if (snapshot.connectionState ==
+  //                                       ConnectionState.done) {
+  //                                     final author = snapshot.data;
+  //                                     if (author != null) {
+  //                                       return ListTile(
+  //                                         title: Text(
+  //                                           "Objavio: ${author.ime} ${author.prezime}",
+  //                                           style: TextStyle(
+  //                                             fontSize: 16.0,
+  //                                             fontWeight: FontWeight.bold,
+  //                                           ),
+  //                                           textAlign: TextAlign.right,
+  //                                         ),
+  //                                         subtitle: Text(
+  //                                           "Sadržaj novosti: ${novost.tekst ?? ''}",
+  //                                           style: TextStyle(
+  //                                             fontSize: 18.0,
+  //                                           ),
+  //                                         ),
+  //                                       );
+  //                                     } else {
+  //                                       return Text("Objavio: Nepoznat autor");
+  //                                     }
+  //                                   } else {
+  //                                     return Text("Objavio: Učitavanje...");
+  //                                   }
+  //                                 },
+  //                               ),
+  //                               ElevatedButton(
+  //                                 onPressed: () {
+  //                                   setState(() {
+  //                                     openedComments[novost.id ?? 0] =
+  //                                         !(openedComments[novost.id ?? 0] ??
+  //                                             false);
+  //                                   });
+  //                                   if (showComments) {
+  //                                     _buildComments(novost.id ?? 0);
+  //                                   }
+  //                                 },
+  //                                 child: Text('Komentari'),
+  //                               ),
+  //                               if (openedComments[novost.id ?? 0] ?? false)
+  //                                 _buildComments(novost.id ?? 0),
+  //                             ],
+  //                           ),
+  //                           onTap: () {},
+  //                         ),
+  //                         Divider(),
+  //                       ],
+  //                     ),
+  //                   ),
+  //                 );
+  //               }).toList(),
+  //             ),
+  //           ),
+  //         ),
+  //       ),
+  //     ),
+  //   );
+  // }
 
   Widget _buildComments(int novostiId) {
     return FutureBuilder<List<Komentari>>(
