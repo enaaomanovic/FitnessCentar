@@ -6,6 +6,7 @@ import 'package:fitness_admin/providers/progress_provider.dart';
 import 'package:fitness_admin/providers/replyToComment_provider.dart';
 import 'package:fitness_admin/providers/reservation_provider.dart';
 import 'package:fitness_admin/providers/schedule_provider.dart';
+import 'package:fitness_admin/providers/trainer_provider.dart';
 import 'package:fitness_admin/providers/user_provider.dart';
 import 'package:fitness_admin/providers/workout_provider.dart';
 import 'package:fitness_admin/screens/home_unauthenticated.dart';
@@ -25,7 +26,8 @@ void main() {
     ChangeNotifierProvider(create: (_)=>CommentProvider()),
     ChangeNotifierProvider(create: (_)=>ReplyToCommentProvider()),
     ChangeNotifierProvider(create: (_)=>ProgressProvider()),
-    ChangeNotifierProvider(create: (_)=>PayProvider())],
+    ChangeNotifierProvider(create: (_)=>PayProvider()),
+    ChangeNotifierProvider(create: (_)=>TrainerProvider())],
     
 
 

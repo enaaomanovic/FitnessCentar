@@ -10,6 +10,7 @@ import 'package:fitness_admin/screens/home_unauthenticated.dart';
 import 'package:fitness_admin/screens/news_list.dart';
 import 'package:fitness_admin/screens/report.dart';
 import 'package:fitness_admin/screens/schedule_list.dart';
+import 'package:fitness_admin/screens/treiner_list.dart';
 import 'package:fitness_admin/screens/user_details_screens.dart';
 import 'package:fitness_admin/screens/user_list.dart';
 import 'package:fitness_admin/utils/util.dart';
@@ -176,7 +177,7 @@ class HomeAuthenticated extends StatelessWidget {
                         ),
                       ),
                     ),
-                    SizedBox(width: 100),
+                    SizedBox(width: 50),
                     ElevatedButton(
                       onPressed: () {
                         Navigator.of(context).push(
@@ -193,7 +194,7 @@ class HomeAuthenticated extends StatelessWidget {
                         ),
                       ),
                     ),
-                    SizedBox(width: 100),
+                    SizedBox(width: 50),
                     ElevatedButton(
                       onPressed: () {
                         Navigator.of(context).push(
@@ -232,7 +233,7 @@ class HomeAuthenticated extends StatelessWidget {
                         ),
                       ),
                     ),
-                    SizedBox(width: 100),
+                    SizedBox(width: 50),
                     ElevatedButton(
                       onPressed: () {
                         Navigator.of(context).push(
@@ -249,7 +250,41 @@ class HomeAuthenticated extends StatelessWidget {
                         ),
                       ),
                     ),
-                    SizedBox(width: 100),
+                    SizedBox(width: 50),
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => const ScheduleListScreen(),
+                          ),
+                        );
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.all(20.0),
+                        child: Text(
+                          "Pregled plaćenih rezervacija",
+                          style: TextStyle(fontSize: 18),
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: 50),
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => const TreneriScreen(),
+                          ),
+                        );
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.all(20.0),
+                        child: Text(
+                          "Lista trenera",
+                          style: TextStyle(fontSize: 18),
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: 50),
                   ],
                 ),
               ],
@@ -260,3 +295,6 @@ class HomeAuthenticated extends StatelessWidget {
     );
   }
 }
+
+
+
