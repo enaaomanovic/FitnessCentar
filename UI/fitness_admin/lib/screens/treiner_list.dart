@@ -7,6 +7,7 @@ import 'package:fitness_admin/models/trener.dart';
 import 'package:fitness_admin/providers/progress_provider.dart';
 import 'package:fitness_admin/providers/trainer_provider.dart';
 import 'package:fitness_admin/providers/user_provider.dart';
+import 'package:fitness_admin/screens/edit_trainer.dart';
 import 'package:fitness_admin/widgets/master_screens.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -48,6 +49,10 @@ class _TreneriScreen extends State<TreneriScreen> {
     setState(() {
       result = data;
     });
+  }
+
+  void _refreshData() {
+    _loadData();
   }
 
   Future<Korisnici?> getKorisnikFromId(int userId) async {
@@ -246,8 +251,20 @@ class _TreneriScreen extends State<TreneriScreen> {
                           child: Align(
                             alignment: Alignment.centerRight,
                             child: ElevatedButton(
-                              onPressed: () {
-                                print('Uredi svoj profil');
+                              onPressed: () async {
+                                var result = await Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => EditTrainerScreen(
+                                            userId: user.id ?? 0,
+                                            refreshDataCallback: _refreshData,
+                                          )),
+                                );
+
+                                if (result == true) {
+                                  // Osvežavanje podataka na prethodnoj stranici
+                                  _refreshData();
+                                }
                               },
                               style: ElevatedButton.styleFrom(
                                 padding: EdgeInsets.all(20.0),

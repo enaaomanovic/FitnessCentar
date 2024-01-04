@@ -158,13 +158,7 @@ class _UserListScrean extends State<UserListScrean> {
                           TextStyle(fontStyle: FontStyle.italic, fontSize: 19),
                     ),
                   ),
-                  DataColumn(
-                    label: Text(
-                      'Korisničko ime',
-                      style:
-                          TextStyle(fontStyle: FontStyle.italic, fontSize: 19),
-                    ),
-                  ),
+                 
                   DataColumn(
                     label: Text(
                       'Slika',
@@ -172,6 +166,14 @@ class _UserListScrean extends State<UserListScrean> {
                           TextStyle(fontStyle: FontStyle.italic, fontSize: 19),
                     ),
                   ),
+                       DataColumn(
+                    label: Text(
+                      'Uređivanja',
+                      style:
+                          TextStyle(fontStyle: FontStyle.italic, fontSize: 19),
+                    ),
+                  ),
+                   
                 ],
                 rows: pageresult
                         ?.map((Korisnici e) => DataRow(
@@ -199,12 +201,7 @@ class _UserListScrean extends State<UserListScrean> {
                                   Text(e.prezime ?? "",
                                       style: TextStyle(fontSize: 20)),
                                 ),
-                                DataCell(
-                                  Text(
-                                    e.korisnickoIme ?? "",
-                                    style: TextStyle(fontSize: 20),
-                                  ),
-                                ),
+                               
                                 DataCell(
                                   e.slika != ""
                                       ? Container(
@@ -215,6 +212,15 @@ class _UserListScrean extends State<UserListScrean> {
                                         )
                                       : Image.asset(
                                           'assets/images/male_icon.jpg'),
+
+                                ),
+                                    DataCell(
+                                  ElevatedButton(
+                                    onPressed: () {
+                                    
+                                    },
+                                    child: Text('Uredi korisnikov profil'),
+                                  ),
                                 ),
                               ],
                             ))

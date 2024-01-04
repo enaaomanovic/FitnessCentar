@@ -81,7 +81,8 @@ class _NewsListScrean extends State<NewsListScrean> {
       pageButtons.add(
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8.0),
-          child: ElevatedButton(
+          child:
+           ElevatedButton(
             onPressed: () {
               setState(() {
                 page = i;
