@@ -309,7 +309,12 @@ Future<void> _updateSpecijalnost(BuildContext context) async {
                   );
 
                   FocusScope.of(context).unfocus();
-                  Navigator.of(context).pop();
+                 // Navigator.of(context).pop();
+                   Navigator.pop(context, true);
+
+    // Dodajte sledeću liniju kako biste obavestili prethodni ekran da treba osvežiti podatke
+    widget.refreshDataCallback();
+  
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
