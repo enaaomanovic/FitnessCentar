@@ -9,6 +9,7 @@ import 'package:fitness_admin/providers/replyToComment_provider.dart';
 import 'package:fitness_admin/providers/user_provider.dart';
 import 'package:fitness_admin/widgets/master_screens.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
@@ -33,6 +34,7 @@ class _NewsListScrean extends State<NewsListScrean> {
   List<Novosti> _novosti = [];
   bool showComments = false;
   Map<int, bool> openedComments = {};
+
 
   @override
   void initState() {
@@ -182,7 +184,7 @@ Widget _buildDataListView(List<Novosti> novosti) {
                             child: isAuthor
                                 ? ElevatedButton(
                                     onPressed: () {
-                                      // Logika za uređivanje novosti
+                                      _editNews(context,novost.id?? 0);
                                       print('Uredi novost');
                                     },
                                     child: Padding(
@@ -271,6 +273,146 @@ Widget _buildDataListView(List<Novosti> novosti) {
         ),
       ),
     ),
+  );
+}
+
+Future<void> _editNews(BuildContext context, int novostId) async {
+  final GlobalKey<FormBuilderState> _formKey = GlobalKey<FormBuilderState>();
+  TextEditingController _naslovController = TextEditingController();
+  TextEditingController _sadrzajController = TextEditingController();
+
+   // Load existing news data
+  Novosti existingNovost = await _newsProvider.getById(novostId);
+  
+  // Set initial values for the controllers
+  _naslovController.text = existingNovost.naslov ?? '';
+  _sadrzajController.text = existingNovost.tekst ?? '';
+
+  await showDialog<void>(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text('Edituj novost'),
+            IconButton(
+              icon: Icon(Icons.close),
+              onPressed: () {
+                FocusScope.of(context).unfocus();
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        ),
+        content: Container(
+          width: MediaQuery.of(context).size.width * 0.3,
+          height: MediaQuery.of(context).size.height * 0.3, // Adjust the width as needed
+          child: FormBuilder(
+            key: _formKey,
+            autovalidateMode: AutovalidateMode.always,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                FormBuilderTextField(
+                  controller: _naslovController,
+                  decoration: InputDecoration(
+                    labelText: 'Naslov',
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(
+                        color: Colors.purple, // Set the border color
+                        width: 2.0, // Set the border width
+                      ),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(
+                        color: Colors.purple, // Set the border color
+                        width: 1.5, // Set the border width
+                      ),
+                    ),
+                  ),
+                  validator: (value) {
+                    if (_formKey.currentState?.fields['naslov']?.isDirty == true) {
+                      if (value == null || value.isEmpty) {
+                        return 'Ovo polje je obavezno!';
+                      }
+                    }
+                    return null;
+                  },
+                  name: 'naslov',
+                ),
+                SizedBox(height: 16), // Adjust spacing between the inputs
+                FormBuilderTextField(
+                  controller: _sadrzajController,
+                  maxLines: 5,
+                  decoration: InputDecoration(
+                    labelText: 'Sadržaj',
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(
+                        color: Colors.purple, // Set the border color
+                        width: 2.0, // Set the border width
+                      ),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(
+                        color: Colors.purple, // Set the border color
+                        width: 1.5, // Set the border width
+                      ),
+                    ),
+                  ),
+                  validator: (value) {
+                    if (_formKey.currentState?.fields['tekst']?.isDirty == true) {
+                      if (value == null || value.isEmpty) {
+                        return 'Ovo polje je obavezno!';
+                      }
+                    }
+                    return null;
+                  },
+                  name: 'tekst',
+                ),
+              ],
+            ),
+          ),
+        ),
+        actions: [
+          ElevatedButton(
+            onPressed: () async {
+              if (_formKey.currentState!.validate()) {
+                String newNaslov = _naslovController.text;
+                String newSadrzaj = _sadrzajController.text;
+
+                Map<String, dynamic> request = {
+                  'naslov': newNaslov,
+                  'tekst': newSadrzaj,
+                };
+                var res = await _newsProvider.update(novostId, request);
+
+                if (res is Novosti) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Novost uspešno ažurirana!'),
+                      duration: Duration(seconds: 2),
+                    ),
+                  );
+
+                  FocusScope.of(context).unfocus();
+                  Navigator.pop(context);
+                  _loadData();
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Greška pri ažuriranju novosti'),
+                      duration: Duration(seconds: 2),
+                    ),
+                  );
+                }
+              }
+            },
+            child: Text('Spasi'),
+          ),
+        ],
+      );
+    },
   );
 }
 
@@ -602,4 +744,5 @@ Widget _buildDataListView(List<Novosti> novosti) {
       },
     );
   }
+  
 }
