@@ -185,7 +185,7 @@ Widget _buildDataListView(List<Novosti> novosti) {
                                 ? ElevatedButton(
                                     onPressed: () {
                                       _editNews(context,novost.id?? 0);
-                                      print('Uredi novost');
+                                    
                                     },
                                     child: Padding(
                                       padding: const EdgeInsets.all(8.0),

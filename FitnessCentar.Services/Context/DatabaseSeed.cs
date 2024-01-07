@@ -12,7 +12,7 @@ namespace FitnessCentar.Services.Database
         private readonly DateTime _dateTime = new(2023, 2, 1, 0, 0, 0, 0, DateTimeKind.Local);
 
 
-        private void SeedData(ModelBuilder modelBuilder)
+        private void SeedData(ModelBuilder modelBuilder) 
         {
             SeedTreneri(modelBuilder);
             SeedKorisnici(modelBuilder);

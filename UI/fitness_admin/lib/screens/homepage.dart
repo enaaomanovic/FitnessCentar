@@ -9,6 +9,7 @@ import 'package:fitness_admin/screens/add_user.dart';
 import 'package:fitness_admin/screens/home_unauthenticated.dart';
 import 'package:fitness_admin/screens/news_list.dart';
 import 'package:fitness_admin/screens/report.dart';
+import 'package:fitness_admin/screens/reservation_list.dart';
 import 'package:fitness_admin/screens/schedule_list.dart';
 import 'package:fitness_admin/screens/treiner_list.dart';
 import 'package:fitness_admin/screens/user_details_screens.dart';
@@ -255,7 +256,7 @@ class HomeAuthenticated extends StatelessWidget {
                       onPressed: () {
                         Navigator.of(context).push(
                           MaterialPageRoute(
-                            builder: (context) => const ScheduleListScreen(),
+                            builder: (context) => const ReservationListScrean(),
                           ),
                         );
                       },
