@@ -10,7 +10,7 @@ int? rasporedId;
 String? status;
 DateTime? datumRezervacija;
 int? placanjeId;
-
+ bool istekla = false;
 
 
 
