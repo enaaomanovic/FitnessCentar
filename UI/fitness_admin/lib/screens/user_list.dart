@@ -1,4 +1,5 @@
 import 'package:fitness_admin/models/korisnici.dart';
+import 'package:fitness_admin/screens/edit_user.dart';
 import 'package:fitness_admin/screens/user_details_screens.dart';
 import 'package:fitness_admin/widgets/master_screens.dart';
 import 'package:flutter/material.dart';
@@ -133,6 +134,11 @@ class _UserListScrean extends State<UserListScrean> {
     );
   }
 
+   void _refreshData() {
+    _loadData();
+  }
+
+
   Widget _buildDataListView() {
     return Expanded(
       child: ListView(
@@ -216,8 +222,22 @@ class _UserListScrean extends State<UserListScrean> {
                                 ),
                                     DataCell(
                                   ElevatedButton(
-                                    onPressed: () {
-                                    
+                                    onPressed: ()async {
+                                      var result = await Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => EditUserScreen(
+                                            userId: e.id ?? 0,
+                                            refreshDataCallback: _refreshData,
+                                          )
+                                          ),
+                                );
+
+                                if (result == true) {
+                                  // Osvežavanje podataka na prethodnoj stranici
+                                  _refreshData();
+                                }
+                        
                                     },
                                     child: Text('Uredi korisnikov profil'),
                                   ),
