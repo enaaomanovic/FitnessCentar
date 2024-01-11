@@ -14,6 +14,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 class TreneriScreen extends StatefulWidget {
+
   const TreneriScreen({Key? key}) : super(key: key);
 
   @override
@@ -144,7 +145,8 @@ class _TreneriScreen extends State<TreneriScreen> {
       ),
       child: ListTile(
         contentPadding: EdgeInsets.all(10.0),
-        title: FutureBuilder<Korisnici?>(
+        title: 
+        FutureBuilder<Korisnici?>(
           future: getKorisnikFromId(trener.id ?? 0),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {

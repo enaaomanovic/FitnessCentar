@@ -1,12 +1,9 @@
-import 'dart:convert';
-import 'dart:io';
 
-import 'package:file_picker/file_picker.dart';
-import 'package:fitness_admin/models/korisnici.dart';
-import 'package:fitness_admin/models/trener.dart';
-import 'package:fitness_admin/providers/trainer_provider.dart';
-import 'package:fitness_admin/providers/user_provider.dart';
-import 'package:fitness_admin/widgets/master_screens.dart';
+import 'package:fitness_mobile/models/korisnici.dart';
+import 'package:fitness_mobile/models/trener.dart';
+import 'package:fitness_mobile/providers/trainer_provider.dart';
+import 'package:fitness_mobile/providers/user_provider.dart';
+import 'package:fitness_mobile/widgets/master_screens.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
@@ -18,10 +15,10 @@ class EditUserScreen extends StatefulWidget {
   const EditUserScreen({Key? key, required this.userId,required this.refreshDataCallback}) : super(key: key);
 
   @override
-  _EditUserScreenState createState() => _EditUserScreenState();
+  _EditUserScreen createState() => _EditUserScreen();
 }
 
-class _EditUserScreenState extends State<EditUserScreen> {
+class _EditUserScreen extends State<EditUserScreen> {
   final _formKey = GlobalKey<FormBuilderState>();
 
   late UserProvider _userProvider;
@@ -30,9 +27,9 @@ class _EditUserScreenState extends State<EditUserScreen> {
   // Dodajte kontrolere ovdje
   TextEditingController _imeController = TextEditingController();
   TextEditingController _prezimeController = TextEditingController();
-  TextEditingController _specijalnostController = TextEditingController();
+ 
   TextEditingController _telefonController = TextEditingController();
-  TextEditingController _korisnickoImeController = TextEditingController();
+
   TextEditingController _emailController = TextEditingController();
 
   @override
@@ -44,9 +41,9 @@ class _EditUserScreenState extends State<EditUserScreen> {
     // Inicijalizacija kontrolera
     _imeController = TextEditingController();
     _prezimeController = TextEditingController();
-    _specijalnostController = TextEditingController();
+  
     _telefonController = TextEditingController();
-    _korisnickoImeController = TextEditingController();
+
     _emailController = TextEditingController();
 
     _loadUserData(widget.userId);
@@ -57,9 +54,9 @@ class _EditUserScreenState extends State<EditUserScreen> {
     return user;
   }
 
-
   void _loadUserData(int userId) async {
     Korisnici? user = await getUserFromUserId(userId);
+
 
     if (user != null) {
       setState(() {
@@ -67,33 +64,20 @@ class _EditUserScreenState extends State<EditUserScreen> {
         _formKey.currentState?.patchValue({
           'ime': user.ime ?? '',
           'prezime': user.prezime ?? '',
+         
           'telefon': user.telefon ?? '',
-          'korisnickoIme': user.korisnickoIme ?? '',
-          'slika':user.slika,
+  
           'email': user.email ?? '',
         });
 
         // Postavljamo vrednosti u kontrolere
         _imeController.text = user.ime ?? '';
         _prezimeController.text = user.prezime ?? '';
-
+  
         _telefonController.text = user.telefon ?? '';
-        _korisnickoImeController.text = user.korisnickoIme ?? '';
+
         _emailController.text = user.email ?? '';
       });
-    }
-  }
-
-    File? _image;
-  String? _base64Image;
-    bool _removeImage = false;
-  
-  Future getImage() async {
-    var result = await FilePicker.platform.pickFiles(type: FileType.image);
-
-    if (result != null && result.files.single.path != null) {
-      _image = File(result.files.single.path!);
-      _base64Image = base64Encode(_image!.readAsBytesSync());
     }
   }
 
@@ -111,7 +95,7 @@ class _EditUserScreenState extends State<EditUserScreen> {
 
   Widget _buildBody() {
     return Container(
-      width: MediaQuery.of(context).size.width * 0.5,
+      width: MediaQuery.of(context).size.width * 0.85,
       child: FormBuilder(
         key: _formKey,
         autovalidateMode: AutovalidateMode.always,
@@ -126,58 +110,7 @@ class _EditUserScreenState extends State<EditUserScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-               Text(
-                'Slika',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-              ),
-              FormBuilderField(
-                name: 'slika',
-                builder: (field) {
-                  return InputDecorator(
-                    decoration: InputDecoration(
-                      errorText: field.errorText,
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        ListTile(
-                          leading: Icon(Icons.photo),
-                          title: Text("Select image"),
-                          trailing: Icon(Icons.file_upload),
-                          onTap: getImage,
-                          // Prikazi trenutnu sliku korisnika ako postoji
-                          subtitle: _image != null
-                              ? Image.file(
-                                  _image!,
-                                  width: 80.0,
-                                  height: 80.0,
-                                  fit: BoxFit.cover,
-                                )
-                              : null,
-                        ),
-                        SizedBox(height: 10),
-                        Row(
-                          children: [
-                            Checkbox(
-                              value: _removeImage,
-                              onChanged: (value) {
-                                setState(() {
-                                  _removeImage = value ?? false;
-                                  if (_removeImage) {
-                                    _image = null;
-                                    _base64Image = null;
-                                  }
-                                });
-                              },
-                            ),
-                            Text('Ukloni sliku'),
-                          ],
-                        ),
-                      ],
-                    ),
-                  );
-                },
-              ),
+               
                 Text(
                   'Ime',
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
@@ -243,26 +176,7 @@ class _EditUserScreenState extends State<EditUserScreen> {
                             },
                 ),
                 SizedBox(height: 10),
-                Text(
-                  'Korisničko ime',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-                ),
-                FormBuilderTextField(
-                  controller: _korisnickoImeController,
-                  name: 'korisnickoIme',
-                  validator: (value) {
-                              if (_formKey.currentState?.fields['korisnickoIme']
-                                      ?.isDirty ==
-                                  true) {
-                                if (value == null || value.isEmpty) {
-                                  return 'Ovo polje je obavezno!';
-                                } else if (value[0] != value[0].toUpperCase()) {
-                                  return 'Korisničko ime mora početi velikim slovom.';
-                                }
-                              }
-                              return null;
-                            },
-                ),
+               
                 SizedBox(height: 10),
                 Text(
                   'Email',
@@ -306,56 +220,42 @@ class _EditUserScreenState extends State<EditUserScreen> {
   }
 
 
+  void _updateUserData() async {
+    // Spremi trenutno stanje forme
+    _formKey.currentState?.save();
 
- void _updateUserData() async {
-  // Spremi trenutno stanje forme
-  _formKey.currentState?.save();
+    try {
+      // Validacija forme
+      if (_formKey.currentState!.validate()) {
+        // Napravi mapu sa podacima iz forme
+        Map<String, dynamic> request = _formKey.currentState!.value;
 
-  try {
-    // Validacija forme
-    if (_formKey.currentState!.validate()) {
-      // Napravi mapu sa podacima iz forme
-      Map<String, dynamic> request = _formKey.currentState!.value;
+        // Dodaj dodatne parametre za ažuriranje (npr. id, questionId itd.)
+        // Ako su potrebni za vašu implementaciju
 
-      // Create a new map to store the request data
-      Map<String, dynamic> requestData = Map.from(request);
+        // Pozovi metodu za ažuriranje korisnika
+        var res = await _userProvider.update(widget.userId, request);
+ 
 
-      // Add 'slika' key to the new map
-    if (_removeImage) {
-    requestData['slika'] = null; // Postavite na null ili na odgovarajuću vrednost
-  } else if (_base64Image != null) {
-    // Ako postoji nova slika, dodajte 'slika' ključ u novu mapu
-    requestData['slika'] = _base64Image;
-  }
+    // Prikaz poruke o uspešnom ažuriranju
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Podaci su ažurirani!'),
+          ),
+        );
 
-      // Dodaj dodatne parametre za ažuriranje (npr. id, questionId itd.)
-      // Ako su potrebni za vašu implementaciju
+      
+        Navigator.pop(context, true);
+          widget.refreshDataCallback();
 
-      // Pozovi metodu za ažuriranje korisnika
-      var res = await _userProvider.update(widget.userId, requestData);
-      print(res);
-
-      // Prikaz poruke o uspešnom ažuriranju
+      }
+    } catch (error) {
+      // Prikaz poruke o grešci ako dođe do problema
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Podaci su ažurirani!'),
+          content: Text('Došlo je do greške prilikom ažuriranja podataka.'),
         ),
       );
-
-      // Zatvori trenutni ekran i obavesti prethodni ekran da treba osvežiti podatke
-      Navigator.pop(context, true);
-
-      // Dodajte sledeću liniju kako biste obavestili prethodni ekran da treba osvežiti podatke
-      widget.refreshDataCallback();
     }
-  } catch (error) {
-    // Prikaz poruke o grešci ako dođe do problema
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Došlo je do greške prilikom ažuriranja podataka.'),
-      ),
-    );
   }
-}
-
 }

@@ -41,15 +41,15 @@ namespace FitnessCentar.Services
             entity.LozinkaSalt = GenerateSalt();
             entity.LozinkaHash = GenerateHash(entity.LozinkaSalt, request.Lozinka);
             _context.SaveChanges();
-            Model.EmailModel emailModel = new()
-            {
-                Content = "Srdačno vas pozdravljamo u ime Fitnes Centra! Radujemo se što ste odabrali naš centar kao svoj prostor za postizanje svojih fitnes ciljeva.Trudimo se pružiti vam najbolje iskustvo i podršku na vašem putu ka zdravijem i aktivnijem životu. Naš tim stručnih trenera,moderna oprema i raznovrsni treninzi stvoreni su kako bismo vam omogućili inspirativno okruženje za postizanje vaših ciljeva.",
-                Recipient = request.Email,
-                Sender = "fitnesscentar25@gmail.com",
-                Subject = "Poruka dobrodošlice"
+            //Model.EmailModel emailModel = new()
+            //{
+            //    Content = "Srdačno vas pozdravljamo u ime Fitnes Centra! Radujemo se što ste odabrali naš centar kao svoj prostor za postizanje svojih fitnes ciljeva.Trudimo se pružiti vam najbolje iskustvo i podršku na vašem putu ka zdravijem i aktivnijem životu. Naš tim stručnih trenera,moderna oprema i raznovrsni treninzi stvoreni su kako bismo vam omogućili inspirativno okruženje za postizanje vaših ciljeva.",
+            //    Recipient = request.Email,
+            //    Sender = "fitnesscentar25@gmail.com",
+            //    Subject = "Poruka dobrodošlice"
 
-            };
-            _rabbitMQProducer.SendMessage(emailModel);
+            //};
+            //_rabbitMQProducer.SendMessage(emailModel);
 
             return _mapper.Map<Model.Korisnici>(entity);
         }

@@ -1,3 +1,9 @@
+
+import 'dart:convert';
+import 'dart:io';
+import 'dart:typed_data';
+
+import 'package:file_picker/file_picker.dart';
 import 'package:fitness_admin/models/korisnici.dart';
 import 'package:fitness_admin/models/trener.dart';
 import 'package:fitness_admin/providers/trainer_provider.dart';
@@ -28,7 +34,7 @@ class _EditTrainerScreenState extends State<EditTrainerScreen> {
   TextEditingController _prezimeController = TextEditingController();
   TextEditingController _specijalnostController = TextEditingController();
   TextEditingController _telefonController = TextEditingController();
-  TextEditingController _korisnickoImeController = TextEditingController();
+
   TextEditingController _emailController = TextEditingController();
 
   @override
@@ -42,7 +48,7 @@ class _EditTrainerScreenState extends State<EditTrainerScreen> {
     _prezimeController = TextEditingController();
     _specijalnostController = TextEditingController();
     _telefonController = TextEditingController();
-    _korisnickoImeController = TextEditingController();
+  
     _emailController = TextEditingController();
 
     _loadUserData(widget.userId);
@@ -70,7 +76,7 @@ class _EditTrainerScreenState extends State<EditTrainerScreen> {
           'prezime': user.prezime ?? '',
           'specijalnost': trener?.specijalnost ?? '',
           'telefon': user.telefon ?? '',
-          'korisnickoIme': user.korisnickoIme ?? '',
+     'slika':user.slika,
           'email': user.email ?? '',
         });
 
@@ -79,11 +85,14 @@ class _EditTrainerScreenState extends State<EditTrainerScreen> {
         _prezimeController.text = user.prezime ?? '';
         _specijalnostController.text = trener?.specijalnost ?? '';
         _telefonController.text = user.telefon ?? '';
-        _korisnickoImeController.text = user.korisnickoIme ?? '';
         _emailController.text = user.email ?? '';
+
+     
       });
     }
   }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -95,6 +104,19 @@ class _EditTrainerScreenState extends State<EditTrainerScreen> {
       ),
       title: "Uredi trenera",
     );
+  }
+
+  File? _image;
+  String? _base64Image;
+    bool _removeImage = false;
+  
+  Future getImage() async {
+    var result = await FilePicker.platform.pickFiles(type: FileType.image);
+
+    if (result != null && result.files.single.path != null) {
+      _image = File(result.files.single.path!);
+      _base64Image = base64Encode(_image!.readAsBytesSync());
+    }
   }
 
   Widget _buildBody() {
@@ -114,7 +136,60 @@ class _EditTrainerScreenState extends State<EditTrainerScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-               
+
+ Text(
+                'Slika',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+              ),
+              FormBuilderField(
+                name: 'slika',
+                builder: (field) {
+                  return InputDecorator(
+                    decoration: InputDecoration(
+                      errorText: field.errorText,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        ListTile(
+                          leading: Icon(Icons.photo),
+                          title: Text("Select image"),
+                          trailing: Icon(Icons.file_upload),
+                          onTap: getImage,
+                          // Prikazi trenutnu sliku korisnika ako postoji
+                          subtitle: _image != null
+                              ? Image.file(
+                                  _image!,
+                                  width: 80.0,
+                                  height: 80.0,
+                                  fit: BoxFit.cover,
+                                )
+                              : null,
+                        ),
+                        SizedBox(height: 10),
+                        Row(
+                          children: [
+                            Checkbox(
+                              value: _removeImage,
+                              onChanged: (value) {
+                                setState(() {
+                                  _removeImage = value ?? false;
+                                  if (_removeImage) {
+                                    _image = null;
+                                    _base64Image = null;
+                                  }
+                                });
+                              },
+                            ),
+                            Text('Ukloni sliku'),
+                          ],
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+
                 Text(
                   'Ime',
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
@@ -180,26 +255,7 @@ class _EditTrainerScreenState extends State<EditTrainerScreen> {
                             },
                 ),
                 SizedBox(height: 10),
-                Text(
-                  'Korisničko ime',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-                ),
-                FormBuilderTextField(
-                  controller: _korisnickoImeController,
-                  name: 'korisnickoIme',
-                  validator: (value) {
-                              if (_formKey.currentState?.fields['korisnickoIme']
-                                      ?.isDirty ==
-                                  true) {
-                                if (value == null || value.isEmpty) {
-                                  return 'Ovo polje je obavezno!';
-                                } else if (value[0] != value[0].toUpperCase()) {
-                                  return 'Korisničko ime mora početi velikim slovom.';
-                                }
-                              }
-                              return null;
-                            },
-                ),
+              
                 SizedBox(height: 10),
                 Text(
                   'Email',
@@ -333,45 +389,55 @@ Future<void> _updateSpecijalnost(BuildContext context) async {
   );
 }
 
+void _updateUserData() async {
+  // Spremi trenutno stanje forme
+  _formKey.currentState?.save();
 
-  void _updateUserData() async {
-    // Spremi trenutno stanje forme
-    _formKey.currentState?.save();
+  try {
+    // Validacija forme
+    if (_formKey.currentState!.validate()) {
+      // Napravi mapu sa podacima iz forme
+      Map<String, dynamic> request = _formKey.currentState!.value;
 
-    try {
-      // Validacija forme
-      if (_formKey.currentState!.validate()) {
-        // Napravi mapu sa podacima iz forme
-        Map<String, dynamic> request = _formKey.currentState!.value;
+      // Create a new map to store the request data
+      Map<String, dynamic> requestData = Map.from(request);
 
-        // Dodaj dodatne parametre za ažuriranje (npr. id, questionId itd.)
-        // Ako su potrebni za vašu implementaciju
+      // Add 'slika' key to the new map
+    if (_removeImage) {
+    requestData['slika'] = null; // Postavite na null ili na odgovarajuću vrednost
+  } else if (_base64Image != null) {
+    // Ako postoji nova slika, dodajte 'slika' ključ u novu mapu
+    requestData['slika'] = _base64Image;
+  }
 
-        // Pozovi metodu za ažuriranje korisnika
-        var res = await _userProvider.update(widget.userId, request);
-    print(res);
+      // Dodaj dodatne parametre za ažuriranje (npr. id, questionId itd.)
+      // Ako su potrebni za vašu implementaciju
 
-    // Prikaz poruke o uspešnom ažuriranju
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Podaci su ažurirani!'),
-      ),
-    );
+      // Pozovi metodu za ažuriranje korisnika
+      var res = await _userProvider.update(widget.userId, requestData);
+      print(res);
 
-    // Zatvori trenutni ekran i obavesti prethodni ekran da treba osvežiti podatke
-    Navigator.pop(context, true);
-
-    // Dodajte sledeću liniju kako biste obavestili prethodni ekran da treba osvežiti podatke
-    widget.refreshDataCallback();
-  
-      }
-    } catch (error) {
-      // Prikaz poruke o grešci ako dođe do problema
+      // Prikaz poruke o uspešnom ažuriranju
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Došlo je do greške prilikom ažuriranja podataka.'),
+          content: Text('Podaci su ažurirani!'),
         ),
       );
+
+      // Zatvori trenutni ekran i obavesti prethodni ekran da treba osvežiti podatke
+      Navigator.pop(context, true);
+
+      // Dodajte sledeću liniju kako biste obavestili prethodni ekran da treba osvežiti podatke
+      widget.refreshDataCallback();
     }
+  } catch (error) {
+    // Prikaz poruke o grešci ako dođe do problema
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Došlo je do greške prilikom ažuriranja podataka.'),
+      ),
+    );
   }
+}
+
 }
