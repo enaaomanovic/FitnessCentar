@@ -15,11 +15,12 @@ import 'package:provider/provider.dart';
 
 class TreneriScreen extends StatefulWidget {
 
-  const TreneriScreen({Key? key}) : super(key: key);
-
+  const TreneriScreen({Key? key,required this.onTrainerEdit}) : super(key: key);
+   final VoidCallback onTrainerEdit;
   @override
   _TreneriScreen createState() => _TreneriScreen();
 }
+
 
 class _TreneriScreen extends State<TreneriScreen> {
   late TrainerProvider _trainerProvider;
@@ -266,6 +267,7 @@ class _TreneriScreen extends State<TreneriScreen> {
                                 if (result == true) {
                                   // Osvežavanje podataka na prethodnoj stranici
                                   _refreshData();
+                                  widget.onTrainerEdit();
                                 }
                               },
                               style: ElevatedButton.styleFrom(

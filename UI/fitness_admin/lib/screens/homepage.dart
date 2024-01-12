@@ -20,7 +20,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-class HomeAuthenticated extends StatelessWidget {
+class HomeAuthenticated extends StatefulWidget {
   final int? userId;
   final UserProvider userProvider;
 
@@ -30,12 +30,29 @@ class HomeAuthenticated extends StatelessWidget {
     required this.userProvider,
   }) : super(key: key);
 
+  @override
+  _HomeAuthenticatedState createState() => _HomeAuthenticatedState();
+}
+
+class _HomeAuthenticatedState extends State<HomeAuthenticated> {
   Future<Korisnici?> getUserFromUserId(int userId) async {
-    final user = await userProvider.getById(userId);
+    final user = await widget.userProvider.getById(userId);
     return user;
   }
 
-
+  void onTrainerEdit() {
+ 
+    widget.userProvider.updateUser();
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (context) => HomeAuthenticated(
+          userId: widget.userId,
+          userProvider: widget.userProvider,
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -84,79 +101,79 @@ class HomeAuthenticated extends StatelessWidget {
             color: Color.fromRGBO(0, 0, 0, 0.6),
           ),
           Padding(
-              padding: const EdgeInsets.all(15.0),
-              child: Row(
-                children: [
-                  Container(
-                    width: 150,
-                    height: 150,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      image: DecorationImage(
-                        image: AssetImage("assets/images/FitnessLogo.jpg"),
-                        fit: BoxFit.cover,
-                      ),
+            padding: const EdgeInsets.all(15.0),
+            child: Row(
+              children: [
+                Container(
+                  width: 150,
+                  height: 150,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    image: DecorationImage(
+                      image: AssetImage("assets/images/FitnessLogo.jpg"),
+                      fit: BoxFit.cover,
                     ),
                   ),
-                  SizedBox(width: 20),
-                  FutureBuilder<Korisnici?>(
-                    future: getUserFromUserId(userId ?? 0),
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return CircularProgressIndicator();
-                      } else if (snapshot.hasError) {
-                        return Text('Greška: ${snapshot.error}');
-                      } else if (snapshot.hasData) {
-                        final user = snapshot.data!;
-                        return Text(
-                          "Dobro došli, ${user.ime} ${user.prezime}",
-                          style: TextStyle(
-                            fontSize: 24,
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
+                ),
+                SizedBox(width: 20),
+                FutureBuilder<Korisnici?>(
+                  future: getUserFromUserId(widget.userId ?? 0),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return CircularProgressIndicator();
+                    } else if (snapshot.hasError) {
+                      return Text('Greška: ${snapshot.error}');
+                    } else if (snapshot.hasData) {
+                      final user = snapshot.data!;
+                      return Text(
+                        "Dobro došli, ${user.ime} ${user.prezime}",
+                        style: TextStyle(
+                          fontSize: 24,
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      );
+                    } else {
+                      return Text('Nema dostupnih podataka');
+                    }
+                  },
+                ),
+                SizedBox(width: 10),
+                FutureBuilder<Korisnici?>(
+                  future: getUserFromUserId(widget.userId ?? 0),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return CircularProgressIndicator();
+                    } else if (snapshot.hasError) {
+                      return Text('Greška: ${snapshot.error}');
+                    } else if (snapshot.hasData) {
+                      final user = snapshot.data!;
+                      final userImageBytes = user.slika != null
+                          ? Uint8List.fromList(base64Decode(user.slika!))
+                          : null;
+
+                      if (userImageBytes != null && userImageBytes.isNotEmpty) {
+                        return CircleAvatar(
+                          backgroundImage:
+                              Image.memory(Uint8List.fromList(userImageBytes))
+                                  .image,
+                          radius: 50,
                         );
                       } else {
-                        return Text('Nema dostupnih podataka');
+                        return CircleAvatar(
+                          backgroundImage:
+                              AssetImage('assets/images/male_icon.jpg'),
+                          radius: 50,
+                        );
                       }
-                    },
-                  ),
-                  SizedBox(width: 10),
-                  FutureBuilder<Korisnici?>(
-                    future: getUserFromUserId(userId ?? 0),
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return CircularProgressIndicator();
-                      } else if (snapshot.hasError) {
-                        return Text('Greška: ${snapshot.error}');
-                      } else if (snapshot.hasData) {
-                        final user = snapshot.data!;
-                        final userImageBytes = user.slika != null
-                            ? Uint8List.fromList(base64Decode(user.slika!))
-                            : null;
-
-                        if (userImageBytes != null &&
-                            userImageBytes.isNotEmpty) {
-                          return CircleAvatar(
-                            backgroundImage:
-                                Image.memory(Uint8List.fromList(userImageBytes))
-                                    .image,
-                            radius: 50,
-                          );
-                        } else {
-                          return CircleAvatar(
-                            backgroundImage:
-                                AssetImage('assets/images/male_icon.jpg'),
-                            radius: 50,
-                          );
-                        }
-                      } else {
-                        return Text('Nema dostupnih podataka');
-                      }
-                    },
-                  )
-                ],
-              )),
+                    } else {
+                      return Text('Nema dostupnih podataka');
+                    }
+                  },
+                ),
+              ],
+            ),
+          ),
           Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -275,7 +292,9 @@ class HomeAuthenticated extends StatelessWidget {
                       onPressed: () {
                         Navigator.of(context).push(
                           MaterialPageRoute(
-                            builder: (context) => const TreneriScreen(),
+                            builder: (context) =>  TreneriScreen(
+                               onTrainerEdit: onTrainerEdit,
+                            ),
                           ),
                         );
                       },
@@ -298,6 +317,3 @@ class HomeAuthenticated extends StatelessWidget {
     );
   }
 }
-
-
-
