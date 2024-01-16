@@ -45,6 +45,24 @@ Map<int?, bool> _isExpandedMap = {};
  
   List<Novosti> _novosti = [];
 
+
+  
+    void onUserEdit() {
+        int? trenutniKorisnikId = _userProvider.currentUserId;
+ 
+    _userProvider.updateUser();
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+      builder: (context) => HomeAuthenticated(
+                    userId: trenutniKorisnikId,
+                    userProvider: _userProvider,
+                    progressProvider: _progressProvider,
+                  ),
+      ),
+    );
+  }
+
   @override
   void initState() {
     super.initState();
@@ -713,6 +731,7 @@ try{
                 MaterialPageRoute(
                   builder: (context) => MobileUserDetailScreen(
                     userId: trenutniKorisnikId,
+                       onUserEdit: onUserEdit,
                   ),
                 ),
               );

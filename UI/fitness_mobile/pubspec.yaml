@@ -47,6 +47,8 @@ dependencies:
   flutter_stripe: '3.3.0'
   fluttertoast: '8.0.9'
   flutter_dotenv: ^5.0.2
+  image_picker: ^1.0.7
+  
 
  
 

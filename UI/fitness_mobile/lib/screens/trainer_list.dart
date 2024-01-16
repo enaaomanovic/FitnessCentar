@@ -45,6 +45,23 @@ class _TreneriScreen extends State<TreneriScreen> {
     });
   }
 
+  
+    void onUserEdit() {
+        int? trenutniKorisnikId = _userProvider.currentUserId;
+ 
+    _userProvider.updateUser();
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (context) => HomeAuthenticated(
+                    userId: trenutniKorisnikId,
+                    userProvider: _userProvider,
+                    progressProvider: _progressProvider,
+                  ),
+      ),
+    );
+  }
+
   void _loadData() async {
     var data = await _trainerProvider.get(filter: {});
 
@@ -286,10 +303,11 @@ class _TreneriScreen extends State<TreneriScreen> {
 
               break;
             case 3:
-              Navigator.of(context).push(
+             Navigator.of(context).push(
                 MaterialPageRoute(
                   builder: (context) => MobileUserDetailScreen(
                     userId: trenutniKorisnikId,
+                     onUserEdit: onUserEdit,
                   ),
                 ),
               );

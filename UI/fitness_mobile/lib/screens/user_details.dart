@@ -2,6 +2,7 @@ import 'package:fitness_mobile/models/korisnici.dart';
 import 'package:fitness_mobile/models/search_result.dart';
 import 'package:fitness_mobile/providers/progress_provider.dart';
 import 'package:fitness_mobile/providers/user_provider.dart';
+import 'package:fitness_mobile/screens/edit_user.dart';
 import 'package:fitness_mobile/screens/home_authenticated.dart';
 import 'package:fitness_mobile/screens/news_list.dart';
 import 'package:fitness_mobile/screens/trainer_list.dart';
@@ -14,7 +15,10 @@ import 'package:provider/provider.dart';
 
 class MobileUserDetailScreen extends StatefulWidget {
   int? userId;
-  MobileUserDetailScreen({Key? key, this.userId}) : super(key: key);
+  Korisnici? updatedUser;
+   
+  MobileUserDetailScreen({Key? key, this.userId,this.updatedUser,required this.onUserEdit}) : super(key: key);
+    final VoidCallback onUserEdit;
   @override
   _MobileUserDetailScreenState createState() => _MobileUserDetailScreenState();
 }
@@ -87,6 +91,21 @@ class _MobileUserDetailScreenState extends State<MobileUserDetailScreen> {
       );
     }
   }
+
+  // Future<void> updateUser() async {
+  // _userProvider.updateUser();
+  //   Korisnici? updatedUser = await _userProvider.getById(widget.userId ?? 0);
+  //   Navigator.pushReplacement(
+  //     context,
+  //     MaterialPageRoute(
+  //       builder: (context) => MobileUserDetailScreen(
+  //         userId: widget.userId,
+  //         updatedUser:updatedUser,
+         
+  //       ),
+  //     ),
+  //   );
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -172,6 +191,31 @@ class _MobileUserDetailScreenState extends State<MobileUserDetailScreen> {
                 ),
               ),
             ),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              var result = await Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => EditUserScreen(
+                          userId: widget.userId?? 0,
+                          refreshDataCallback: _loadUserData,
+                        )),
+              );
+
+              if (result == true) {
+                // Osvežavanje podataka na prethodnoj stranici
+                _loadUserData();
+                widget.onUserEdit();
+                
+              
+              }
+            },
+            child: Text(
+              'Edit user',
+              style: TextStyle(fontSize: 18),
+            ),
+           
           ),
           Card(
             elevation: 6,
@@ -544,6 +588,7 @@ class _MobileUserDetailScreenState extends State<MobileUserDetailScreen> {
                 MaterialPageRoute(
                   builder: (context) => MobileUserDetailScreen(
                     userId: trenutniKorisnikId,
+                    onUserEdit: widget.onUserEdit,
                   ),
                 ),
               );
@@ -555,3 +600,5 @@ class _MobileUserDetailScreenState extends State<MobileUserDetailScreen> {
     );
   }
 }
+
+

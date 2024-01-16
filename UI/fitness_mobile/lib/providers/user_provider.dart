@@ -25,6 +25,19 @@ int? get loggedInUserId => _loggedInUserId;
    
     notifyListeners(); // Obavijestite slušatelje (widgete) o promjeni
   }
+
+  Future<void> updateUser() async {
+  
+    if (currentUserId != null) {
+     
+      final updatedUser = await getById(currentUserId!);
+  
+
+      if (updatedUser != null) {
+        notifyListeners();
+      }
+    }
+  }
   
   
 }
