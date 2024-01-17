@@ -7,6 +7,7 @@ import 'package:fitness_mobile/models/korisnici.dart';
 import 'package:fitness_mobile/providers/progress_provider.dart';
 import 'package:fitness_mobile/providers/trainer_provider.dart';
 import 'package:fitness_mobile/providers/user_provider.dart';
+import 'package:fitness_mobile/screens/edit_credentials.dart';
 import 'package:fitness_mobile/screens/home_authenticated.dart';
 import 'package:fitness_mobile/widgets/master_screens.dart';
 import 'package:flutter/material.dart';
@@ -108,6 +109,45 @@ Future getImage() async {
     );
   }
 
+Widget _editKredencijala() {
+  return Container(
+    padding: EdgeInsets.symmetric(vertical: 10.0),
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+       Expanded(
+          child: Text(
+            "Uređivanje korisnika",
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 21.0,
+            
+            ),
+          ),
+        ),
+          SizedBox(width: 10.0), // Prostor između teksta i dugmeta
+          ElevatedButton(
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => EditCredentials(),
+                ),
+              );
+            },
+          style: ElevatedButton.styleFrom(
+            padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 10.0),
+          ),
+          child: Text(
+            "Edit kredencijala",
+            style: TextStyle(fontSize: 14.0),
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+
   Widget _buildBody() {
     return Container(
       width: MediaQuery.of(context).size.width * 0.85,
@@ -115,6 +155,7 @@ Future getImage() async {
         key: _formKey,
         autovalidateMode: AutovalidateMode.always,
         child: Card(
+          
           elevation: 5,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(15.0),
@@ -125,6 +166,8 @@ Future getImage() async {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+        _editKredencijala(),
+              
                 Text(
                   'Slika',
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
