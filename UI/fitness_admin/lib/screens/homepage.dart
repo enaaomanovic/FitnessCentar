@@ -6,6 +6,8 @@ import 'package:fitness_admin/models/report.dart';
 import 'package:fitness_admin/providers/user_provider.dart';
 import 'package:fitness_admin/screens/add_news.dart';
 import 'package:fitness_admin/screens/add_user.dart';
+import 'package:fitness_admin/screens/change_password.dart';
+import 'package:fitness_admin/screens/change_username.dart';
 import 'package:fitness_admin/screens/home_unauthenticated.dart';
 import 'package:fitness_admin/screens/news_list.dart';
 import 'package:fitness_admin/screens/report.dart';
@@ -65,6 +67,7 @@ class _HomeAuthenticatedState extends State<HomeAuthenticated> {
         title: Text("Fitness Centar"),
         automaticallyImplyLeading: false,
         actions: [
+           
           Padding(
             padding: const EdgeInsets.only(right: 25.0),
             child: IconButton(
@@ -171,9 +174,14 @@ class _HomeAuthenticatedState extends State<HomeAuthenticated> {
                     }
                   },
                 ),
-              ],
+             
+                  
+
+                  ],
+                )
+              
             ),
-          ),
+           
           Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -307,13 +315,70 @@ class _HomeAuthenticatedState extends State<HomeAuthenticated> {
                       ),
                     ),
                     SizedBox(width: 50),
+                   
                   ],
                 ),
               ],
+              
             ),
           ),
+             Positioned(
+          top: 10,
+          right: 10,
+          child: changeCredentials(),
+        ),
+           
         ],
       ),
     );
   }
+
+
+Widget changeCredentials(){
+  return Column(
+    children: [
+              ElevatedButton(
+          onPressed: () {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => ChangeUsernameScreen(
+                  userId: widget.userId?? 0,
+                ),
+              ),
+            );
+          },
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Text(
+              "Change Username",
+              style: TextStyle(fontSize: 15),
+            ),
+          ),
+        ),
+        SizedBox(height: 20),
+           ElevatedButton(
+          onPressed: () {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => ChangePasswordScreen(
+                  userId: widget.userId ??0,
+                ),
+              ),
+            );
+          },
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Text(
+              "Change Password",
+              style: TextStyle(fontSize: 15),
+            ),
+          ),
+        ),
+    ],
+  );
+}
+
+
+
+
 }

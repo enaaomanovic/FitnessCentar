@@ -68,7 +68,7 @@ class _EditUserScreenState extends State<EditUserScreen> {
           'ime': user.ime ?? '',
           'prezime': user.prezime ?? '',
           'telefon': user.telefon ?? '',
-          'korisnickoIme': user.korisnickoIme ?? '',
+          
           'slika':user.slika,
           'email': user.email ?? '',
         });
@@ -78,7 +78,7 @@ class _EditUserScreenState extends State<EditUserScreen> {
         _prezimeController.text = user.prezime ?? '';
 
         _telefonController.text = user.telefon ?? '';
-        _korisnickoImeController.text = user.korisnickoIme ?? '';
+      
         _emailController.text = user.email ?? '';
       });
     }
@@ -243,26 +243,7 @@ class _EditUserScreenState extends State<EditUserScreen> {
                             },
                 ),
                 SizedBox(height: 10),
-                Text(
-                  'Korisničko ime',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-                ),
-                FormBuilderTextField(
-                  controller: _korisnickoImeController,
-                  name: 'korisnickoIme',
-                  validator: (value) {
-                              if (_formKey.currentState?.fields['korisnickoIme']
-                                      ?.isDirty ==
-                                  true) {
-                                if (value == null || value.isEmpty) {
-                                  return 'Ovo polje je obavezno!';
-                                } else if (value[0] != value[0].toUpperCase()) {
-                                  return 'Korisničko ime mora početi velikim slovom.';
-                                }
-                              }
-                              return null;
-                            },
-                ),
+              
                 SizedBox(height: 10),
                 Text(
                   'Email',

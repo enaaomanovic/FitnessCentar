@@ -15,5 +15,8 @@ namespace FitnessCentar.Services.Interface
     public interface IKorisniciService : IService<Korisnici, KorisniciSearchObject, KorisniciInsertRequest, KorisniciUpdateRequest>
     {
         Korisnici? Authenticiraj(string username, string password);
+        Task ChangePasswordAsync(KorisniciChangePassword userChangePass);
+        Task ChangeUsernameAsync(KorisniciChangeUsername userChangePass);
+
     }
 }

@@ -861,6 +861,8 @@ class _HomeAuthenticatedState extends State<HomeAuthenticated> {
           scrollDirection: Axis.vertical,
           children: [
             _buildCard(),
+           
+      
             _buildAddProgressButton(),
           ],
         ),
@@ -869,6 +871,7 @@ class _HomeAuthenticatedState extends State<HomeAuthenticated> {
   }
 
   Widget _buildCard() {
+    
     return Card(
       elevation: 6,
       shape: RoundedRectangleBorder(
@@ -886,10 +889,14 @@ class _HomeAuthenticatedState extends State<HomeAuthenticated> {
             _buildCurrentWeight(),
             SizedBox(height: 10),
             _buildNapredak(),
+           
+
           ],
         ),
+
       ),
     );
+    
   }
 
   Widget _buildAddProgressButton() {
@@ -1249,6 +1256,9 @@ class _HomeAuthenticatedState extends State<HomeAuthenticated> {
     );
   }
 
+
+ 
+
   Widget _buildResultMessage(double currentWeight, double initialWeight) {
     String resultMessage = '';
     if (currentWeight == initialWeight) {
@@ -1345,4 +1355,9 @@ class _HomeAuthenticatedState extends State<HomeAuthenticated> {
       ),
     );
   }
+
+
+
+
+
 }

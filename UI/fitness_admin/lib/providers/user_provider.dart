@@ -4,12 +4,11 @@ import 'package:fitness_admin/models/korisnici.dart';
 import 'package:fitness_admin/providers/base_provider.dart';
 import 'package:fitness_admin/utils/util.dart';
 import 'package:http/http.dart' as http;
-import 'package:flutter/material.dart';
-import 'package:http/http.dart';
-import 'package:provider/provider.dart';
+
 
 class UserProvider extends BaseProvider<Korisnici> {
   UserProvider():super("Korisnici");
+
 
  int? _loggedInUserId; // Polje za spremanje ID-a ulogiranog korisnika
 int? get loggedInUserId => _loggedInUserId;
@@ -40,11 +39,8 @@ int? get loggedInUserId => _loggedInUserId;
     }
   }
 
-  
+
 }
 
 
-
-
-
-
+   

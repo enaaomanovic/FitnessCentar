@@ -7,7 +7,7 @@ import 'package:fitness_mobile/models/korisnici.dart';
 import 'package:fitness_mobile/providers/progress_provider.dart';
 import 'package:fitness_mobile/providers/trainer_provider.dart';
 import 'package:fitness_mobile/providers/user_provider.dart';
-import 'package:fitness_mobile/screens/edit_credentials.dart';
+
 import 'package:fitness_mobile/screens/home_authenticated.dart';
 import 'package:fitness_mobile/widgets/master_screens.dart';
 import 'package:flutter/material.dart';
@@ -125,23 +125,7 @@ Widget _editKredencijala() {
             ),
           ),
         ),
-          SizedBox(width: 10.0), // Prostor između teksta i dugmeta
-          ElevatedButton(
-            onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => EditCredentials(),
-                ),
-              );
-            },
-          style: ElevatedButton.styleFrom(
-            padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 10.0),
-          ),
-          child: Text(
-            "Edit kredencijala",
-            style: TextStyle(fontSize: 14.0),
-          ),
-        ),
+         
       ],
     ),
   );
@@ -166,7 +150,7 @@ Widget _editKredencijala() {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-        _editKredencijala(),
+        
               
                 Text(
                   'Slika',

@@ -7,7 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 
 abstract class BaseProvider<T> with ChangeNotifier {
-  static String? _baseUrl;
+ static  String? _baseUrl;
+
   String _endpoint = "";
 
   BaseProvider(String endpoint) {
@@ -179,6 +180,56 @@ Future getById(int id) async {
     });
     return query;
   }
+
+Future<void> changePassword(int userId, String newPassword, String currentPassword) async {
+  var url = "$_baseUrl$_endpoint/$userId/change-password";
+  var uri = Uri.parse(url);
+  var headers = createHeaders();
+
+  var jsonRequest = jsonEncode({
+    "Id": userId,
+    "Password": currentPassword,
+    "NewPassword": newPassword,
+  });
+
+  var response = await http.post(uri, headers: headers, body: jsonRequest);
+
+  if (response.statusCode == 200) {
+    print("Password changed successfully!");
+  } else if (response.statusCode == 500) {
+    // Proveri telo odgovora za "Invalid password"
+    var responseBody = json.decode(response.body);
+    if (responseBody['error'] == 'Invalid password.') {
+      throw Exception("Invalid current password. Please try again.");
+    } else {
+      throw Exception("Unknown error");
+    }
+  } else {
+    throw Exception("Unknown error");
+  }
+}
+
+
+  Future<void> changeUsername(int userId, String newUsername, String currentUsername) async {
+    var url = "$_baseUrl$_endpoint/$userId/change-username";
+    var uri = Uri.parse(url);
+    var headers = createHeaders();
+
+    var jsonRequest = jsonEncode({
+      "Id": userId, // Match the property name expected by the backend
+      "Username": currentUsername, // You should include the current password here
+      "NewUsername": newUsername,
+    });
+
+    var response = await http.post(uri, headers: headers, body: jsonRequest);
+
+    if (isValidResponse(response)) {
+      print("username changed successfully!");
+    } else {
+      throw Exception("Unknown error");
+    }
+  }
+
 }
 
 

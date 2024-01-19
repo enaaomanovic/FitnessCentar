@@ -2,6 +2,8 @@ import 'package:fitness_mobile/models/korisnici.dart';
 import 'package:fitness_mobile/models/search_result.dart';
 import 'package:fitness_mobile/providers/progress_provider.dart';
 import 'package:fitness_mobile/providers/user_provider.dart';
+import 'package:fitness_mobile/screens/change_password.dart';
+import 'package:fitness_mobile/screens/change_username.dart';
 import 'package:fitness_mobile/screens/edit_user.dart';
 import 'package:fitness_mobile/screens/home_authenticated.dart';
 import 'package:fitness_mobile/screens/news_list.dart';
@@ -92,21 +94,7 @@ class _MobileUserDetailScreenState extends State<MobileUserDetailScreen> {
     }
   }
 
-  // Future<void> updateUser() async {
-  // _userProvider.updateUser();
-  //   Korisnici? updatedUser = await _userProvider.getById(widget.userId ?? 0);
-  //   Navigator.pushReplacement(
-  //     context,
-  //     MaterialPageRoute(
-  //       builder: (context) => MobileUserDetailScreen(
-  //         userId: widget.userId,
-  //         updatedUser:updatedUser,
-         
-  //       ),
-  //     ),
-  //   );
-  // }
-
+ 
   @override
   Widget build(BuildContext context) {
     return MasterScreanWidget(
@@ -145,6 +133,7 @@ class _MobileUserDetailScreenState extends State<MobileUserDetailScreen> {
   }
 
   Widget _addForm() {
+   
     return FormBuilder(
       key: _formKey,
       initialValue: _initialValue,
@@ -217,7 +206,10 @@ class _MobileUserDetailScreenState extends State<MobileUserDetailScreen> {
             ),
            
           ),
+                changeCredentials(),
+         
           Card(
+            
             elevation: 6,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(20.0),
@@ -522,6 +514,51 @@ class _MobileUserDetailScreenState extends State<MobileUserDetailScreen> {
       ),
     );
   }
+
+   Widget changeCredentials(){
+  return Row(
+    children: [
+              ElevatedButton(
+          onPressed: () {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => ChangeUsernameScreen(
+                  userId: widget.userId?? 0,
+                ),
+              ),
+            );
+          },
+          child: Padding(
+            padding: const EdgeInsets.all(9.0),
+            child: Text(
+              "Change Username",
+              style: TextStyle(fontSize: 13),
+            ),
+          ),
+        ),
+        SizedBox(width: 20),
+           ElevatedButton(
+          onPressed: () {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => ChangePasswordScreen(
+                  userId: widget.userId ??0,
+                ),
+              ),
+            );
+          },
+          child: Padding(
+            padding: const EdgeInsets.all(9.0),
+            child: Text(
+              "Change Password",
+              style: TextStyle(fontSize: 13),
+            ),
+          ),
+        ),
+    ],
+  );
+}
+
 
   Widget _buildBottomNavigationBar(BuildContext context) {
     var userProvider = Provider.of<UserProvider>(context, listen: false);

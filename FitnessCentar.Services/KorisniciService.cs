@@ -13,8 +13,10 @@ using System;
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Authentication;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 
@@ -24,10 +26,11 @@ namespace FitnessCentar.Services
     public class KorisniciService : BaseService<Model.Korisnici, Database.Korisnici, KorisniciSearchObject, KorisniciInsertRequest, KorisniciUpdateRequest>, IKorisniciService
     {
         private readonly IRabbitMQProducer _rabbitMQProducer;
-
+      
         public KorisniciService(Ib200005rs2Context context, IMapper mapper, IRabbitMQProducer rabbitMQProducer) : base(context, mapper)
         {
             _rabbitMQProducer = rabbitMQProducer;
+        
 
         }
 
@@ -41,15 +44,15 @@ namespace FitnessCentar.Services
             entity.LozinkaSalt = GenerateSalt();
             entity.LozinkaHash = GenerateHash(entity.LozinkaSalt, request.Lozinka);
             _context.SaveChanges();
-            //Model.EmailModel emailModel = new()
-            //{
-            //    Content = "Srdačno vas pozdravljamo u ime Fitnes Centra! Radujemo se što ste odabrali naš centar kao svoj prostor za postizanje svojih fitnes ciljeva.Trudimo se pružiti vam najbolje iskustvo i podršku na vašem putu ka zdravijem i aktivnijem životu. Naš tim stručnih trenera,moderna oprema i raznovrsni treninzi stvoreni su kako bismo vam omogućili inspirativno okruženje za postizanje vaših ciljeva.",
-            //    Recipient = request.Email,
-            //    Sender = "fitnesscentar25@gmail.com",
-            //    Subject = "Poruka dobrodošlice"
+            Model.EmailModel emailModel = new()
+            {
+                Content = "Srdačno vas pozdravljamo u ime Fitnes Centra! Radujemo se što ste odabrali naš centar kao svoj prostor za postizanje svojih fitnes ciljeva.Trudimo se pružiti vam najbolje iskustvo i podršku na vašem putu ka zdravijem i aktivnijem životu. Naš tim stručnih trenera,moderna oprema i raznovrsni treninzi stvoreni su kako bismo vam omogućili inspirativno okruženje za postizanje vaših ciljeva.",
+                Recipient = request.Email,
+                Sender = "fitnesscentar25@gmail.com",
+                Subject = "Poruka dobrodošlice"
 
-            //};
-            //_rabbitMQProducer.SendMessage(emailModel);
+            };
+            _rabbitMQProducer.SendMessage(emailModel);
 
             return _mapper.Map<Model.Korisnici>(entity);
         }
@@ -196,6 +199,43 @@ namespace FitnessCentar.Services
             return query.Include(x => x.Trener);
 
         }
+
+
+        public async Task ChangePasswordAsync(KorisniciChangePassword userChangePass)
+        {
+            var user = await _context.Korisnicis.FindAsync(userChangePass.Id);
+
+            if (user == null)
+                throw new ($"User with ID {userChangePass.Id} not found.");
+
+            if (!ByteArrayCompare(user.LozinkaHash, GenerateHash(user.LozinkaSalt, userChangePass.Password)))
+                throw new ("Invalid password.");
+
+            user.LozinkaSalt = GenerateSalt();
+            user.LozinkaHash = GenerateHash(user.LozinkaSalt, userChangePass.NewPassword);
+
+            _context.Update(user);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task ChangeUsernameAsync(KorisniciChangeUsername userChangeUsername)
+        {
+            var user = await _context.Korisnicis.FindAsync(userChangeUsername.Id);
+
+            if (user == null)
+                throw new($"User with ID {userChangeUsername.Id} not found.");
+
+            // You might want to add additional checks for username uniqueness, format, etc.
+
+            user.KorisnickoIme = userChangeUsername.NewUsername;
+
+            _context.Update(user);
+            await _context.SaveChangesAsync();
+        }
+
+
+
+
 
     }
 }
