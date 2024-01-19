@@ -253,7 +253,7 @@ Map<int?, bool> _isExpandedMap = {};
                                 )
                                 
                               : Text(
-                                  "Sadržaj novosti: ${novost.tekst?.substring(0, 100) ?? ''}...",
+                                  "Sadržaj novosti: ${novost.tekst?.substring(0, 10) ?? ''}...",
                                   style: TextStyle(
                                     fontSize: 18.0,
                                   ),

@@ -1176,6 +1176,14 @@ namespace FitnessCentar.Services.Database
                        RasporedId =20,
                        Status = "Aktivna",
                        DatumRezervacija = new DateTime(2023, 10, 27, 21, 00, 00),
+                   },
+                   new Rezervacije()
+                   {
+                       Id = 3,
+                       KorisnikId = 4,
+                       RasporedId = 20,
+                       Status = "Aktivna",
+                       DatumRezervacija = new DateTime(2023, 10, 27, 21, 00, 00),
                    }
 
             );
