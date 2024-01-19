@@ -63,6 +63,8 @@ class _ReservationListScrean extends State<ReservationListScrean> {
     });
   }
 
+  
+
 
 void _loadData() async {
   var placanja = await GetPlacanja();
@@ -156,12 +158,30 @@ bool _isReservationExpired(DateTime? datumPlacanja) {
     }
   }
 
+int compareReservations(Rezervacija a, Rezervacija b) {
+  bool isExpiredA = a.istekla ?? false;
+  bool isExpiredB = b.istekla ?? false;
+
+  // Prvo sortirajte po statusu (istekla rezervacija ide na kraj)
+  if (isExpiredA && !isExpiredB) {
+    return 1;
+  } else if (!isExpiredA && isExpiredB) {
+    return -1;
+  } else {
+    // Ako su statusi isti, sortirajte po datumu rezervacije unutar istih statusa
+    return a.datumRezervacija!.compareTo(b.datumRezervacija!);
+  }
+}
+
+
+
   @override
   Widget build(BuildContext context) {
     return MasterScreanWidget(
       title_widget: Text("Trenerski tim fitness centra"),
       child: Column(
         children: [
+          
           Expanded(
             child: Center(
               child: Container(
@@ -184,6 +204,7 @@ bool _isReservationExpired(DateTime? datumPlacanja) {
   }
 
 Widget _buildReservation() {
+
   return Expanded(
     child: pageresult != null && pageresult!.isNotEmpty
         ? ListView.builder(

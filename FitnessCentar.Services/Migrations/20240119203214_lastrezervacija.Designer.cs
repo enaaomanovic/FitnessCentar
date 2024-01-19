@@ -4,6 +4,7 @@ using FitnessCentar.Services.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FitnessCentar.Services.Migrations
 {
     [DbContext(typeof(Ib200005rs2Context))]
-    partial class Ib200005rs2ContextModelSnapshot : ModelSnapshot
+    [Migration("20240119203214_lastrezervacija")]
+    partial class lastrezervacija
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -645,14 +648,6 @@ namespace FitnessCentar.Services.Migrations
                             Iznos = 15m,
                             KorisnikId = 8,
                             TxnId = "test010920001"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            DatumPlacanja = new DateTime(2023, 10, 27, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Iznos = 15m,
-                            KorisnikId = 4,
-                            TxnId = "test010920002"
                         });
                 });
 
@@ -1417,7 +1412,6 @@ namespace FitnessCentar.Services.Migrations
                             Id = 1,
                             DatumRezervacija = new DateTime(2023, 10, 27, 21, 0, 0, 0, DateTimeKind.Unspecified),
                             KorisnikId = 4,
-                            PlacanjeId = 2,
                             RasporedId = 1,
                             Status = "Placena"
                         },

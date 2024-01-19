@@ -24,7 +24,7 @@ namespace FitnessCentar.Services.Database
             SeedTreninzi(modelBuilder);
             SeedRaspored(modelBuilder);
             SeedRezervacije(modelBuilder);
-          
+            SeedPlacanje(modelBuilder);
             SeedPregledanaNovost(modelBuilder);
         }
 
@@ -46,6 +46,34 @@ namespace FitnessCentar.Services.Database
                                  Id = 3,
                                  Specijalnost = "Stručni trener"
                              }
+            );
+        }
+        private void SeedPlacanje(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Placanja>().HasData(
+                 new Placanja()
+                 {
+                     Id = 1,
+
+                     KorisnikId = 8,
+
+                     DatumPlacanja = new DateTime(2024, 01, 19),
+
+                     Iznos = 15,
+                     TxnId = "test010920001"
+                 },
+                  new Placanja()
+                  {
+                      Id = 2,
+
+                      KorisnikId = 4,
+
+                      DatumPlacanja = new DateTime(2023, 10, 27),
+
+                      Iznos = 15,
+                      TxnId = "test010920002"
+                  }
+
             );
         }
 
@@ -1158,33 +1186,21 @@ namespace FitnessCentar.Services.Database
                      Id = 1,
                      KorisnikId = 4,
                      RasporedId = 1,
-                     Status = "Aktivna",
+                     Status = "Placena",
                      DatumRezervacija = new DateTime(2023, 10, 27, 21, 00, 00),
+                     PlacanjeId = 2,
                  },
+                
+                
                    new Rezervacije()
                    {
                        Id = 2,
-                       KorisnikId = 4,
-                       RasporedId = 4,
-                       Status = "Neaktivna",
-                       DatumRezervacija = new DateTime(2023, 10, 27, 21, 00, 00),
-                   },
-                   new Rezervacije()
-                   {
-                       Id = 3,
-                       KorisnikId = 4,
-                       RasporedId =20,
-                       Status = "Aktivna",
-                       DatumRezervacija = new DateTime(2023, 10, 27, 21, 00, 00),
-                   },
-                   new Rezervacije()
-                   {
-                       Id = 3,
-                       KorisnikId = 4,
+                       KorisnikId = 8,
                        RasporedId = 20,
-                       Status = "Aktivna",
-                       DatumRezervacija = new DateTime(2023, 10, 27, 21, 00, 00),
-                   }
+                       Status = "Placena",
+                       DatumRezervacija = new DateTime(2024, 01, 19, 10, 00, 00),
+                       PlacanjeId=1,
+    }
 
             );
         }
