@@ -11,7 +11,6 @@ import 'package:fitness_admin/providers/pay_provider.dart';
 import 'package:fitness_admin/providers/reservation_provider.dart';
 import 'package:fitness_admin/providers/schedule_provider.dart';
 import 'package:fitness_admin/providers/workout_provider.dart';
-import 'package:fitness_admin/screens/unpaid_reservation.dart';
 import 'package:fitness_admin/screens/user_details_screens.dart';
 import 'package:fitness_admin/widgets/master_screens.dart';
 import 'package:flutter/material.dart';
@@ -21,14 +20,14 @@ import 'package:provider/provider.dart';
 import '../providers/user_provider.dart';
 import '../utils/util.dart';
 
-class ReservationListScrean extends StatefulWidget {
-  const ReservationListScrean({Key? key}) : super(key: key);
+class UnpaidReservationListScrean extends StatefulWidget {
+  const UnpaidReservationListScrean({Key? key}) : super(key: key);
 
   @override
-  State<ReservationListScrean> createState() => _ReservationListScrean();
+  State<UnpaidReservationListScrean> createState() => _UnpaidReservationListScrean();
 }
 
-class _ReservationListScrean extends State<ReservationListScrean> {
+class _UnpaidReservationListScrean extends State<UnpaidReservationListScrean> {
   late UserProvider _userProvider;
   late ReservationProvider _reservationProvider;
   late ScheduleProvider _scheduleProvider;
@@ -64,35 +63,17 @@ class _ReservationListScrean extends State<ReservationListScrean> {
   void _loadData() async {
     var placanja = await GetPlacanja();
     var data = await _reservationProvider.getPaged(
-      filter: {'page': page, 'pageSize': numberOfPpl, 'status': 'Plaćena'},
+      filter: {'page': page, 'pageSize': numberOfPpl, 'status': 'Aktivna'},
     );
 
     setState(() {
       totalcount = data.count!;
       pageresult = data.result;
 
-      if (placanja != null) {
-        for (var rezervacija in pageresult!) {
-          for (var placanje in placanja) {
-            if (rezervacija.placanjeId == placanje?.id) {
-              rezervacija.istekla =
-                  _isReservationExpired(placanje!.datumPlacanja);
-            }
-          }
-        }
-      }
     });
   }
 
-  bool _isReservationExpired(DateTime? datumPlacanja) {
-    if (datumPlacanja != null) {
-      DateTime trenutniDatum = DateTime.now();
-      Duration razlika = trenutniDatum.difference(datumPlacanja);
 
-      return razlika.inDays > 30;
-    }
-    return false;
-  }
 
   Future<Korisnici?> getUserFromUserId(int userId) async {
     final user = await _userProvider.getById(userId);
@@ -150,25 +131,12 @@ class _ReservationListScrean extends State<ReservationListScrean> {
     }
   }
 
-  int compareReservations(Rezervacija a, Rezervacija b) {
-    bool isExpiredA = a.istekla ?? false;
-    bool isExpiredB = b.istekla ?? false;
-
-    // Prvo sortirajte po statusu (istekla rezervacija ide na kraj)
-    if (isExpiredA && !isExpiredB) {
-      return 1;
-    } else if (!isExpiredA && isExpiredB) {
-      return -1;
-    } else {
-      // Ako su statusi isti, sortirajte po datumu rezervacije unutar istih statusa
-      return a.datumRezervacija!.compareTo(b.datumRezervacija!);
-    }
-  }
+  
 
   @override
   Widget build(BuildContext context) {
     return MasterScreanWidget(
-      title_widget: Text("Rezervacije"),
+      title_widget: Text("Neplacene rezervacije"),
       child: Column(
         children: [
           Expanded(
@@ -199,15 +167,7 @@ Widget _buildBtn() {
     child: Padding(
       padding: const EdgeInsets.all(8.0),
       child: ElevatedButton(
-        onPressed: () {
-              Navigator.of(context).push(
-                                    MaterialPageRoute(
-                                      builder: (context) =>UnpaidReservationListScrean (
-                                       
-                                      ),
-                                    ),
-                                  );
-        },
+        onPressed: () {},
         style: ElevatedButton.styleFrom(
           padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
           textStyle: TextStyle(fontSize: 18), // Postavite željenu veličinu teksta
@@ -224,14 +184,14 @@ Widget _buildBtn() {
           ? ListView.builder(
               itemCount: pageresult!.length,
               itemBuilder: (context, index) {
-                bool isExpired = pageresult![index].istekla ?? false;
+                
 
                 return Card(
                   elevation: 5,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(15.0),
                     side: BorderSide(
-                      color: isExpired ? Colors.red : Colors.purple,
+                      color: Colors.yellow,
                       width: 3.0,
                     ),
                   ),
@@ -407,12 +367,12 @@ Widget _buildBtn() {
                                                     _dayOfWeekToString(
                                                         raspored?.dan ?? -1),
                                                   ),
-                                                  if (isExpired)
+                                                 
                                                     _buildInfoRow(
                                                       'Status:  ',
-                                                      'Istekla',
+                                                      'Neplacena',
                                                       TextStyle(
-                                                        color: Colors.red,
+                                                        color: Colors.yellow,
                                                         fontWeight:
                                                             FontWeight.bold,
                                                         fontSize: 30.0,

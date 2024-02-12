@@ -45,5 +45,6 @@ namespace FitnessCentar.Services
             return filteredQuery;
 
         }
+
     }
 }

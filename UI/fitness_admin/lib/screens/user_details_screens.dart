@@ -1,7 +1,9 @@
 import 'package:fitness_admin/models/korisnici.dart';
 import 'package:fitness_admin/models/napredak.dart';
+import 'package:fitness_admin/models/napredakreport.dart';
 import 'package:fitness_admin/models/placanja.dart';
 import 'package:fitness_admin/models/raspored.dart';
+import 'package:fitness_admin/models/report.dart';
 import 'package:fitness_admin/models/rezervacija.dart';
 import 'package:fitness_admin/models/search_result.dart';
 import 'package:fitness_admin/models/trening.dart';
@@ -10,6 +12,8 @@ import 'package:fitness_admin/providers/progress_provider.dart';
 import 'package:fitness_admin/providers/reservation_provider.dart';
 import 'package:fitness_admin/providers/schedule_provider.dart';
 import 'package:fitness_admin/providers/workout_provider.dart';
+import 'package:fitness_admin/screens/pdfnapredakport/pdfnapredak/pdfnapredakport.dart';
+import 'package:fitness_admin/screens/pdfnapredakport/pdfnapredakpreviu.dart';
 import 'package:fitness_admin/utils/util.dart';
 import 'package:fitness_admin/widgets/master_screens.dart';
 import 'package:flutter/foundation.dart';
@@ -38,6 +42,10 @@ class _UserDetalScreenState extends State<UserDetalScreen> {
   late PayProvider _payProvider;
   List<Napredak>? userProgress;
   bool isLoading = true;
+  List<double>? tezineList=[];
+  List<DateTime>? datumiList=[];
+
+
 
   @override
   void initState() {
@@ -83,6 +91,7 @@ class _UserDetalScreenState extends State<UserDetalScreen> {
     _payProvider = context.read<PayProvider>();
     initForm();
     _loadData();
+    _loadProgressForReport();
   }
 
   @override
@@ -161,6 +170,36 @@ class _UserDetalScreenState extends State<UserDetalScreen> {
       userProgress = data.result;
     });
   }
+
+Future<void> _loadProgressForReport() async {
+
+  final korisnikid = widget.korisnik!.id;
+  var data = await _progressProvider.get(filter: {
+    'korisnikId': korisnikid.toString(),
+  });
+
+  if (data != null && data.result.isNotEmpty) {
+    List<double> tezine = [];
+    List<DateTime> datumiMjerenja = [];
+
+    for (var progress in data.result) {
+   
+
+      // Dodajte provjeru za null datume
+      if (progress.tezina != null && progress.datumMjerenja != null) {
+        tezine.add(progress.tezina!);
+        datumiMjerenja.add(progress.datumMjerenja!);
+      }
+    }
+
+    setState(() {
+      tezineList = tezine;
+      datumiList = datumiMjerenja;
+    });
+  }
+}
+
+
 
   Widget _buildResultMessage(double currentWeight, double initialWeight) {
     String resultMessage = '';
@@ -768,6 +807,31 @@ class _UserDetalScreenState extends State<UserDetalScreen> {
               ),
               child: Text(
                 "Rezervacije korisnika",
+                style: TextStyle(fontSize: 18),
+              ),
+            ), SizedBox(width: 20),
+               ElevatedButton(
+              onPressed: () {
+                 List<double>? tezine = tezineList; // Dodajte stvarne težine
+  List<DateTime>? datumiMjerenja = datumiList; // Dodajte stvarne datume
+
+
+  NapredakReport napredakReport = NapredakReport(
+    tezine: tezine,
+    datumiMjerenja: datumiMjerenja,
+  );
+               Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        ExportSparkChart(invoice: napredakReport,),
+                  ),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+              ),
+              child: Text(
+                "Izvještaj o napretku korisnika",
                 style: TextStyle(fontSize: 18),
               ),
             ),

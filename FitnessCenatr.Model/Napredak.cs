@@ -12,8 +12,8 @@ namespace FitnessCentar.Model
 
         public int? KorisnikId { get; set; }
 
-     
 
+        public DateTime? DatumMjerenja { get; set; }
         public decimal? Tezina { get; set; }
 
     }
