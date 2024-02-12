@@ -13,7 +13,6 @@ import 'package:fitness_admin/providers/reservation_provider.dart';
 import 'package:fitness_admin/providers/schedule_provider.dart';
 import 'package:fitness_admin/providers/workout_provider.dart';
 import 'package:fitness_admin/screens/pdfnapredakport/pdfnapredak/pdfnapredakport.dart';
-import 'package:fitness_admin/screens/pdfnapredakport/pdfnapredakpreviu.dart';
 import 'package:fitness_admin/utils/util.dart';
 import 'package:fitness_admin/widgets/master_screens.dart';
 import 'package:flutter/foundation.dart';
@@ -823,9 +822,10 @@ Future<void> _loadProgressForReport() async {
                Navigator.of(context).push(
                   MaterialPageRoute(
                     builder: (context) =>
-                        ExportSparkChart(invoice: napredakReport,),
+                        ExportSparkChart( invoice:napredakReport ,),
                   ),
                 );
+              
               },
               style: ElevatedButton.styleFrom(
                 padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
