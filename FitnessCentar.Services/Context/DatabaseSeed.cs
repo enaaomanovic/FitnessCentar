@@ -73,6 +73,7 @@ namespace FitnessCentar.Services.Database
                       Iznos = 15,
                       TxnId = "test010920002"
                   }
+             
 
             );
         }
@@ -458,7 +459,7 @@ namespace FitnessCentar.Services.Database
                  {
                      Id = 1,
                      KorisnikId = 4,
-                     DatumMjerenja = new DateTime(2023, 12, 12, 13, 20, 20),
+                     DatumMjerenja = new DateTime(2023, 12, 14, 13, 20, 30),
                      Visina = null,
                      Tezina = 90
 
@@ -468,7 +469,7 @@ namespace FitnessCentar.Services.Database
                  {
                      Id = 2,
                      KorisnikId = 4,
-                     DatumMjerenja = new DateTime(2023, 12, 12, 13, 20, 30),
+                     DatumMjerenja = new DateTime(2024, 1, 14, 13, 20, 30),
                      Visina = null,
                      Tezina = 86
 
@@ -478,7 +479,7 @@ namespace FitnessCentar.Services.Database
                    {
                        Id = 3,
                        KorisnikId = 4,
-                       DatumMjerenja = new DateTime(2023, 12, 12, 13, 20, 40),
+                       DatumMjerenja = new DateTime(2024, 2, 14, 13, 20, 30),
                        Visina = null,
                        Tezina = 76
 
@@ -1198,9 +1199,18 @@ namespace FitnessCentar.Services.Database
                        KorisnikId = 8,
                        RasporedId = 20,
                        Status = "Placena",
-                       DatumRezervacija = new DateTime(2024, 01, 19, 10, 00, 00),
+                       DatumRezervacija = new DateTime(2024, 02, 14, 10, 00, 00),
                        PlacanjeId=1,
-    }
+    },
+                      new Rezervacije()
+                      {
+                          Id = 3,
+                          KorisnikId = 8,
+                          RasporedId = 25,
+                          Status = "Aktivna",
+                          DatumRezervacija = new DateTime(2024, 02, 14, 10, 00, 00),
+                          PlacanjeId = null,
+                      }
 
             );
         }
