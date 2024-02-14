@@ -147,7 +147,7 @@ class _UnpaidReservationListScrean extends State<UnpaidReservationListScrean> {
                     ? Container()
                     : Column(
                         children: [
-                          _buildBtn(),
+                       
                           _buildReservation(),
                           _buildPageNumbers(),
                         ],
@@ -161,22 +161,7 @@ class _UnpaidReservationListScrean extends State<UnpaidReservationListScrean> {
     );
   }
 
-Widget _buildBtn() {
-  return Align(
-    alignment: Alignment.topRight,
-    child: Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: ElevatedButton(
-        onPressed: () {},
-        style: ElevatedButton.styleFrom(
-          padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-          textStyle: TextStyle(fontSize: 18), // Postavite željenu veličinu teksta
-        ),
-        child: Text("Pregled nepacenih rezervacija"),
-      ),
-    ),
-  );
-}
+
 
   Widget _buildReservation() {
     return Expanded(

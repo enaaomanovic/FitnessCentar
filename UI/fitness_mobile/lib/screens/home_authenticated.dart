@@ -1204,6 +1204,9 @@ class _HomeAuthenticatedState extends State<HomeAuthenticated> {
                     var request = <String, dynamic>{
                       'korisnikId': widget.userId,
                       'tezina': inputWeight,
+                     'datumMjerenja':DateTime.now().toIso8601String(),
+                         
+
                     };
 
                     await widget.progressProvider.insert(request);
