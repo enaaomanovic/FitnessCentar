@@ -105,6 +105,10 @@ class _ExportSparkChartState extends State<ExportSparkChart> {
                             child: SparkLineChart(
                               key: chartKey,
                               invoice: widget.invoice,
+                              width:
+                                  500, // Prilagodite širinu grafikona prema potrebi
+                              height:
+                                  100, // Prilagodite visinu grafikona prema potrebi
                             ),
                           ),
                         ),
@@ -153,17 +157,310 @@ class _ExportSparkChartState extends State<ExportSparkChart> {
     );
   }
 
+  Future<void> _addLogoAndProgressTable(PdfDocument document, PdfPage page,
+      double containerWidth, double containerHeight) async {
+    final double pageWidth = page.getClientSize().width;
+    final double pageHeight = page.getClientSize().height;
+
+    // Prilagodite položaj loga
+    final double logoX = (pageWidth - 700) / 2;
+    final double logoY = 150; // Prilagodite po potrebi
+
+    // Prilagodite položaj teksta "Fitness Centar"
+    final String fitnessCenterText = 'Fitness Centar';
+    final PdfTextElement textElement = PdfTextElement(
+      text: fitnessCenterText,
+      font: PdfStandardFont(PdfFontFamily.timesRoman, 45,
+          style: PdfFontStyle.bold),
+    );
+    final PdfLayoutResult? textLayoutResult = textElement.draw(
+      page: page,
+      bounds: Rect.fromLTWH(
+        logoX + 250, // X koordinata (centrirano na širini stranice)
+        logoY + 80, // Podešavanje visine teksta (ispod loga)
+        300, // Širina teksta
+        100, // Visina teksta
+      ),
+      format: PdfLayoutFormat(layoutType: PdfLayoutType.paginate),
+    );
+
+    // Prilagodite položaj tabele
+    final double tableX = 50;
+    final double tableY = logoY + 150 + 20; // Postavite tablicu ispod loga
+
+    // Prilagodite visinu potrebnu za prikazivanje loga, teksta, tabele i grafikona
+    final double requiredHeight = tableY +
+        containerHeight +
+        20 +
+        16; // Visina tablice + visina grafikona + margine
+
+    // Provjerite je li stranica dovoljno visoka za prikaz svih elemenata
+    if (requiredHeight > pageHeight) {
+      // Ako nije dovoljno visoka, povećajte visinu stranice
+      page.graphics.drawLine(
+        PdfPen(PdfColor(0, 0, 0), width: 1),
+        Offset(pageWidth - 20, 0),
+        Offset(pageWidth - 20, pageHeight),
+      );
+      page.graphics.drawString(
+        'Continued...',
+        PdfStandardFont(PdfFontFamily.helvetica, 12),
+        bounds: Rect.fromLTWH(pageWidth - 20, pageHeight - 50, 20, 50),
+        format: PdfStringFormat(alignment: PdfTextAlignment.center),
+      );
+
+      final PdfPage newPage = document.pages.add();
+      await _addLogoAndProgressTable(
+          document, newPage, containerWidth, containerHeight);
+      return;
+    }
+
+    // Dobijanje referene na sliku iz AssetImage
+    ByteData data = await rootBundle.load('assets/images/FitnessLogo.jpg');
+    Uint8List uint8list = data.buffer.asUint8List();
+    PdfBitmap pdfImage = PdfBitmap(uint8list);
+
+    // Crtanje slike loga na PDF stranici
+    page.graphics.drawImage(pdfImage, Rect.fromLTWH(logoX, logoY, 220, 220));
+
+    // Prilagodite ovaj dio kako biste kreirali sadržaj tabele
+    final PdfGrid grid = PdfGrid();
+    // Populate grid with data from your DataTable
+    // Prilagodite dimenzije i položaj tabele na stranici
+    PdfLayoutResult? result = grid.draw(
+      page: page,
+      bounds: Rect.fromLTWH(
+          tableX, tableY, pageWidth - 2 * tableX, pageHeight - tableY),
+    );
+
+    // Dodajte spark chart na istu stranicu
+    final PdfBitmap bitmap = PdfBitmap(await _readImageData());
+    final double chartX = 50; // Prilagodite po potrebi
+    final double chartY = result!.bounds.bottom + 20; // Prilagodite po potrebi
+    page.graphics.drawImage(
+      bitmap,
+      Rect.fromLTWH(chartX, chartY, containerWidth, containerHeight),
+    );
+  }
+
+  Future<void> _addDataTable(PdfDocument document, PdfPage page,
+      List<DateTime> datumiMjerenja, List<double> tezine) async {
+    // Defining page dimensions
+    final double pageWidth = page.getClientSize().width;
+    final double pageHeight = page.getClientSize().height;
+
+    // Defining table dimensions and position
+    final double tableX = 300;
+    final double tableY = 550; // You can adjust the table height as needed
+
+    // Creating DataTable
+    final PdfGrid dataTable = PdfGrid();
+
+    // Adding columns to the table
+    dataTable.columns.add(count: 2);
+    dataTable.headers.add(1);
+    dataTable.headers[0].cells[0].value = 'Datumi';
+    dataTable.headers[0].cells[1].value = 'Tezine';
+
+    // Setting font size and aligning text to center for table headers
+    final PdfStandardFont headerFont = PdfStandardFont(
+        PdfFontFamily.helvetica, 25,
+        style: PdfFontStyle.bold); // Change the font size here
+    final PdfStringFormat headerFormat = PdfStringFormat(
+      alignment: PdfTextAlignment.center,
+      lineAlignment: PdfVerticalAlignment.middle,
+    );
+
+    final PdfBorders dataBorderStyle = PdfBorders(
+      left: PdfPens.white,
+      top: PdfPens.white,
+      right: PdfPens.white,
+      bottom: PdfPens.black,
+    );
+    // Define the border style for the header
+    final PdfBorders headerBorderStyle = PdfBorders(
+      left: PdfPens.transparent,
+      top: PdfPens.transparent,
+      right: PdfPens.transparent,
+      bottom: PdfPens.white, // Set bottom border to white color
+    );
+    // Apply border style to header cells
+    for (int j = 0; j < dataTable.columns.count; j++) {
+      dataTable.headers[0].cells[j].style.borders = headerBorderStyle;
+    }
+
+    dataTable.headers[0].style = PdfGridCellStyle(
+      font: headerFont,
+      format: headerFormat,
+    );
+    dataTable.headers[0].cells[0].style = PdfGridCellStyle(
+      font: headerFont,
+      format: headerFormat,
+      borders: dataBorderStyle,
+    );
+    dataTable.headers[0].cells[1].style = PdfGridCellStyle(
+      font: headerFont,
+      format: headerFormat,
+      borders: dataBorderStyle,
+    );
+
+    // Populating table rows with data
+    for (int i = 0; i < datumiMjerenja.length; i++) {
+      final DateTime datum = datumiMjerenja[i];
+      final double tezina = tezine[i];
+
+      // Adding a row to the table
+      dataTable.rows.add();
+      // Setting cell values
+      dataTable.rows[i].cells[0].value = DateFormat('dd-MM-yyyy').format(datum);
+      dataTable.rows[i].cells[1].value = '$tezina kg';
+
+      // Setting font size and aligning text to center for table cells
+      final PdfStandardFont cellFont = PdfStandardFont(
+          PdfFontFamily.helvetica, 25); // Change the font size here
+      final PdfStringFormat cellFormat = PdfStringFormat(
+        alignment: PdfTextAlignment.center,
+        lineAlignment: PdfVerticalAlignment.middle,
+      );
+
+      dataTable.rows[i].cells[0].style = PdfGridCellStyle(
+        font: cellFont,
+        format: cellFormat,
+        borders: dataBorderStyle,
+      );
+      dataTable.rows[i].cells[1].style = PdfGridCellStyle(
+        font: cellFont,
+        format: cellFormat,
+        borders: dataBorderStyle,
+      );
+    }
+
+    // Adjusting table dimensions on the page
+    PdfLayoutResult? result = dataTable.draw(
+      page: page,
+      bounds: Rect.fromLTWH(
+          tableX, tableY, pageWidth - 1 * tableX, pageHeight - tableY),
+    );
+
+    // Checking if a new page is needed due to the table overflowing to the next page
+    if (result!.bounds.bottom > pageHeight) {
+      final PdfPage newPage = document.pages.add();
+      await _addDataTable(document, newPage, datumiMjerenja, tezine);
+    }
+  }
+
+  Future<void> _addText(PdfDocument document, PdfPage page) async {
+    final double pageWidth = page.getClientSize().width;
+    final double pageHeight = page.getClientSize().height;
+
+    // Postavljamo položaj i stil teksta
+    final String textContent = "Graficki prikaz rezultata";
+    final PdfFont font =
+        PdfStandardFont(PdfFontFamily.timesRoman, 25, style: PdfFontStyle.bold);
+
+    // Izračunavamo dimenzije teksta
+    final PdfStringFormat format = PdfStringFormat(
+      alignment: PdfTextAlignment.center,
+    );
+    final Size textSize = font.measureString(textContent, format: format);
+
+    // Izračunavamo položaj teksta da bude centriran
+    final double textX = (pageWidth - textSize.width) / 2;
+    final double textY = 800;
+
+    // Crtamo tekst na stranici
+    page.graphics.drawString(
+      textContent,
+      font,
+      brush: PdfSolidBrush(PdfColor(0, 0, 0)),
+      bounds: Rect.fromLTWH(textX, textY, textSize.width, textSize.height),
+      format: format,
+    );
+  }
+
+  Future<void> _addText2(PdfDocument document, PdfPage page) async {
+    final double pageWidth = page.getClientSize().width;
+    final double pageHeight = page.getClientSize().height;
+
+    // Postavljamo položaj i stil teksta
+    final String textContent =
+        "Zelimo vam uspješno daljnje napredovanje u vašem fitnes putovanju!";
+    final PdfFont font = PdfStandardFont(PdfFontFamily.timesRoman, 20);
+
+    // Izračunavamo dimenzije teksta
+    final PdfStringFormat format = PdfStringFormat(
+      alignment: PdfTextAlignment.center,
+    );
+    final Size textSize = font.measureString(textContent, format: format);
+
+    // Izračunavamo položaj teksta da bude centriran
+    final double textX = (pageWidth - textSize.width) / 2;
+    final double textY = 1500;
+
+    // Crtamo tekst na stranici
+    page.graphics.drawString(
+      textContent,
+      font,
+      brush: PdfSolidBrush(PdfColor(0, 0, 0)),
+      bounds: Rect.fromLTWH(textX, textY, textSize.width, textSize.height),
+      format: format,
+    );
+  }
+
+  Future<void> _addText3(PdfDocument document, PdfPage page) async {
+    final double pageWidth = page.getClientSize().width;
+    final double pageHeight = page.getClientSize().height;
+
+    // Postavljamo položaj i stil teksta
+    final String textContent =
+        "Cestitamo, postigli ste rezultate u vasem fitness putovanju. Rezultati vaseg napretka su sljedeci:";
+    final PdfFont font =
+        PdfStandardFont(PdfFontFamily.timesRoman, 25, style: PdfFontStyle.bold);
+
+    // Izračunavamo dimenzije teksta
+    final PdfStringFormat format = PdfStringFormat(
+      alignment: PdfTextAlignment.center,
+    );
+    final Size textSize = font.measureString(textContent, format: format);
+
+    // Izračunavamo položaj teksta da bude centriran
+    final double textX = (pageWidth - textSize.width) / 2;
+    final double textY = 400;
+
+    // Crtamo tekst na stranici
+    page.graphics.drawString(
+      textContent,
+      font,
+      brush: PdfSolidBrush(PdfColor(0, 0, 0)),
+      bounds: Rect.fromLTWH(textX, textY, textSize.width, textSize.height),
+      format: format,
+    );
+  }
+
   Future<void> _renderPdf() async {
     // Create a new PDF document.
     final PdfDocument document = PdfDocument();
     // Create a pdf bitmap for the rendered spark chart image.
     final PdfBitmap bitmap = PdfBitmap(await _readImageData());
+
     // set the necessary page settings for the pdf document such as margin, size etc..
     document.pageSettings.margins.all = 0;
     document.pageSettings.size =
         Size(bitmap.width.toDouble(), bitmap.height.toDouble());
     // Create a PdfPage page object and assign the pdf document's pages to it.
     final PdfPage page = document.pages.add();
+    double containerWidth = 0.2;
+    double containerHeight = 0.2;
+
+    await _addLogoAndProgressTable(
+        document, page, containerWidth, containerHeight);
+    await _addText3(document, page);
+
+    await _addDataTable(
+        document, page, widget.invoice.datumiMjerenja!, widget.invoice.tezine!);
+    await _addText(document, page);
+    await _addText2(document, page);
+
     // Retrieve the pdf page client size
     final Size pageSize = page.getClientSize();
     // Draw an image into graphics using the bitmap.
@@ -195,9 +492,6 @@ class _ExportSparkChartState extends State<ExportSparkChart> {
     OpenFile.open('$path/output.pdf');
   }
 
-
-
-
   /// Method to read the rendered spark bar chart image and return the image data for processing.
   Future<List<int>> _readImageData() async {
     final dart_ui.Image data =
@@ -211,8 +505,15 @@ class _ExportSparkChartState extends State<ExportSparkChart> {
 
 class SparkLineChart extends StatefulWidget {
   final NapredakReport invoice;
+  final double width;
+  final double height;
 
-  const SparkLineChart({Key? key, required this.invoice}) : super(key: key);
+  const SparkLineChart({
+    Key? key,
+    required this.invoice,
+    required this.width,
+    required this.height,
+  }) : super(key: key);
 
   @override
   _SparkLineChartState createState() => _SparkLineChartState();
@@ -221,7 +522,6 @@ class SparkLineChart extends StatefulWidget {
 class _SparkLineChartState extends State<SparkLineChart> {
   @override
   Widget build(BuildContext context) {
-    // Koristite vaše podatke datuma i težina iz objekta NapredakReport
     List<DateTime> datumiMjerenja = widget.invoice.datumiMjerenja!;
     List<double> tezine = widget.invoice.tezine!;
 
@@ -231,13 +531,11 @@ class _SparkLineChartState extends State<SparkLineChart> {
           padding: EdgeInsets.all(20),
           child: Container(
             color: Colors.white,
-            height: 500,
-            width: 320,
+            height: widget.height,
+            width: widget.width,
             child: SfSparkLineChart.custom(
               xValueMapper: (int index) => datumiMjerenja[index],
-              // Povežite yValueMapper sa težinama
               yValueMapper: (int index) => tezine[index],
-              // Postavite broj podataka
               dataCount: datumiMjerenja.length,
               labelDisplayMode: SparkChartLabelDisplayMode.all,
             ),
@@ -248,11 +546,9 @@ class _SparkLineChartState extends State<SparkLineChart> {
   }
 
   Future<dart_ui.Image> convertToImage({double pixelRatio = 1.0}) async {
-    // Get the render object from context and store in the RenderRepaintBoundary onject.
     final RenderRepaintBoundary boundary =
         context.findRenderObject() as RenderRepaintBoundary;
 
-    // Convert the repaint boundary as image
     final dart_ui.Image image = await boundary.toImage(pixelRatio: pixelRatio);
 
     return image;
