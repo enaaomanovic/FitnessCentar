@@ -811,8 +811,8 @@ Future<void> _loadProgressForReport() async {
             ), SizedBox(width: 20),
                ElevatedButton(
               onPressed: () {
-                 List<double>? tezine = tezineList; // Dodajte stvarne težine
-  List<DateTime>? datumiMjerenja = datumiList; // Dodajte stvarne datume
+                 List<double>? tezine = tezineList; 
+  List<DateTime>? datumiMjerenja = datumiList; 
 
 
   NapredakReport napredakReport = NapredakReport(

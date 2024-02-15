@@ -281,10 +281,10 @@ Future<void> _editNews(BuildContext context, int novostId) async {
   TextEditingController _naslovController = TextEditingController();
   TextEditingController _sadrzajController = TextEditingController();
 
-   // Load existing news data
+  
   Novosti existingNovost = await _newsProvider.getById(novostId);
   
-  // Set initial values for the controllers
+  
   _naslovController.text = existingNovost.naslov ?? '';
   _sadrzajController.text = existingNovost.tekst ?? '';
 
@@ -307,7 +307,7 @@ Future<void> _editNews(BuildContext context, int novostId) async {
         ),
         content: Container(
           width: MediaQuery.of(context).size.width * 0.3,
-          height: MediaQuery.of(context).size.height * 0.3, // Adjust the width as needed
+          height: MediaQuery.of(context).size.height * 0.3, 
           child: FormBuilder(
             key: _formKey,
             autovalidateMode: AutovalidateMode.always,
@@ -320,14 +320,14 @@ Future<void> _editNews(BuildContext context, int novostId) async {
                     labelText: 'Naslov',
                     focusedBorder: OutlineInputBorder(
                       borderSide: BorderSide(
-                        color: Colors.purple, // Set the border color
-                        width: 2.0, // Set the border width
+                        color: Colors.purple, 
+                        width: 2.0, 
                       ),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderSide: BorderSide(
-                        color: Colors.purple, // Set the border color
-                        width: 1.5, // Set the border width
+                        color: Colors.purple, 
+                        width: 1.5, 
                       ),
                     ),
                   ),
@@ -341,7 +341,7 @@ Future<void> _editNews(BuildContext context, int novostId) async {
                   },
                   name: 'naslov',
                 ),
-                SizedBox(height: 16), // Adjust spacing between the inputs
+                SizedBox(height: 16), 
                 FormBuilderTextField(
                   controller: _sadrzajController,
                   maxLines: 5,
@@ -349,14 +349,14 @@ Future<void> _editNews(BuildContext context, int novostId) async {
                     labelText: 'Sadržaj',
                     focusedBorder: OutlineInputBorder(
                       borderSide: BorderSide(
-                        color: Colors.purple, // Set the border color
-                        width: 2.0, // Set the border width
+                        color: Colors.purple, 
+                        width: 2.0, 
                       ),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderSide: BorderSide(
-                        color: Colors.purple, // Set the border color
-                        width: 1.5, // Set the border width
+                        color: Colors.purple, 
+                        width: 1.5, 
                       ),
                     ),
                   ),

@@ -265,7 +265,7 @@ class _TreneriScreen extends State<TreneriScreen> {
                                 );
 
                                 if (result == true) {
-                                  // Osvežavanje podataka na prethodnoj stranici
+                                  
                                   _refreshData();
                                   widget.onTrainerEdit();
                                 }

@@ -27,7 +27,6 @@ class _EditUserScreenState extends State<EditUserScreen> {
   late UserProvider _userProvider;
   late TrainerProvider _trainerProvider;
 
-  // Dodajte kontrolere ovdje
   TextEditingController _imeController = TextEditingController();
   TextEditingController _prezimeController = TextEditingController();
   TextEditingController _specijalnostController = TextEditingController();
@@ -41,7 +40,6 @@ class _EditUserScreenState extends State<EditUserScreen> {
     _userProvider = context.read<UserProvider>();
     _trainerProvider = context.read<TrainerProvider>();
 
-    // Inicijalizacija kontrolera
     _imeController = TextEditingController();
     _prezimeController = TextEditingController();
     _specijalnostController = TextEditingController();
@@ -63,7 +61,7 @@ class _EditUserScreenState extends State<EditUserScreen> {
 
     if (user != null) {
       setState(() {
-        // Koristimo `FormBuilderState` za postavljanje vrednosti polja
+       
         _formKey.currentState?.patchValue({
           'ime': user.ime ?? '',
           'prezime': user.prezime ?? '',
@@ -73,7 +71,6 @@ class _EditUserScreenState extends State<EditUserScreen> {
           'email': user.email ?? '',
         });
 
-        // Postavljamo vrednosti u kontrolere
         _imeController.text = user.ime ?? '';
         _prezimeController.text = user.prezime ?? '';
 
@@ -289,48 +286,45 @@ class _EditUserScreenState extends State<EditUserScreen> {
 
 
  void _updateUserData() async {
-  // Spremi trenutno stanje forme
+
   _formKey.currentState?.save();
 
   try {
-    // Validacija forme
+   
     if (_formKey.currentState!.validate()) {
-      // Napravi mapu sa podacima iz forme
+     
       Map<String, dynamic> request = _formKey.currentState!.value;
 
-      // Create a new map to store the request data
+     
       Map<String, dynamic> requestData = Map.from(request);
 
-      // Add 'slika' key to the new map
+     
     if (_removeImage) {
-    requestData['slika'] = null; // Postavite na null ili na odgovarajuću vrednost
+    requestData['slika'] = null; 
   } else if (_base64Image != null) {
-    // Ako postoji nova slika, dodajte 'slika' ključ u novu mapu
+    
     requestData['slika'] = _base64Image;
   }
 
-      // Dodaj dodatne parametre za ažuriranje (npr. id, questionId itd.)
-      // Ako su potrebni za vašu implementaciju
-
-      // Pozovi metodu za ažuriranje korisnika
+ 
       var res = await _userProvider.update(widget.userId, requestData);
       print(res);
 
-      // Prikaz poruke o uspešnom ažuriranju
+     
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Podaci su ažurirani!'),
         ),
       );
 
-      // Zatvori trenutni ekran i obavesti prethodni ekran da treba osvežiti podatke
+    
       Navigator.pop(context, true);
 
-      // Dodajte sledeću liniju kako biste obavestili prethodni ekran da treba osvežiti podatke
+
       widget.refreshDataCallback();
     }
   } catch (error) {
-    // Prikaz poruke o grešci ako dođe do problema
+   
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('Došlo je do greške prilikom ažuriranja podataka.'),

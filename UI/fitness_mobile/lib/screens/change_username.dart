@@ -142,10 +142,10 @@ void _updateUserData() async {
 
     if (korisnik?.korisnickoIme != _currentUsernameController.text) {
       _showAlertDialog("Current Username is not valid for the logged-in user!");
-      return; // Stop further execution if the current username is not valid
+      return; 
     }
 
-    // Call the method to change the password
+   
     await _userProvider.changeUsername(
       widget.userId,
       _newUsernameController.text,

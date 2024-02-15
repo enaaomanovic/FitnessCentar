@@ -21,7 +21,7 @@ class LoginPage extends StatelessWidget {
         backgroundColor: Colors.transparent,
         elevation: 0,
          iconTheme: IconThemeData(
-      color: Colors.purple, // Ovdje postavite boju
+      color: Colors.purple, 
     ),
         title: Padding(
           padding: const EdgeInsets.only(left: 16.0),

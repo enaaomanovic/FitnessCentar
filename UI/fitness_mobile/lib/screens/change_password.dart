@@ -152,7 +152,7 @@ void _updatePassword() async {
         }
       }
 
-      // Call the method to change the password
+   
       try {
         await _userProvider.changePassword(
           widget.userId, newPassword, currentPassword,

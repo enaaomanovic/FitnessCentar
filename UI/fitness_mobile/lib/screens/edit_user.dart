@@ -189,7 +189,7 @@ Widget _editKredencijala() {
                                   setState(() {
                                     _removeImage = value ?? false;
                                     if (_removeImage) {
-                                      // Ako je checkbox označen za uklanjanje slike, postavite _image na null
+                                      
                                       _image = null;
                                     }
                                   });
@@ -298,14 +298,14 @@ void _updateUserData() async {
 
   try {
     if (_formKey.currentState!.validate()) {
-      // Kopiranje mape
+      
       Map<String, dynamic> request = Map.from(_formKey.currentState!.value);
 
-      // Ako je checkbox za uklanjanje slike označen, postavite slika na null
+      
       if (_removeImage) {
         request['slika'] = null;
       } else if (_image != null) {
-        // Ako nije označen checkbox za uklanjanje slike i odabrana je nova slika, kod za kodiranje slike ostaje nepromijenjen
+       
         List<int> imageBytes = await _image!.readAsBytes();
         String base64Image = base64Encode(imageBytes);
         request['slika'] = base64Image;
@@ -332,45 +332,4 @@ void _updateUserData() async {
 }
 
 
-
-
-//   void _updateUserData() async {
-//     _formKey.currentState?.save();
-
-//     try {
-//       if (_formKey.currentState!.validate()) {
-//         Map<String, dynamic> request = _formKey.currentState!.value;
-
-//        if (_image != null) {
-//         List<int> imageBytes = await _image!.readAsBytes();
-//         String base64Image = base64Encode(imageBytes);
-//         request['slika'] = base64Image;
-//       }
-
-
-//         var res = await _userProvider.update(widget.userId, request);
-
-//         ScaffoldMessenger.of(context).showSnackBar(
-//           SnackBar(
-//             content: Text('Podaci su ažurirani!'),
-//           ),
-//         );
-//       Navigator.pop(context,true); 
-//         widget.refreshDataCallback(); 
-
-  
-
-
-//       }
-//     }
-//     catch (error) {
-//   print('Greška prilikom ažuriranja podataka: $error');
-//   ScaffoldMessenger.of(context).showSnackBar(
-//     SnackBar(
-//       content: Text('Došlo je do greške prilikom ažuriranja podataka. Pogledajte konzolu za više informacija.'),
-//     ),
-//   );
-// }
-
- // }
 }

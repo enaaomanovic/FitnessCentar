@@ -154,13 +154,13 @@ class _ReservationListScrean extends State<ReservationListScrean> {
     bool isExpiredA = a.istekla ?? false;
     bool isExpiredB = b.istekla ?? false;
 
-    // Prvo sortirajte po statusu (istekla rezervacija ide na kraj)
+   
     if (isExpiredA && !isExpiredB) {
       return 1;
     } else if (!isExpiredA && isExpiredB) {
       return -1;
     } else {
-      // Ako su statusi isti, sortirajte po datumu rezervacije unutar istih statusa
+      
       return a.datumRezervacija!.compareTo(b.datumRezervacija!);
     }
   }
@@ -210,7 +210,7 @@ Widget _buildBtn() {
         },
         style: ElevatedButton.styleFrom(
           padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-          textStyle: TextStyle(fontSize: 18), // Postavite željenu veličinu teksta
+          textStyle: TextStyle(fontSize: 18), 
         ),
         child: Text("Pregled nepacenih rezervacija"),
       ),
@@ -426,7 +426,7 @@ Widget _buildBtn() {
                                         ],
                                       );
                                     } else {
-                                      // Loading Raspored...
+                                  
                                       return ListTile(
                                         title: Text(
                                             'Rezervacija #${pageresult![index].id}'),
@@ -437,7 +437,7 @@ Widget _buildBtn() {
                                   },
                                 );
                               } else {
-                                // Loading User...
+                               
                                 return ListTile(
                                   title: Text(
                                       'Rezervacija #${pageresult![index].id}'),
@@ -471,15 +471,15 @@ Widget _buildBtn() {
                 Text(
                   label,
                   style: TextStyle(
-                    fontSize: 20.0, // Prilagodi veličinu fonta
-                    // Dodaj bold
-                  ).merge(style), // Merge sa proslijeđenim stilom
+                    fontSize: 20.0, 
+                    
+                  ).merge(style), 
                 ),
                 Text(
                   value,
                   style: TextStyle(
-                    fontSize: 21.0, // Prilagodi veličinu fonta
-                    fontWeight: FontWeight.bold, // Dodaj bold
+                    fontSize: 21.0, 
+                    fontWeight: FontWeight.bold, 
                   ),
                 ),
               ],

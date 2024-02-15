@@ -193,7 +193,7 @@ class _MobileUserDetailScreenState extends State<MobileUserDetailScreen> {
               );
 
               if (result == true) {
-                // Osvežavanje podataka na prethodnoj stranici
+                
                 _loadUserData();
                 widget.onUserEdit();
                 

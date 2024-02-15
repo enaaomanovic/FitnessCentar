@@ -371,7 +371,7 @@ class _UnpaidReservationListScrean extends State<UnpaidReservationListScrean> {
                                         ],
                                       );
                                     } else {
-                                      // Loading Raspored...
+                                      
                                       return ListTile(
                                         title: Text(
                                             'Rezervacija #${pageresult![index].id}'),
@@ -382,7 +382,7 @@ class _UnpaidReservationListScrean extends State<UnpaidReservationListScrean> {
                                   },
                                 );
                               } else {
-                                // Loading User...
+                              
                                 return ListTile(
                                   title: Text(
                                       'Rezervacija #${pageresult![index].id}'),
@@ -416,15 +416,15 @@ class _UnpaidReservationListScrean extends State<UnpaidReservationListScrean> {
                 Text(
                   label,
                   style: TextStyle(
-                    fontSize: 20.0, // Prilagodi veličinu fonta
-                    // Dodaj bold
-                  ).merge(style), // Merge sa proslijeđenim stilom
+                    fontSize: 20.0, 
+                   
+                  ).merge(style), 
                 ),
                 Text(
                   value,
                   style: TextStyle(
-                    fontSize: 21.0, // Prilagodi veličinu fonta
-                    fontWeight: FontWeight.bold, // Dodaj bold
+                    fontSize: 21.0, 
+                    fontWeight: FontWeight.bold, 
                   ),
                 ),
               ],
