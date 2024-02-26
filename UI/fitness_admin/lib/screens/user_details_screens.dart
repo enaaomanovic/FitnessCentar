@@ -73,8 +73,9 @@ class _UserDetalScreenState extends State<UserDetalScreen> {
         'ime': widget.korisnik?.ime,
         'prezime': widget.korisnik?.prezime,
         'korisnickoIme': widget.korisnik?.korisnickoIme,
-        'datumRegistracije': dateFormat.format(widget.korisnik!.datumRegistracije!),
-            'datumRodjenja': dateFormat.format(widget.korisnik!.datumRodjenja!),
+        'datumRegistracije':
+            dateFormat.format(widget.korisnik!.datumRegistracije!),
+        'datumRodjenja': dateFormat.format(widget.korisnik!.datumRodjenja!),
         "pol": widget.korisnik?.pol,
         "telefon": widget.korisnik?.telefon,
         "tezina": widget.korisnik?.tezina.toString(),
@@ -810,19 +811,20 @@ Future<void> _loadProgressForReport() async {
               ),
             ), SizedBox(width: 20),
                ElevatedButton(
-              onPressed: () {
-                 List<double>? tezine = tezineList; 
-  List<DateTime>? datumiMjerenja = datumiList; 
+              onPressed: () async {
+                await _loadProgressForReport();
+                List<double>? tezine = tezineList;
+                List<DateTime>? datumiMjerenja = datumiList;
 
-
-  NapredakReport napredakReport = NapredakReport(
-    tezine: tezine,
-    datumiMjerenja: datumiMjerenja,
-  );
-               Navigator.of(context).push(
+                NapredakReport napredakReport = NapredakReport(
+                  tezine: tezine,
+                  datumiMjerenja: datumiMjerenja,
+                );
+                Navigator.of(context).push(
                   MaterialPageRoute(
-                    builder: (context) =>
-                        ExportSparkChart( invoice:napredakReport ,),
+                    builder: (context) => ExportSparkChart(
+                      invoice: napredakReport,
+                    ),
                   ),
                 );
               

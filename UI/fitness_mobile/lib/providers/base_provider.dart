@@ -21,11 +21,11 @@ abstract class BaseProvider<T> with ChangeNotifier {
   BaseProvider(String endpoint) {
     _endpoint = endpoint;
     // ZA EMULATOR
-    _baseUrl = const String.fromEnvironment("baseUrl",defaultValue: "http://10.0.2.2:5266/");
+    // _baseUrl = const String.fromEnvironment("baseUrl",defaultValue: "http://10.0.2.2:5266/");
     
-    // ZA MOBILNI TELEFON PREKO MOBILE HOTSPOTA
-    //  _baseUrl = const String.fromEnvironment("baseUrl",
-    //      defaultValue: "http://192.168.137.1:5266/");
+   // ZA MOBILNI TELEFON PREKO MOBILE HOTSPOTA
+     _baseUrl = const String.fromEnvironment("baseUrl",
+         defaultValue: "http://192.168.137.1:5266/");
   }
 
   Future<SearchResult<T>> get({dynamic filter}) async {
