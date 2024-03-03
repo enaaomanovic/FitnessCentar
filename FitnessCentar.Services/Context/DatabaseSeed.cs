@@ -484,8 +484,139 @@ namespace FitnessCentar.Services.Database
                        Tezina = 76
 
 
+                   },
+                   new Napredak()
+                   {
+                       Id = 4,
+                       KorisnikId = 5,
+                       DatumMjerenja = new DateTime(2024, 1, 14, 13, 20, 30),
+                       Visina = null,
+                       Tezina = 76
+                   },
+                   new Napredak()
+                   {
+                       Id = 5,
+                       KorisnikId = 5,
+                       DatumMjerenja = new DateTime(2024, 2, 14, 13, 20, 30),
+                       Visina = null,
+                       Tezina = 73
                    }
-
+                   ,
+                   new Napredak()
+                   {
+                       Id = 6,
+                       KorisnikId = 6,
+                       DatumMjerenja = new DateTime(2024, 1, 14, 13, 20, 30),
+                       Visina = null,
+                       Tezina = 85
+                   }
+                   ,
+                   new Napredak()
+                   {
+                       Id = 7,
+                       KorisnikId = 6,
+                       DatumMjerenja = new DateTime(2024, 2, 14, 13, 20, 30),
+                       Visina = null,
+                       Tezina = 82
+                   },
+                   new Napredak()
+                   {
+                       Id = 8,
+                       KorisnikId = 7,
+                       DatumMjerenja = new DateTime(2024, 1, 14, 13, 20, 30),
+                       Visina = null,
+                       Tezina = 82
+                   },
+                   new Napredak()
+                   {
+                       Id = 9,
+                       KorisnikId = 7,
+                       DatumMjerenja = new DateTime(2024, 2, 14, 13, 20, 30),
+                       Visina = null,
+                       Tezina = 80
+                   }
+                   ,
+                   new Napredak()
+                   {
+                       Id = 10,
+                       KorisnikId = 8,
+                       DatumMjerenja = new DateTime(2024, 1, 14, 13, 20, 30),
+                       Visina = null,
+                       Tezina = 62
+                   },
+                   new Napredak()
+                   {
+                       Id = 11,
+                       KorisnikId = 8,
+                       DatumMjerenja = new DateTime(2024, 2, 14, 13, 20, 30),
+                       Visina = null,
+                       Tezina = 64
+                   },
+                   new Napredak()
+                   {
+                       Id = 12,
+                       KorisnikId = 9,
+                       DatumMjerenja = new DateTime(2024, 1, 14, 13, 20, 30),
+                       Visina = null,
+                       Tezina = 85
+                   },
+                   new Napredak()
+                   {
+                       Id = 13,
+                       KorisnikId = 9,
+                       DatumMjerenja = new DateTime(2024, 2, 14, 13, 20, 30),
+                       Visina = null,
+                       Tezina = 87
+                   }
+                   ,
+                   new Napredak()
+                   {
+                       Id = 14,
+                       KorisnikId = 10,
+                       DatumMjerenja = new DateTime(2024, 1, 14, 13, 20, 30),
+                       Visina = null,
+                       Tezina = 57
+                   },
+                   new Napredak()
+                   {
+                       Id = 15,
+                       KorisnikId = 10,
+                       DatumMjerenja = new DateTime(2024, 2, 14, 13, 20, 30),
+                       Visina = null,
+                       Tezina = 62
+                   },
+                   new Napredak()
+                   {
+                       Id = 16,
+                       KorisnikId = 11,
+                       DatumMjerenja = new DateTime(2024, 1, 14, 13, 20, 30),
+                       Visina = null,
+                       Tezina = 72
+                   },
+                   new Napredak()
+                   {
+                       Id = 17,
+                       KorisnikId = 11,
+                       DatumMjerenja = new DateTime(2024, 2, 14, 13, 20, 30),
+                       Visina = null,
+                       Tezina = 71
+                   },
+                   new Napredak()
+                   {
+                       Id = 18,
+                       KorisnikId = 12,
+                       DatumMjerenja = new DateTime(2024, 1, 14, 13, 20, 30),
+                       Visina = null,
+                       Tezina = 52
+                   },
+                    new Napredak()
+                    {
+                        Id = 19,
+                        KorisnikId = 12,
+                        DatumMjerenja = new DateTime(2024, 2, 14, 13, 20, 30),
+                        Visina = null,
+                        Tezina = 56
+                    }
             );
         }
 
@@ -1191,24 +1322,24 @@ namespace FitnessCentar.Services.Database
                      DatumRezervacija = new DateTime(2023, 10, 27, 21, 00, 00),
                      PlacanjeId = 2,
                  },
-                
-                
+
+
                    new Rezervacije()
                    {
                        Id = 2,
                        KorisnikId = 8,
                        RasporedId = 20,
                        Status = "Placena",
-                       DatumRezervacija = new DateTime(2024, 02, 14, 10, 00, 00),
-                       PlacanjeId=1,
-    },
+                       DatumRezervacija = new DateTime(2024, 03, 14, 10, 00, 00),
+                       PlacanjeId = 1,
+                   },
                       new Rezervacije()
                       {
                           Id = 3,
                           KorisnikId = 8,
                           RasporedId = 25,
                           Status = "Aktivna",
-                          DatumRezervacija = new DateTime(2024, 02, 14, 10, 00, 00),
+                          DatumRezervacija = new DateTime(2024, 03, 14, 10, 00, 00),
                           PlacanjeId = null,
                       }
 
