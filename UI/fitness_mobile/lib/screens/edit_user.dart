@@ -1,5 +1,4 @@
 
-
 import 'dart:convert';
 import 'dart:io';
 
@@ -7,13 +6,11 @@ import 'package:fitness_mobile/models/korisnici.dart';
 import 'package:fitness_mobile/providers/progress_provider.dart';
 import 'package:fitness_mobile/providers/trainer_provider.dart';
 import 'package:fitness_mobile/providers/user_provider.dart';
-
 import 'package:fitness_mobile/screens/home_authenticated.dart';
 import 'package:fitness_mobile/widgets/master_screens.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:image_picker/image_picker.dart';
-
 import 'package:provider/provider.dart';
 
 class EditUserScreen extends StatefulWidget {
@@ -32,8 +29,6 @@ class _EditUserScreenState extends State<EditUserScreen> {
   late UserProvider _userProvider;
   late TrainerProvider _trainerProvider;
 
-
-
   TextEditingController _imeController = TextEditingController();
   TextEditingController _prezimeController = TextEditingController();
   TextEditingController _telefonController = TextEditingController();
@@ -42,6 +37,8 @@ class _EditUserScreenState extends State<EditUserScreen> {
   File? _image;
   String? _base64Image;
   bool _removeImage = false;
+
+  final picker = ImagePicker();
 
   @override
   void initState() {
@@ -57,6 +54,16 @@ class _EditUserScreenState extends State<EditUserScreen> {
     _loadUserData(widget.userId);
   }
 
+  @override
+  void dispose() {
+    _cancelAsyncTasks();
+    super.dispose();
+  }
+
+  void _cancelAsyncTasks() {
+    // implementacija prekida asinhronih zadataka ako je potrebno
+  }
+
   Future<Korisnici?> getUserFromUserId(int userId) async {
     final user = await _userProvider.getById(userId);
     return user;
@@ -65,7 +72,7 @@ class _EditUserScreenState extends State<EditUserScreen> {
   void _loadUserData(int userId) async {
     Korisnici? user = await getUserFromUserId(userId);
 
-    if (user != null) {
+    if (mounted && user != null) {
       setState(() {
         _formKey.currentState?.patchValue({
           'ime': user.ime ?? '',
@@ -83,19 +90,15 @@ class _EditUserScreenState extends State<EditUserScreen> {
     }
   }
 
-final picker = ImagePicker();
+  Future getImage() async {
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
 
-Future getImage() async {
-  final pickedFile = await picker.pickImage(source: ImageSource.gallery);
-
-  if (pickedFile != null) {
-    setState(() {
-      _image = File(pickedFile.path);
-    });
+    if (pickedFile != null) {
+      setState(() {
+        _image = File(pickedFile.path);
+      });
+    }
   }
-}
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -109,28 +112,25 @@ Future getImage() async {
     );
   }
 
-Widget _editKredencijala() {
-  return Container(
-    padding: EdgeInsets.symmetric(vertical: 10.0),
-    child: Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-       Expanded(
-          child: Text(
-            "Uređivanje korisnika",
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 21.0,
-            
+  Widget _editKredencijala() {
+    return Container(
+      padding: EdgeInsets.symmetric(vertical: 10.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Expanded(
+            child: Text(
+              "Uređivanje korisnika",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 21.0,
+              ),
             ),
           ),
-        ),
-         
-      ],
-    ),
-  );
-}
-
+        ],
+      ),
+    );
+  }
 
   Widget _buildBody() {
     return Container(
@@ -139,7 +139,6 @@ Widget _editKredencijala() {
         key: _formKey,
         autovalidateMode: AutovalidateMode.always,
         child: Card(
-          
           elevation: 5,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(15.0),
@@ -150,8 +149,6 @@ Widget _editKredencijala() {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-        
-              
                 Text(
                   'Slika',
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
@@ -189,7 +186,6 @@ Widget _editKredencijala() {
                                   setState(() {
                                     _removeImage = value ?? false;
                                     if (_removeImage) {
-                                      
                                       _image = null;
                                     }
                                   });
@@ -198,7 +194,6 @@ Widget _editKredencijala() {
                               Text('Ukloni sliku'),
                             ],
                           ),
-
                         ],
                       ),
                     );
@@ -293,43 +288,38 @@ Widget _editKredencijala() {
     );
   }
 
-void _updateUserData() async {
-  _formKey.currentState?.save();
+  void _updateUserData() async {
+    _formKey.currentState?.save();
 
-  try {
-    if (_formKey.currentState!.validate()) {
-      
-      Map<String, dynamic> request = Map.from(_formKey.currentState!.value);
+    try {
+      if (_formKey.currentState!.validate()) {
+        Map<String, dynamic> request = Map.from(_formKey.currentState!.value);
 
-      
-      if (_removeImage) {
-        request['slika'] = null;
-      } else if (_image != null) {
-       
-        List<int> imageBytes = await _image!.readAsBytes();
-        String base64Image = base64Encode(imageBytes);
-        request['slika'] = base64Image;
+        if (_removeImage) {
+          request['slika'] = null;
+        } else if (_image != null) {
+          List<int> imageBytes = await _image!.readAsBytes();
+          String base64Image = base64Encode(imageBytes);
+          request['slika'] = base64Image;
+        }
+
+        var res = await _userProvider.update(widget.userId, request);
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Podaci su ažurirani!'),
+          ),
+        );
+        Navigator.pop(context, true);
+        widget.refreshDataCallback();
       }
-
-      var res = await _userProvider.update(widget.userId, request);
-
+    } catch (error) {
+      print('Greška prilikom ažuriranja podataka: $error');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Podaci su ažurirani!'),
+          content: Text('Došlo je do greške prilikom ažuriranja podataka. Pogledajte konzolu za više informacija.'),
         ),
       );
-      Navigator.pop(context, true);
-      widget.refreshDataCallback();
     }
-  } catch (error) {
-    print('Greška prilikom ažuriranja podataka: $error');
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Došlo je do greške prilikom ažuriranja podataka. Pogledajte konzolu za više informacija.'),
-      ),
-    );
   }
-}
-
-
 }

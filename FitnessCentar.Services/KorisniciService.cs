@@ -234,7 +234,34 @@ namespace FitnessCentar.Services
         }
 
 
+        public async override Task<Model.Korisnici> Update(int id, KorisniciUpdateRequest update)
+        {
+            try
+            {
+                var set = _context.Set<Korisnici>();
+                var entity = await set.FindAsync(id);
+                if (entity != null)
+                {
+                   
+                    entity.Ime = update.Ime;
+                    entity.Prezime = update.Prezime;
+                    entity.Email = update.Email;
+                    entity.Telefon = update.Telefon;
+                    entity.Slika = update.Slika;
+                    await _context.SaveChangesAsync();
 
+                }
+
+
+                return _mapper.Map<Model.Korisnici>(entity);
+            }
+            catch (Exception ex)
+            {
+
+                Console.WriteLine($"Greška prilikom čuvanja promena u bazi podataka: {ex.Message}");
+                throw;
+            }
+        }
 
 
     }

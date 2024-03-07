@@ -4,6 +4,7 @@ using FitnessCentar.Services.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FitnessCentar.Services.Migrations
 {
     [DbContext(typeof(Ib200005rs2Context))]
-    partial class Ib200005rs2ContextModelSnapshot : ModelSnapshot
+    [Migration("20240307183037_newDateReservation")]
+    partial class newDateReservation
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -753,7 +756,7 @@ namespace FitnessCentar.Services.Migrations
                         new
                         {
                             Id = 1,
-                            DatumPlacanja = new DateTime(2024, 3, 25, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            DatumPlacanja = new DateTime(2024, 1, 19, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Iznos = 15m,
                             KorisnikId = 8,
                             TxnId = "test010920001"

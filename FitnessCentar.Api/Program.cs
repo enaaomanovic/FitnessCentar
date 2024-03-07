@@ -31,14 +31,6 @@ builder.Services.AddScoped<IRabbitMQProducer, RabbitMQProducer>();
 
 
 
-
-
-
-
-
-
-
-
 //builder.Services.AddTransient<IService<FitnessCentar.Model.Korisnici,object>,BasedService<FitnessCentar.Model.Korisnici,FitnessCentar.Services.Database.Korisnici,object>>();
 
 

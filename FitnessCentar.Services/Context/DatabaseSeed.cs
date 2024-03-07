@@ -57,7 +57,7 @@ namespace FitnessCentar.Services.Database
 
                      KorisnikId = 8,
 
-                     DatumPlacanja = new DateTime(2024, 01, 19),
+                     DatumPlacanja = new DateTime(2024, 03, 25),
 
                      Iznos = 15,
                      TxnId = "test010920001"
@@ -1330,7 +1330,7 @@ namespace FitnessCentar.Services.Database
                        KorisnikId = 8,
                        RasporedId = 20,
                        Status = "Placena",
-                       DatumRezervacija = new DateTime(2024, 03, 14, 10, 00, 00),
+                       DatumRezervacija = new DateTime(2024, 03, 25, 10, 00, 00),
                        PlacanjeId = 1,
                    },
                       new Rezervacije()
@@ -1339,7 +1339,7 @@ namespace FitnessCentar.Services.Database
                           KorisnikId = 8,
                           RasporedId = 25,
                           Status = "Aktivna",
-                          DatumRezervacija = new DateTime(2024, 03, 14, 10, 00, 00),
+                          DatumRezervacija = new DateTime(2024, 03, 25, 10, 00, 00),
                           PlacanjeId = null,
                       }
 

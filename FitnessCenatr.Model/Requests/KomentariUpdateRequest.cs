@@ -8,8 +8,7 @@ namespace FitnessCentar.Model.Requests
 {
     public class KomentariUpdateRequest
     {
-        public int Id { get; set; }
-
+ 
         public int? NovostId { get; set; }
 
         public int? KorisnikId { get; set; }

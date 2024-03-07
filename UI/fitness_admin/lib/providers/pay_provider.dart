@@ -13,9 +13,7 @@ class PayProvider extends BaseProvider<Placanja> {
 
   double get amountToPay => _amountToPay;
 
- 
 
- 
   void setAmountToPay(double amount) {
     _amountToPay = amount;
     notifyListeners();
